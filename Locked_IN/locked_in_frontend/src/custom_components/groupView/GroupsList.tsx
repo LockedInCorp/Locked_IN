@@ -37,13 +37,45 @@ const groups = [
         date: "12/12/2025",
         avatar: "/diverse-group-avatars.png",
     },
+    {
+        id: 5,
+        name: "Group name",
+        lastMessage: "Last message",
+        user: "User",
+        date: "12/12/2025",
+        avatar: "/diverse-group-avatars.png",
+    },
+    {
+        id: 6,
+        name: "Group name",
+        lastMessage: "Last message",
+        user: "User",
+        date: "12/12/2025",
+        avatar: "/diverse-group-avatars.png",
+    },
+    {
+        id: 7,
+        name: "Group name",
+        lastMessage: "Last message",
+        user: "User",
+        date: "12/12/2025",
+        avatar: "/diverse-group-avatars.png",
+    },
+    {
+        id: 8,
+        name: "Group name",
+        lastMessage: "Last message",
+        user: "User",
+        date: "12/12/2025",
+        avatar: "/diverse-group-avatars.png",
+    },
 ]
 
 export function GroupsList() {
     return (
         <div className="flex flex-col h-full bg-background">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+            <div className="flex items-center justify-between px-6 py-[1.31rem] border-b border-border">
                 <div className="flex items-center gap-6">
                     <h1 className="text-xl font-bold text-primary">Locked IN!</h1>
                     <div className="flex items-center gap-4 text-sm text-foreground">
