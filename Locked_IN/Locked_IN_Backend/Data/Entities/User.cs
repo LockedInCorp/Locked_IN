@@ -14,7 +14,7 @@ public partial class User
     public int Id { get; set; }
 
     [Column("email")]
-    [StringLength(20)]
+    [StringLength(50)]
     public string Email { get; set; } = null!;
 
     [Column("nickname")]
