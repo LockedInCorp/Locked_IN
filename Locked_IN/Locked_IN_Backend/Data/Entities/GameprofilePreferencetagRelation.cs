@@ -11,6 +11,7 @@ public partial class GameprofilePreferencetagRelation
 {
     [Key]
     [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     [Column("game_profile_id")]

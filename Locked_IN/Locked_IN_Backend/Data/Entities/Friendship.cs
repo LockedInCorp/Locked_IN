@@ -11,6 +11,7 @@ public partial class Friendship
 {
     [Key]
     [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     [Column("friendssince_timestamp", TypeName = "timestamp without time zone")]
