@@ -48,48 +48,30 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Chat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chat_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
-            entity.HasOne(d => d.Team).WithMany(p => p.Chats).HasConstraintName("chat_team");
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
         });
 
         modelBuilder.Entity<Chatparticipant>(entity =>
         {
             entity.HasKey(e => e.ChatparticipantId).HasName("chatparticipant_pk");
-
-            entity.Property(e => e.ChatparticipantId).ValueGeneratedNever();
-
-            entity.HasOne(d => d.Chat).WithMany(p => p.Chatparticipants)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("chatparticipant_chat");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.Chatparticipants)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("chatparticipant_role");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Chatparticipants)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("table_9_user");
+            entity.Property(e => e.ChatparticipantId).ValueGeneratedOnAdd(); 
         });
 
         modelBuilder.Entity<ExperienceTag>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("experience_tag_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
         });
 
         modelBuilder.Entity<Friendship>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friendship_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
 
             entity.HasOne(d => d.User2).WithMany(p => p.FriendshipUser2s)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -103,22 +85,19 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<Game>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("game_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
         modelBuilder.Entity<GameExp>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("game_exp_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
         modelBuilder.Entity<GameProfile>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("game_profile_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
 
             entity.HasOne(d => d.ExperienceTag).WithMany(p => p.GameProfiles)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -140,8 +119,7 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<GameProfilePref>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("game_profile_pref_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.GameProfile).WithMany(p => p.GameProfilePrefs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -155,15 +133,13 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<GameplayPref>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("gameplay_pref_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
         modelBuilder.Entity<GameprofilePreferencetagRelation>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("gameprofile_preferencetag_relation_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.GameProfile).WithMany(p => p.GameprofilePreferencetagRelations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -177,15 +153,13 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<MemberStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("member_status_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedNever(); 
         });
 
         modelBuilder.Entity<Message>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("message_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
 
             entity.HasOne(d => d.ChatparticipantChatparticipant).WithMany(p => p.Messages)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -195,22 +169,19 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<PreferenceTag>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("preference_tag_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("role_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
         });
 
         modelBuilder.Entity<Team>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("team_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
 
             entity.HasOne(d => d.ExperienceTag).WithMany(p => p.Teams)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -224,8 +195,7 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<TeamMember>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("team_member_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
 
             entity.HasOne(d => d.MemberStatus).WithMany(p => p.TeamMembers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -243,8 +213,7 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<TeamPreferencetagRelation>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("team_preferencetag_relation_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
 
             entity.HasOne(d => d.PreferenceTag).WithMany(p => p.TeamPreferencetagRelations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -258,8 +227,7 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("user_pk");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
         OnModelCreatingPartial(modelBuilder);
