@@ -29,4 +29,7 @@ public class GetTeamResponseModel
     public List<GetTeamMemberResponseModel>? Members { get; set; }
     
     public List<string>? PreferenceTags { get; set; }
+    
+    public DateTime CreationTimestamp { get; set; }
+    public float? SearchRank { get; set; }
 }

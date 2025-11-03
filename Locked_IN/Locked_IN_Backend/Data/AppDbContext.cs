@@ -196,7 +196,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         modelBuilder.Entity<TeamMember>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("team_member_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
+            entity.Property(e => e.Id).UseIdentityColumn();
+
 
             entity.HasOne(d => d.MemberStatus).WithMany(p => p.TeamMembers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -312,7 +313,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             GameId = 1,
             Isprivate = false,
             Isblitz = false,
-            ExperienceTagId = 3
+            ExperienceTagId = 3,
+            CreationTimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc)
         },
         new Team
         {
@@ -324,7 +326,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             GameId = 2,
             Isprivate = true,
             Isblitz = true,
-            ExperienceTagId = 1
+            ExperienceTagId = 1,
+            CreationTimestamp = new DateTime(2024, 10, 1, 12, 0, 0, DateTimeKind.Utc)
         },
         new Team
         {
@@ -336,7 +339,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             GameId = 3,
             Isprivate = false,
             Isblitz = false,
-            ExperienceTagId = 4
+            ExperienceTagId = 4,
+            CreationTimestamp = new DateTime(2024, 10, 5, 15, 0, 0, DateTimeKind.Utc)
         },
         new Team
         {
@@ -348,7 +352,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             GameId = 2,
             Isprivate = false,
             Isblitz = true,
-            ExperienceTagId = 2
+            ExperienceTagId = 2,
+            CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, DateTimeKind.Utc)
         }
     );
 
@@ -371,7 +376,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             UserId = 2,
             MemberStatusId = 1
         },
-        // Team 2 members
         new TeamMember
         {
             Id = 3,

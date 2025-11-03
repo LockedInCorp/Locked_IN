@@ -74,4 +74,29 @@ public class TeamController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+    
+    /// <summary>
+    /// Search teams by name
+    /// </summary>
+    /// <param name="searchTerm">Search term to find teams by name</param>
+    /// <returns>List of teams matching the search term, ordered by relevance</returns>
+    [HttpGet("search")]
+    public async Task<ActionResult<List<GetTeamResponseModel>>> SearchTeamsByName([FromQuery] string searchTerm)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return BadRequest("Search term cannot be empty");
+            }
+
+            var teams = await _teamService.GetTeamsByNameSearchAsync(searchTerm);
+            return Ok(teams);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
 }

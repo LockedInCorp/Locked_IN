@@ -39,6 +39,9 @@ public partial class Team
 
     [Column("experience_tag_id")]
     public int ExperienceTagId { get; set; }
+    
+    [Column("creation_timespamp")]
+    public DateTime CreationTimestamp { get; set; }
 
     [InverseProperty("Team")]
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();

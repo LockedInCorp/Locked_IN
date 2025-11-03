@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Locked_IN_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251103164151_FullTextSearchForTeamName")]
-    partial class FullTextSearchForTeamName
+    [Migration("20251103214219_AddCreationTimestampToTeam")]
+    partial class AddCreationTimestampToTeam
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -28,8 +28,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Chat", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -61,8 +64,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Chatparticipant", b =>
                 {
                     b.Property<int>("ChatparticipantId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("chatparticipant_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ChatparticipantId"));
 
                     b.Property<int>("ChatId")
                         .HasColumnType("integer")
@@ -95,8 +101,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.ExperienceTag", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Experiencelevel")
                         .IsRequired()
@@ -135,8 +144,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Friendship", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("FriendssinceTimestamp")
                         .HasColumnType("timestamp without time zone")
@@ -163,8 +175,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Game", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -198,8 +213,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.GameExp", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Experience")
                         .IsRequired()
@@ -216,8 +234,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.GameProfile", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ExperienceTagId")
                         .HasColumnType("integer")
@@ -260,8 +281,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.GameProfilePref", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GameProfileId")
                         .HasColumnType("integer")
@@ -284,8 +308,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.GameplayPref", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Preference")
                         .IsRequired()
@@ -302,8 +329,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.GameprofilePreferencetagRelation", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GameProfileId")
                         .HasColumnType("integer")
@@ -361,8 +391,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Message", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ChatparticipantChatparticipantId")
                         .HasColumnType("integer")
@@ -389,8 +422,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.PreferenceTag", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Preferencename")
                         .IsRequired()
@@ -439,8 +475,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Rolename")
                         .IsRequired()
@@ -457,8 +496,15 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Team", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreationTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creation_timespamp");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -509,6 +555,7 @@ namespace Locked_IN_Backend.Migrations
                         new
                         {
                             Id = 1,
+                            CreationTimestamp = new DateTime(2024, 9, 28, 10, 0, 0, 0, DateTimeKind.Utc),
                             Description = "TestDescription1",
                             ExperienceTagId = 3,
                             GameId = 1,
@@ -521,6 +568,7 @@ namespace Locked_IN_Backend.Migrations
                         new
                         {
                             Id = 2,
+                            CreationTimestamp = new DateTime(2024, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             Description = "TestDescription2",
                             ExperienceTagId = 1,
                             GameId = 2,
@@ -533,6 +581,7 @@ namespace Locked_IN_Backend.Migrations
                         new
                         {
                             Id = 3,
+                            CreationTimestamp = new DateTime(2024, 10, 5, 15, 0, 0, 0, DateTimeKind.Utc),
                             Description = "TestDescription3",
                             ExperienceTagId = 4,
                             GameId = 3,
@@ -545,6 +594,7 @@ namespace Locked_IN_Backend.Migrations
                         new
                         {
                             Id = 4,
+                            CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, 0, DateTimeKind.Utc),
                             Description = "TestDescription4",
                             ExperienceTagId = 2,
                             GameId = 2,
@@ -558,8 +608,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.TeamMember", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Isleader")
                         .HasColumnType("boolean")
@@ -652,8 +705,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.TeamPreferencetagRelation", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PreferenceTagId")
                         .HasColumnType("integer")
@@ -726,8 +782,11 @@ namespace Locked_IN_Backend.Migrations
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.User", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Availability")
                         .IsRequired()
@@ -796,8 +855,7 @@ namespace Locked_IN_Backend.Migrations
                 {
                     b.HasOne("Locked_IN_Backend.Data.Entities.Team", "Team")
                         .WithMany("Chats")
-                        .HasForeignKey("TeamId")
-                        .HasConstraintName("chat_team");
+                        .HasForeignKey("TeamId");
 
                     b.Navigation("Team");
                 });
@@ -807,20 +865,20 @@ namespace Locked_IN_Backend.Migrations
                     b.HasOne("Locked_IN_Backend.Data.Entities.Chat", "Chat")
                         .WithMany("Chatparticipants")
                         .HasForeignKey("ChatId")
-                        .IsRequired()
-                        .HasConstraintName("chatparticipant_chat");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Locked_IN_Backend.Data.Entities.Role", "Role")
                         .WithMany("Chatparticipants")
                         .HasForeignKey("RoleId")
-                        .IsRequired()
-                        .HasConstraintName("chatparticipant_role");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Locked_IN_Backend.Data.Entities.User", "User")
                         .WithMany("Chatparticipants")
                         .HasForeignKey("UserId")
-                        .IsRequired()
-                        .HasConstraintName("table_9_user");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Chat");
 

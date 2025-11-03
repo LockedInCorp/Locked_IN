@@ -24,7 +24,6 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("teams/{teamId}/join")]
         public async Task<IActionResult> RequestToJoinTeam(int teamId, [FromBody] JoinRequestDto joinRequest)
         {
-         
             var team = await _context.Teams.FindAsync(teamId);
             if (team == null)
             {
@@ -37,20 +36,24 @@ namespace Locked_IN_Backend.Controllers
                 return NotFound(new { Message = "User not found" });
             }
             
-            TeamMember preexistentTeamMember = await _context.TeamMembers
-                .Where(tm => tm.TeamId == teamId && tm.UserId == joinRequest.UserId).FirstAsync();
-
-            if (preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING))
+            TeamMember? preexistentTeamMember = await _context.TeamMembers
+                .Where(tm => tm.TeamId == teamId && tm.UserId == joinRequest.UserId).FirstOrDefaultAsync();
+            
+            if (preexistentTeamMember is not null)
             {
-                return BadRequest(new { Message = "User already has a pending join request" });
-            }
-            if (preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_REJECTED))
-            {
-                return BadRequest(new { Message = "User has been rejected from the team" });
-            }
-            if (preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_MEMBER) || preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_LEADER))
-            {
-                return BadRequest(new { Message = "User is already a member of the team" });
+                Console.WriteLine(preexistentTeamMember.MemberStatusId);
+                if (preexistentTeamMember.MemberStatusId== (int)TeamMemberStatus.STATUS_PENDING)
+                {
+                    return BadRequest(new { Message = "User already has a pending join request" });
+                }
+                if (preexistentTeamMember.MemberStatusId == (int)TeamMemberStatus.STATUS_REJECTED)
+                {
+                    return BadRequest(new { Message = "User has been rejected from the team" });
+                }
+                if (preexistentTeamMember.MemberStatusId is (int)TeamMemberStatus.STATUS_MEMBER or (int)TeamMemberStatus.STATUS_LEADER)
+                {
+                    return BadRequest(new { Message = "User is already a member of that team" });
+                }
             }
             bool isTeamFull = team.MaxPlayerCount <= team.TeamMembers.Count;
             if (isTeamFull)
@@ -70,7 +73,7 @@ namespace Locked_IN_Backend.Controllers
                 TeamId = teamId,
                 UserId = joinRequest.UserId,
                 MemberStatusId = newMemberStatusId,
-                Jointimestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                Jointimestamp = DateTime.UtcNow,
                 Isleader = false 
             };
 
