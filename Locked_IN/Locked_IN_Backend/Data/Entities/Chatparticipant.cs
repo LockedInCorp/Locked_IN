@@ -11,6 +11,7 @@ public partial class Chatparticipant
 {
     [Key]
     [Column("chatparticipant_id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int ChatparticipantId { get; set; }
 
     [Column("user_id")]

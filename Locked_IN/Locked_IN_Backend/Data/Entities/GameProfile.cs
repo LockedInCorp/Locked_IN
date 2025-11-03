@@ -11,6 +11,7 @@ public partial class GameProfile
 {
     [Key]
     [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     [Column("user_id")]
