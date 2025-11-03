@@ -25,7 +25,8 @@ public partial class Team
     public int MaxPlayerCount { get; set; }
 
     [Column("description")]
-    public int Description { get; set; }
+    [StringLength(50)]
+    public string Description { get; set; } = null!;
 
     [Column("game_id")]
     public int GameId { get; set; }
@@ -38,6 +39,9 @@ public partial class Team
 
     [Column("experience_tag_id")]
     public int ExperienceTagId { get; set; }
+    
+    [Column("creation_timespamp")]
+    public DateTime CreationTimestamp { get; set; }
 
     [InverseProperty("Team")]
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();

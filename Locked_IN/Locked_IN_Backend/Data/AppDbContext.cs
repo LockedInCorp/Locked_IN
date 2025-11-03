@@ -47,6 +47,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<TeamPreferencetagRelation> TeamPreferencetagRelations { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    
 
 protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -195,7 +196,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         modelBuilder.Entity<TeamMember>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("team_member_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
+            entity.Property(e => e.Id).UseIdentityColumn();
+
 
             entity.HasOne(d => d.MemberStatus).WithMany(p => p.TeamMembers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -231,7 +233,203 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         });
 
         OnModelCreatingPartial(modelBuilder);
+        SeedTestData(modelBuilder);
+
+    }
+
+    private void SeedTestData(ModelBuilder modelBuilder) 
+    {
+    modelBuilder.Entity<Game>().HasData(
+        new Game { Id = 1, Name = "Counter-Strike 2" },
+        new Game { Id = 2, Name = "League of Legends" },
+        new Game { Id = 3, Name = "Valorant" }
+    );
+
+    modelBuilder.Entity<ExperienceTag>().HasData(
+        new ExperienceTag { Id = 1, Experiencelevel = "Beginner" },
+        new ExperienceTag { Id = 2, Experiencelevel = "Intermediate" },
+        new ExperienceTag { Id = 3, Experiencelevel = "Advanced" },
+        new ExperienceTag { Id = 4, Experiencelevel = "Professional" }
+    );
+
+    modelBuilder.Entity<PreferenceTag>().HasData(
+        new PreferenceTag { Id = 1, Preferencename = "Competitive" },
+        new PreferenceTag { Id = 2, Preferencename = "Casual" },
+        new PreferenceTag { Id = 3, Preferencename = "Communication" },
+        new PreferenceTag { Id = 4, Preferencename = "Strategy Focus" },
+        new PreferenceTag { Id = 5, Preferencename = "Fun First" },
+        new PreferenceTag { Id = 6, Preferencename = "Skill Development" }
+    );
+
+    modelBuilder.Entity<MemberStatus>().HasData(
+        new MemberStatus { Id = 1, Statusname = "Active" },
+        new MemberStatus { Id = 2, Statusname = "Pending" },
+        new MemberStatus { Id = 3, Statusname = "Inactive" }
+    );
+
+    modelBuilder.Entity<User>().HasData(
+        new User 
+        { 
+            Id = 1, 
+            Email = "john.doe@example.com", 
+            Nickname = "JohnDoe", 
+            HashedPass = "hashed_password_1",
+            Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}"
+        },
+        new User 
+        { 
+            Id = 2, 
+            Email = "jane.smith@example.com", 
+            Nickname = "JaneSmith", 
+            HashedPass = "hashed_password_2",
+            Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}"
+        },
+        new User 
+        { 
+            Id = 3, 
+            Email = "mike.wilson@example.com", 
+            Nickname = "MikeWilson", 
+            HashedPass = "hashed_password_3",
+            Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}"
+        },
+        new User 
+        { 
+            Id = 4, 
+            Email = "sarah.johnson@example.com", 
+            Nickname = "SarahJ", 
+            HashedPass = "hashed_password_4",
+            Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}"
+        }
+    );
+
+    modelBuilder.Entity<Team>().HasData(
+        new Team
+        {
+            Id = 1,
+            Name = "CS2 Legends",
+            MinCompScore = 1500,
+            MaxPlayerCount = 5,
+            Description = "TestDescription1",
+            GameId = 1,
+            Isprivate = false,
+            Isblitz = false,
+            ExperienceTagId = 3,
+            CreationTimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc)
+        },
+        new Team
+        {
+            Id = 2,
+            Name = "LoL Rookies",
+            MinCompScore = 800,
+            MaxPlayerCount = 5,
+            Description = "TestDescription2",
+            GameId = 2,
+            Isprivate = true,
+            Isblitz = true,
+            ExperienceTagId = 1,
+            CreationTimestamp = new DateTime(2024, 10, 1, 12, 0, 0, DateTimeKind.Utc)
+        },
+        new Team
+        {
+            Id = 3,
+            Name = "Valorant Pros",
+            MinCompScore = 2000,
+            MaxPlayerCount = 5,
+            Description = "TestDescription3",
+            GameId = 3,
+            Isprivate = false,
+            Isblitz = false,
+            ExperienceTagId = 4,
+            CreationTimestamp = new DateTime(2024, 10, 5, 15, 0, 0, DateTimeKind.Utc)
+        },
+        new Team
+        {
+            Id = 4,
+            Name = "Casual Gamers",
+            MinCompScore = null,
+            MaxPlayerCount = 6,
+            Description = "TestDescription4",
+            GameId = 2,
+            Isprivate = false,
+            Isblitz = true,
+            ExperienceTagId = 2,
+            CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, DateTimeKind.Utc)
+        }
+    );
+
+    modelBuilder.Entity<TeamMember>().HasData(
+        new TeamMember
+        {
+            Id = 1,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc),
+            TeamId = 1,
+            UserId = 1,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 2,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 10, 3, 14, 30, 0, DateTimeKind.Utc),
+            TeamId = 1,
+            UserId = 2,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 3,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 10, 8, 16, 15, 0, DateTimeKind.Utc),
+            TeamId = 2,
+            UserId = 3,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 4,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 10, 13, 11, 45, 0, DateTimeKind.Utc),
+            TeamId = 2,
+            UserId = 4,
+            MemberStatusId = 2
+        },
+        new TeamMember
+        {
+            Id = 5,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 10, 18, 9, 20, 0, DateTimeKind.Utc),
+            TeamId = 3,
+            UserId = 1,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 6,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 10, 23, 18, 0, 0, DateTimeKind.Utc),
+            TeamId = 4,
+            UserId = 2,
+            MemberStatusId = 1
+        }
+    );
+
+
+    modelBuilder.Entity<TeamPreferencetagRelation>().HasData(
+        new TeamPreferencetagRelation { Id = 1, TeamId = 1, PreferenceTagId = 1 },
+        new TeamPreferencetagRelation { Id = 2, TeamId = 1, PreferenceTagId = 3 },
+        
+        new TeamPreferencetagRelation { Id = 3, TeamId = 2, PreferenceTagId = 2 },
+        new TeamPreferencetagRelation { Id = 4, TeamId = 2, PreferenceTagId = 5 },
+        
+        new TeamPreferencetagRelation { Id = 5, TeamId = 3, PreferenceTagId = 1 },
+        new TeamPreferencetagRelation { Id = 6, TeamId = 3, PreferenceTagId = 4 },
+        
+        new TeamPreferencetagRelation { Id = 7, TeamId = 4, PreferenceTagId = 2 },
+        new TeamPreferencetagRelation { Id = 8, TeamId = 4, PreferenceTagId = 6 }
+    ); 
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    
 }

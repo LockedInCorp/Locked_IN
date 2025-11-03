@@ -217,3 +217,11 @@ buck-out/
 .fakebuckversion
 
 # End of https://www.toptal.com/developers/gitignore/api/reactnative
+Locked_IN/.idea/.idea.Locked_IN/.idea/indexLayout.xml
+Locked_IN/.idea/.idea.Locked_IN/.idea/vcs.xml
+Locked_IN/Locked_IN_Backend/appsettings.json
+Locked_IN/Locked_IN_Backend/appsettings.json
+Locked_IN/Locked_IN_Backend/appsettings.json
+Locked_IN/Locked_IN_Backend/Migrations/20251028151248_InitialMigration.cs
+Locked_IN/Locked_IN_Backend/Migrations/20251028151248_InitialMigration.Designer.cs
+Locked_IN/Locked_IN_Backend/Migrations/AppDbContextModelSnapshot.cs

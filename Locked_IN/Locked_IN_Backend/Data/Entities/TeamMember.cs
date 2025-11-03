@@ -17,7 +17,7 @@ public partial class TeamMember
     [Column("isleader")]
     public bool Isleader { get; set; }
 
-    [Column("jointimestamp", TypeName = "timestamp without time zone")]
+    [Column("jointimestamp", TypeName = "timestamptz")]
     public DateTime Jointimestamp { get; set; }
 
     [Column("team_id")]
