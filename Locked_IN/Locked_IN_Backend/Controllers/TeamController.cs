@@ -20,7 +20,7 @@ public class TeamController : ControllerBase
     /// </summary>
     /// <returns>List of all teams</returns>
     [HttpGet]
-    public async Task<ActionResult<List<GetTeamResponse>>> GetAllTeams()
+    public async Task<ActionResult<List<GetTeamResponseModel>>> GetAllTeams()
     {
         try
         {
@@ -39,7 +39,7 @@ public class TeamController : ControllerBase
     /// <param name="id">Team ID</param>
     /// <returns>Team details</returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<GetTeamResponse>> GetTeamById(int id)
+    public async Task<ActionResult<GetTeamResponseModel>> GetTeamById(int id)
     {
         try
         {
@@ -62,7 +62,7 @@ public class TeamController : ControllerBase
     /// <param name="gameId">Game ID</param>
     /// <returns>List of teams for the specified game</returns>
     [HttpGet("game/{gameId}")]
-    public async Task<ActionResult<List<GetTeamResponse>>> GetTeamsByGameId(int gameId)
+    public async Task<ActionResult<List<GetTeamResponseModel>>> GetTeamsByGameId(int gameId)
     {
         try
         {

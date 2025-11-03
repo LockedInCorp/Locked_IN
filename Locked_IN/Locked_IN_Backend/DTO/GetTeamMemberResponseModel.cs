@@ -1,6 +1,6 @@
 ﻿namespace Locked_IN_Backend.DTO;
 
-public class GetTeamMemberResponse
+public class GetTeamMemberResponseModel
 {
     public int Id { get; set; }
     
@@ -16,5 +16,5 @@ public class GetTeamMemberResponse
     
     public string? MemberStatusName { get; set; }
     
-    public GetUserResponse? User { get; set; }
+    public GetUserResponseModel? User { get; set; }
 }

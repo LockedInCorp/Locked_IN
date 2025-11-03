@@ -1,6 +1,6 @@
 ﻿namespace Locked_IN_Backend.DTO;
 
-public class GetPreferenceTagResponse
+public class GetPreferenceTagResponseModel
 {
     public int Id { get; set; }
     

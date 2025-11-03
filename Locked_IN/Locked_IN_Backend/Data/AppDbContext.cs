@@ -47,6 +47,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<TeamPreferencetagRelation> TeamPreferencetagRelations { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -269,14 +270,12 @@ public partial class AppDbContext : DbContext
 
     private void SeedTestData(ModelBuilder modelBuilder) 
     {
-    // Seed Games
     modelBuilder.Entity<Game>().HasData(
         new Game { Id = 1, Name = "Counter-Strike 2" },
         new Game { Id = 2, Name = "League of Legends" },
         new Game { Id = 3, Name = "Valorant" }
     );
 
-    // Seed Experience Tags
     modelBuilder.Entity<ExperienceTag>().HasData(
         new ExperienceTag { Id = 1, Experiencelevel = "Beginner" },
         new ExperienceTag { Id = 2, Experiencelevel = "Intermediate" },
@@ -284,7 +283,6 @@ public partial class AppDbContext : DbContext
         new ExperienceTag { Id = 4, Experiencelevel = "Professional" }
     );
 
-    // Seed Preference Tags
     modelBuilder.Entity<PreferenceTag>().HasData(
         new PreferenceTag { Id = 1, Preferencename = "Competitive" },
         new PreferenceTag { Id = 2, Preferencename = "Casual" },
@@ -294,14 +292,12 @@ public partial class AppDbContext : DbContext
         new PreferenceTag { Id = 6, Preferencename = "Skill Development" }
     );
 
-    // Seed Member Status
     modelBuilder.Entity<MemberStatus>().HasData(
         new MemberStatus { Id = 1, Statusname = "Active" },
         new MemberStatus { Id = 2, Statusname = "Pending" },
         new MemberStatus { Id = 3, Statusname = "Inactive" }
     );
 
-    // Seed Test Users
     modelBuilder.Entity<User>().HasData(
         new User 
         { 
@@ -337,7 +333,6 @@ public partial class AppDbContext : DbContext
         }
     );
 
-    // Seed Test Teams
     modelBuilder.Entity<Team>().HasData(
         new Team
         {
@@ -345,7 +340,7 @@ public partial class AppDbContext : DbContext
             Name = "CS2 Legends",
             MinCompScore = 1500,
             MaxPlayerCount = 5,
-            Description = 101, // Assuming this should be a text/description ID
+            Description = "TestDescription1",
             GameId = 1,
             Isprivate = false,
             Isblitz = false,
@@ -357,7 +352,7 @@ public partial class AppDbContext : DbContext
             Name = "LoL Rookies",
             MinCompScore = 800,
             MaxPlayerCount = 5,
-            Description = 102,
+            Description = "TestDescription2",
             GameId = 2,
             Isprivate = true,
             Isblitz = true,
@@ -369,7 +364,7 @@ public partial class AppDbContext : DbContext
             Name = "Valorant Pros",
             MinCompScore = 2000,
             MaxPlayerCount = 5,
-            Description = 103,
+            Description = "TestDescription3",
             GameId = 3,
             Isprivate = false,
             Isblitz = false,
@@ -381,7 +376,7 @@ public partial class AppDbContext : DbContext
             Name = "Casual Gamers",
             MinCompScore = null,
             MaxPlayerCount = 6,
-            Description = 104,
+            Description = "TestDescription4",
             GameId = 2,
             Isprivate = false,
             Isblitz = true,
@@ -389,14 +384,12 @@ public partial class AppDbContext : DbContext
         }
     );
 
-    // Seed Team Members
     modelBuilder.Entity<TeamMember>().HasData(
-        // Team 1 members
         new TeamMember
         {
             Id = 1,
             Isleader = true,
-            Jointimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc), // 30 days ago from Oct 28, 2024
+            Jointimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc),
             TeamId = 1,
             UserId = 1,
             MemberStatusId = 1
@@ -405,7 +398,7 @@ public partial class AppDbContext : DbContext
         {
             Id = 2,
             Isleader = false,
-            Jointimestamp = new DateTime(2024, 10, 3, 14, 30, 0, DateTimeKind.Utc), // 25 days ago
+            Jointimestamp = new DateTime(2024, 10, 3, 14, 30, 0, DateTimeKind.Utc),
             TeamId = 1,
             UserId = 2,
             MemberStatusId = 1
@@ -415,7 +408,7 @@ public partial class AppDbContext : DbContext
         {
             Id = 3,
             Isleader = true,
-            Jointimestamp = new DateTime(2024, 10, 8, 16, 15, 0, DateTimeKind.Utc), // 20 days ago
+            Jointimestamp = new DateTime(2024, 10, 8, 16, 15, 0, DateTimeKind.Utc),
             TeamId = 2,
             UserId = 3,
             MemberStatusId = 1
@@ -424,27 +417,25 @@ public partial class AppDbContext : DbContext
         {
             Id = 4,
             Isleader = false,
-            Jointimestamp = new DateTime(2024, 10, 13, 11, 45, 0, DateTimeKind.Utc), // 15 days ago
+            Jointimestamp = new DateTime(2024, 10, 13, 11, 45, 0, DateTimeKind.Utc),
             TeamId = 2,
             UserId = 4,
             MemberStatusId = 2
         },
-        // Team 3 members
         new TeamMember
         {
             Id = 5,
             Isleader = true,
-            Jointimestamp = new DateTime(2024, 10, 18, 9, 20, 0, DateTimeKind.Utc), // 10 days ago
+            Jointimestamp = new DateTime(2024, 10, 18, 9, 20, 0, DateTimeKind.Utc),
             TeamId = 3,
             UserId = 1,
             MemberStatusId = 1
         },
-        // Team 4 members
         new TeamMember
         {
             Id = 6,
             Isleader = true,
-            Jointimestamp = new DateTime(2024, 10, 23, 18, 0, 0, DateTimeKind.Utc), // 5 days ago
+            Jointimestamp = new DateTime(2024, 10, 23, 18, 0, 0, DateTimeKind.Utc),
             TeamId = 4,
             UserId = 2,
             MemberStatusId = 1
@@ -452,20 +443,18 @@ public partial class AppDbContext : DbContext
     );
 
 
-    // Seed Team Preference Tag Relations
     modelBuilder.Entity<TeamPreferencetagRelation>().HasData(
-        // Team 1 preferences
-        new TeamPreferencetagRelation { Id = 1, TeamId = 1, PreferenceTagId = 1 }, // Competitive
-        new TeamPreferencetagRelation { Id = 2, TeamId = 1, PreferenceTagId = 3 }, // Communication
-        // Team 2 preferences  
-        new TeamPreferencetagRelation { Id = 3, TeamId = 2, PreferenceTagId = 2 }, // Casual
-        new TeamPreferencetagRelation { Id = 4, TeamId = 2, PreferenceTagId = 5 }, // Fun First
-        // Team 3 preferences
-        new TeamPreferencetagRelation { Id = 5, TeamId = 3, PreferenceTagId = 1 }, // Competitive
-        new TeamPreferencetagRelation { Id = 6, TeamId = 3, PreferenceTagId = 4 }, // Strategy Focus
-        // Team 4 preferences
-        new TeamPreferencetagRelation { Id = 7, TeamId = 4, PreferenceTagId = 2 }, // Casual
-        new TeamPreferencetagRelation { Id = 8, TeamId = 4, PreferenceTagId = 6 }  // Skill Development
+        new TeamPreferencetagRelation { Id = 1, TeamId = 1, PreferenceTagId = 1 },
+        new TeamPreferencetagRelation { Id = 2, TeamId = 1, PreferenceTagId = 3 },
+        
+        new TeamPreferencetagRelation { Id = 3, TeamId = 2, PreferenceTagId = 2 },
+        new TeamPreferencetagRelation { Id = 4, TeamId = 2, PreferenceTagId = 5 },
+        
+        new TeamPreferencetagRelation { Id = 5, TeamId = 3, PreferenceTagId = 1 },
+        new TeamPreferencetagRelation { Id = 6, TeamId = 3, PreferenceTagId = 4 },
+        
+        new TeamPreferencetagRelation { Id = 7, TeamId = 4, PreferenceTagId = 2 },
+        new TeamPreferencetagRelation { Id = 8, TeamId = 4, PreferenceTagId = 6 }
     ); 
     }
 

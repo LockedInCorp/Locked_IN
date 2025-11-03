@@ -24,7 +24,8 @@ public partial class Team
     public int MaxPlayerCount { get; set; }
 
     [Column("description")]
-    public int Description { get; set; }
+    [StringLength(50)]
+    public string Description { get; set; } = null!;
 
     [Column("game_id")]
     public int GameId { get; set; }

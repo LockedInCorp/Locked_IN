@@ -1,6 +1,6 @@
 ﻿namespace Locked_IN_Backend.DTO;
 
-public class GetTeamResponse
+public class GetTeamResponseModel
 {
     public int Id { get; set; }
     
@@ -9,8 +9,8 @@ public class GetTeamResponse
     public int? MinCompScore { get; set; }
     
     public int MaxPlayerCount { get; set; }
-    
-    public int Description { get; set; }
+
+    public string Description { get; set; } = null!;
     
     public int GameId { get; set; }
     
@@ -26,7 +26,7 @@ public class GetTeamResponse
     
     public int CurrentMemberCount { get; set; }
     
-    public List<GetTeamMemberResponse>? Members { get; set; }
+    public List<GetTeamMemberResponseModel>? Members { get; set; }
     
     public List<string>? PreferenceTags { get; set; }
 }

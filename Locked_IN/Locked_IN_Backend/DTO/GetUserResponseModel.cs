@@ -1,6 +1,6 @@
 ﻿namespace Locked_IN_Backend.DTO;
 
-public class GetUserResponse
+public class GetUserResponseModel
 {
     public int Id { get; set; }
     

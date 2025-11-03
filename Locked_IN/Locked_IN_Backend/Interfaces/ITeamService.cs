@@ -5,7 +5,7 @@ namespace Locked_IN_Backend.Services;
 
 public interface ITeamService
 {
-    Task<GetTeamResponse?> GetTeamByIdAsync(int teamId);
-    Task<List<GetTeamResponse>> GetAllTeamsAsync();
-    Task<List<GetTeamResponse>> GetTeamsByGameIdAsync(int gameId);
+    Task<GetTeamResponseModel?> GetTeamByIdAsync(int teamId);
+    Task<List<GetTeamResponseModel>> GetAllTeamsAsync();
+    Task<List<GetTeamResponseModel>> GetTeamsByGameIdAsync(int gameId);
 }
