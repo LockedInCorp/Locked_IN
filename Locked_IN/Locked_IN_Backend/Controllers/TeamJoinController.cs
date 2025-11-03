@@ -1,24 +1,24 @@
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.Misc.Enum;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Locked_IN_Backend.Controllers
 {
-    [ApiController]
-    [Route("api")]
+    [ApiController] [Route("api")]
     public class TeamJoinController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly TeamSettings _teamSettings;
 
-        private const int STATUS_LEADER = 1;
-        private const int STATUS_MEMBER = 2;
-        private const int STATUS_PENDING = 3;
-
-        public TeamJoinController(AppDbContext context)
+        public TeamJoinController(AppDbContext context, IOptions<TeamSettings> teamSettings)
         {
             _context = context;
+            _teamSettings = teamSettings.Value;
+
         }
         
         [HttpPost("teams/{teamId}/join")]
@@ -36,16 +36,34 @@ namespace Locked_IN_Backend.Controllers
             {
                 return NotFound(new { Message = "User not found" });
             }
+            
+            TeamMember preexistentTeamMember = await _context.TeamMembers
+                .Where(tm => tm.TeamId == teamId && tm.UserId == joinRequest.UserId).FirstAsync();
 
-            bool isAlreadyAffiliated = await _context.TeamMembers
-                .AnyAsync(tm => tm.TeamId == teamId && tm.UserId == joinRequest.UserId);
-
-            if (isAlreadyAffiliated)
+            if (preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING))
             {
-                return BadRequest(new { Message = "User is already a member or has a pending request" });
+                return BadRequest(new { Message = "User already has a pending join request" });
+            }
+            if (preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_REJECTED))
+            {
+                return BadRequest(new { Message = "User has been rejected from the team" });
+            }
+            if (preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_MEMBER) || preexistentTeamMember.MemberStatusId.Equals(TeamMemberStatus.STATUS_LEADER))
+            {
+                return BadRequest(new { Message = "User is already a member of the team" });
+            }
+            bool isTeamFull = team.MaxPlayerCount <= team.TeamMembers.Count;
+            if (isTeamFull)
+            {
+                return BadRequest(new { Message = "Team is already full" });
+            }
+            bool hasUserReachedMaxCountJoinRequest = _context.TeamMembers.Count(tm => tm.UserId == joinRequest.UserId) >= _teamSettings.MaxActiveJoinRequestsPerUser;
+            if (hasUserReachedMaxCountJoinRequest)
+            {
+                return BadRequest(new { Message = "User has reached the maximum number of active join requests" });
             }
             
-            int newMemberStatusId = team.Isprivate ? STATUS_PENDING : STATUS_MEMBER;
+            int newMemberStatusId = team.Isprivate ? (int)TeamMemberStatus.STATUS_PENDING : (int)TeamMemberStatus.STATUS_MEMBER;
 
             var newTeamMember = new TeamMember
             {
@@ -59,7 +77,7 @@ namespace Locked_IN_Backend.Controllers
             _context.TeamMembers.Add(newTeamMember);
             await _context.SaveChangesAsync();
             
-            if (newMemberStatusId == STATUS_PENDING)
+            if (newMemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING))
             {
                 return Ok(new { Message = "Join request sent successfully. Awaiting admin approval." });
             }
@@ -73,7 +91,7 @@ namespace Locked_IN_Backend.Controllers
         public async Task<IActionResult> GetJoinRequests(int teamId)
         {
             var requests = await _context.TeamMembers
-                .Where(tm => tm.TeamId == teamId && tm.MemberStatusId == STATUS_PENDING)
+                .Where(tm => tm.TeamId == teamId && tm.MemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING))
                 .Select(tm => new TeamJoinResponceDto() 
                 {
                     TeamMemberId = tm.Id,
@@ -90,7 +108,7 @@ namespace Locked_IN_Backend.Controllers
         public async Task<IActionResult> AcceptJoinRequest(int teamMemberId)
         {
             var request = await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId == STATUS_PENDING);
+                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING));
 
             if (request == null)
             {
@@ -98,7 +116,7 @@ namespace Locked_IN_Backend.Controllers
             }
             
   
-            request.MemberStatusId = STATUS_MEMBER;
+            request.MemberStatusId = (int)TeamMemberStatus.STATUS_MEMBER;;
             request.Jointimestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified); 
 
             _context.TeamMembers.Update(request);
@@ -111,7 +129,7 @@ namespace Locked_IN_Backend.Controllers
         public async Task<IActionResult> DeclineJoinRequest(int teamMemberId)
         {
             var request = await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId == STATUS_PENDING);
+                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId.Equals(TeamMemberStatus.STATUS_MEMBER));
 
             if (request == null)
             {
