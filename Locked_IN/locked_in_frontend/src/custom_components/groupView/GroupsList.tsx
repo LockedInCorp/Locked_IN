@@ -1,68 +1,14 @@
 "use client"
 
 import { X } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 const groups = [
     {
-        id: 1,
-        name: "Group name",
-        lastMessage: "Last message",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
         id: 2,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 3,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 4,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 5,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 6,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 7,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 8,
         name: "Group name",
         lastMessage: "Last message",
         user: "User",
@@ -72,23 +18,14 @@ const groups = [
 ]
 
 export function GroupsList() {
+    const navigate = useNavigate();
+
+    const handleCreateGroup = () => {
+        navigate("/creation");
+    }
+
     return (
         <div className="flex flex-col h-full bg-background">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-[1.31rem] border-b border-border">
-                <div className="flex items-center gap-6">
-                    <h1 className="text-xl font-bold text-primary">Locked IN!</h1>
-                    <div className="flex items-center gap-4 text-sm text-foreground">
-                        <button className="hover:text-primary transition-colors">Discover</button>
-                        <button className="hover:text-primary transition-colors">MyGroups</button>
-                    </div>
-                </div>
-                <Avatar className="h-8 w-8">
-                    <AvatarImage src="/diverse-user-avatars.png" />
-                    <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-            </div>
-
             {/* Groups Section */}
             <div className="flex-1 overflow-y-auto px-6 py-6">
                 <h2 className="text-2xl font-bold text-primary mb-6">Your Groups</h2>
@@ -108,30 +45,42 @@ export function GroupsList() {
                     </Button>
                 </div>
 
-                {/* Groups List */}
-                <div className="space-y-3">
-                    {groups.map((group) => (
-                        <div
-                            key={group.id}
-                            className="flex items-center gap-3 p-4 bg-muted rounded-xl hover:bg-muted/80 transition-colors cursor-pointer"
-                        >
-                            <Avatar className="h-12 w-12 flex-shrink-0">
-                                <AvatarImage src={group.avatar || "/placeholder.svg"} />
-                                <AvatarFallback>G</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                    <h3 className="font-semibold text-foreground">{group.name}</h3>
-                                    <span className="text-xs text-muted-foreground">{group.date}</span>
+                {/* Groups List OR Empty State */}
+                {groups.length > 0 ? (
+                    <div className="space-y-3">
+                        {groups.map((group) => (
+                            <div
+                                key={group.id}
+                                className="flex items-center gap-3 p-4 bg-muted rounded-xl hover:bg-muted/80 transition-colors cursor-pointer"
+                            >
+                                <Avatar className="h-12 w-12 flex-shrink-0">
+                                    <AvatarImage src={group.avatar || "/placeholder.svg"} />
+                                    <AvatarFallback>G</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <h3 className="font-semibold text-foreground">{group.name}</h3>
+                                        <span className="text-xs text-muted-foreground">{group.date}</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground truncate">
+                                        {group.user && <span className="text-primary">{group.user}: </span>}
+                                        {group.lastMessage}
+                                    </p>
                                 </div>
-                                <p className="text-sm text-muted-foreground truncate">
-                                    {group.user && <span className="text-primary">{group.user}: </span>}
-                                    {group.lastMessage}
-                                </p>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center mt-20 text-center text-muted-foreground">
+                        <p className="text-lg mb-4">You don’t have any groups yet.</p>
+                        <Button
+                            onClick={handleCreateGroup}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            Create Group
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     )
