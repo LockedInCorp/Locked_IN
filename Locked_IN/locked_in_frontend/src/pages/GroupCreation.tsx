@@ -16,7 +16,6 @@ export default function GroupCreation() {
     }
 
     return (
-        <div className="min-h-screen">
             <main className="mx-auto max-w-7xl px-6 py-12">
                 <h2 className="mb-8 text-center text-3xl font-bold text-white">Group Creation</h2>
 
@@ -41,6 +40,5 @@ export default function GroupCreation() {
                     </Button>
                 </div>
             </main>
-        </div>
     )
 }

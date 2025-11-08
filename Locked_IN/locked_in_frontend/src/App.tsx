@@ -6,22 +6,20 @@ import { User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 function App() {
-    const navigate = useNavigate() // 👈 initialize router navigation
+    const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
-            {/* Header */}
-            <header className="flex items-center justify-between border-b border-[#2b2d31] bg-[#1a1d21] px-6 py-4 shrink-0">
+        <div className="h-dvh bg-background flex flex-col">
+            <header className="flex items-center justify-between border-b border-[#2b2d31] bg-[#1a1d21] px-6 py-4">
                 <div className="flex items-center gap-6">
                     <h1
-                        onClick={() => navigate("/")} // 👈 optional: click logo to go home
+                        onClick={() => navigate("/")}
                         className="text-xl font-bold text-primary cursor-pointer"
                     >
                         Locked IN!
                     </h1>
 
                     <nav className="flex items-center gap-6 text-sm">
-                        {/* 👇 navigates to /groups */}
                         <button
                             onClick={() => navigate("/groups")}
                             className="text-gray-300 transition-colors hover:text-white"
@@ -29,7 +27,6 @@ function App() {
                             Discover
                         </button>
 
-                        {/* 👇 navigates to main view (MyGroups) */}
                         <button
                             onClick={() => navigate("/")}
                             className="text-gray-300 transition-colors hover:text-white"
@@ -50,11 +47,10 @@ function App() {
                 </div>
             </header>
 
-            {/* Routes */}
-            <main className="flex-1 overflow-hidden">
+            <main className="flex flex-1 min-h-0">
                 <Routes>
                     <Route path="/" element={<GroupView />} />
-                    <Route path="/creation" element={<GroupCreation />} />
+                    <Route path="/groups/creation" element={<GroupCreation />} />
                     <Route path="/groups" element={<GroupDiscover />} />
                 </Routes>
             </main>

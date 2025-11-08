@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Star, Gamepad2, X, Users } from "lucide-react"
+import {Star, Gamepad2, X, Users, Plus} from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {useNavigate} from "react-router-dom";
 
 interface GroupCard {
     id: string
@@ -101,25 +102,27 @@ export default function DiscoverPage() {
     const [groupSearch, setGroupSearch] = useState("")
     const [showPending, setShowPending] = useState(false)
 
+    const navigate = useNavigate();
+
     return (
-        <div className="flex h-screen bg-[#1a1d21]">
+        <div className="flex h-full overflow-hidden">
             {/* Left Sidebar */}
-            <div className="w-[380px] bg-[#2b2d31] p-6 space-y-6 overflow-y-auto">
+            <div className="w-[380px] flex-shrink-0 p-6 space-y-6 overflow-y-auto">
                 {/* Game Selection */}
                 <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">Game Selection</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Game Selection</h2>
 
                     <div className="relative">
                         <Input
                             placeholder="Search by game title..."
                             value={gameSearch}
                             onChange={(e) => setGameSearch(e.target.value)}
-                            className="bg-[#3a3d42] border-[#4a4d52] text-white placeholder:text-gray-400 pr-8"
+                            className="bg-muted border-border text-foreground placeholder:text-muted-foreground pr-8"
                         />
                         {gameSearch && (
                             <button
                                 onClick={() => setGameSearch("")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                             >
                                 <X className="h-4 w-4" />
                             </button>
@@ -128,17 +131,17 @@ export default function DiscoverPage() {
 
                     {/* Favorite Section */}
                     <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-white">
+                        <div className="flex items-center gap-2 text-foreground">
                             <Star className="h-4 w-4" />
                             <span className="font-medium">Favorite</span>
                         </div>
                         <div className="space-y-2">
                             {[1, 2, 3].map((item) => (
-                                <div key={`fav-${item}`} className="flex items-center justify-between bg-[#3a3d42] p-3 rounded-lg">
-                                    <span className="text-gray-300">List item</span>
+                                <div key={`fav-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
+                                    <span className="text-muted-foreground">List item</span>
                                     <Checkbox
                                         defaultChecked
-                                        className="data-[state=checked]:bg-[#ff6b35] data-[state=checked]:border-[#ff6b35]"
+                                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                     />
                                 </div>
                             ))}
@@ -147,17 +150,17 @@ export default function DiscoverPage() {
 
                     {/* All Games Section */}
                     <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-white">
+                        <div className="flex items-center gap-2 text-foreground">
                             <Gamepad2 className="h-4 w-4" />
                             <span className="font-medium">All games</span>
                         </div>
                         <div className="space-y-2">
                             {[1, 2, 3].map((item) => (
-                                <div key={`game-${item}`} className="flex items-center justify-between bg-[#3a3d42] p-3 rounded-lg">
-                                    <span className="text-gray-300">List item</span>
+                                <div key={`game-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
+                                    <span className="text-muted-foreground">List item</span>
                                     <Checkbox
                                         defaultChecked
-                                        className="data-[state=checked]:bg-[#ff6b35] data-[state=checked]:border-[#ff6b35]"
+                                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                     />
                                 </div>
                             ))}
@@ -167,14 +170,14 @@ export default function DiscoverPage() {
 
                 {/* Tags Section */}
                 <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">Tags</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Tags</h2>
                     <div className="space-y-2">
                         {[1, 2, 3, 4].map((item) => (
-                            <div key={`tag-${item}`} className="flex items-center justify-between bg-[#3a3d42] p-3 rounded-lg">
-                                <span className="text-gray-300">List item</span>
+                            <div key={`tag-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
+                                <span className="text-muted-foreground">List item</span>
                                 <Checkbox
                                     defaultChecked
-                                    className="data-[state=checked]:bg-[#ff6b35] data-[state=checked]:border-[#ff6b35]"
+                                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                 />
                             </div>
                         ))}
@@ -190,79 +193,90 @@ export default function DiscoverPage() {
                         placeholder="Search groups..."
                         value={groupSearch}
                         onChange={(e) => setGroupSearch(e.target.value)}
-                        className="bg-[#2b2d31] border-[#3a3d42] text-white placeholder:text-gray-400 h-12"
+                        className="border-border text-foreground placeholder:text-muted-foreground h-12"
                     />
 
-                    <div className="flex items-center gap-4">
-                        <Select defaultValue="20">
-                            <SelectTrigger className="w-[140px] bg-[#2b2d31] border-[#3a3d42] text-white">
-                                <SelectValue placeholder="View" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-[#2b2d31] border-[#3a3d42] text-white">
-                                <SelectItem value="10">View: 10</SelectItem>
-                                <SelectItem value="20">View: 20</SelectItem>
-                                <SelectItem value="50">View: 50</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <Select defaultValue="20">
+                                <SelectTrigger className="w-[140px] bg-card border-border text-foreground">
+                                    <SelectValue placeholder="View"/>
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border-border text-foreground">
+                                    <SelectItem value="10">View: 10</SelectItem>
+                                    <SelectItem value="20">View: 20</SelectItem>
+                                    <SelectItem value="50">View: 50</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                        <Select defaultValue="relevance">
-                            <SelectTrigger className="w-[200px] bg-[#2b2d31] border-[#3a3d42] text-white">
-                                <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-[#2b2d31] border-[#3a3d42] text-white">
-                                <SelectItem value="relevance">Sort by: Relevance</SelectItem>
-                                <SelectItem value="newest">Sort by: Newest</SelectItem>
-                                <SelectItem value="popular">Sort by: Popular</SelectItem>
-                            </SelectContent>
-                        </Select>
+                            <Select defaultValue="relevance">
+                                <SelectTrigger className="w-[200px] bg-card border-border text-foreground">
+                                    <SelectValue placeholder="Sort by"/>
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border-border text-foreground">
+                                    <SelectItem value="relevance">Sort by: Relevance</SelectItem>
+                                    <SelectItem value="newest">Sort by: Newest</SelectItem>
+                                    <SelectItem value="popular">Sort by: Popular</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                        <label className="flex items-center gap-2 text-white cursor-pointer">
-                            <Checkbox
-                                checked={showPending}
-                                onCheckedChange={(checked) => setShowPending(checked as boolean)}
-                                className="data-[state=checked]:bg-[#ff6b35] data-[state=checked]:border-[#ff6b35]"
-                            />
-                            <span>Only Show Pending</span>
-                        </label>
+                            <label className="flex items-center gap-2 text-foreground cursor-pointer">
+                                <Checkbox
+                                    checked={showPending}
+                                    onCheckedChange={(checked) => setShowPending(checked as boolean)}
+                                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                />
+                                <span>Only Show Pending</span>
+                            </label>
+                        </div>
+
+                        <Button
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-medium cursor-pointer"
+                            onClick={() => navigate("/groups/creation")}
+                        >
+                            <Plus className="h-5 w-5 mr-2"/>
+                            Create group
+                        </Button>
                     </div>
                 </div>
+
 
                 <div className="flex-1 overflow-y-auto pr-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {mockGroups.map((group) => (
                             <div
                                 key={group.id}
-                                className="bg-[#2b2d31] rounded-lg overflow-hidden border border-[#3a3d42] hover:border-[#4a4d52] transition-colors"
+                                className="bg-card rounded-lg overflow-hidden border border-border hover:border-border transition-colors"
                             >
                                 {/* Card Header */}
-                                <div className="flex gap-3 p-4 border-b border-[#3a3d42]">
+                                <div className="flex gap-3 p-4 border-b border-border">
                                     <img
                                         src={group.image || "/placeholder.svg"}
                                         alt={group.title}
                                         className="w-16 h-16 rounded-lg object-cover"
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-white font-semibold text-lg">{group.title}</h3>
-                                        <p className="text-gray-400 text-sm">
+                                        <h3 className="text-foreground font-semibold text-lg">{group.title}</h3>
+                                        <p className="text-muted-foreground text-sm">
                                             {group.game}
-                                            <br />
-                                            by <span className="text-[#ff6b35]">{group.creator}</span>
+                                            <br/>
+                                            by <span className="text-primary">{group.creator}</span>
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Card Body */}
                                 <div className="p-4 space-y-3">
-                                    <p className="text-gray-400 text-sm line-clamp-4 leading-relaxed">
+                                    <p className="text-muted-foreground text-sm line-clamp-4 leading-relaxed">
                                         {group.description}
                                     </p>
 
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-gray-500 text-xs font-medium">TAGS</span>
+                                    <span className="text-muted-foreground text-xs font-medium">TAGS</span>
                                         {group.tags.map((tag) => (
                                             <span
                                                 key={tag}
-                                                className="px-2 py-1 bg-[#3a3d42] text-gray-300 text-xs rounded"
+                                                className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded"
                                             >
                                     {tag}
                                 </span>
@@ -270,7 +284,7 @@ export default function DiscoverPage() {
                                     </div>
 
                                     <div className="flex items-center justify-between pt-2">
-                                        <div className="flex items-center gap-2 text-gray-400">
+                                        <div className="flex items-center gap-2 text-muted-foreground">
                                             <Users className="h-4 w-4" />
                                             <span className="text-sm">
                                     {group.currentMembers}/{group.maxMembers}
@@ -280,15 +294,14 @@ export default function DiscoverPage() {
                                         {group.isPending ? (
                                             <Button
                                                 size="sm"
-                                                // variant="destructive"
-                                                className="bg-red-900 hover:bg-red-800 h-9 px-4"
+                                                variant="destructive"
                                             >
                                                 <X className="h-4 w-4" />
                                             </Button>
                                         ) : (
                                             <Button
                                                 size="sm"
-                                                className="bg-[#ff6b35] hover:bg-[#ff5722] text-white h-9 px-6"
+                                                className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-6"
                                             >
                                                 Join
                                             </Button>
