@@ -9,8 +9,8 @@ function App() {
     const navigate = useNavigate();
 
     return (
-        <div className="h-dvh bg-background flex flex-col">
-            <header className="flex items-center justify-between border-b border-[#2b2d31] bg-[#1a1d21] px-6 py-4">
+        <div className="h-dvh bg-background flex flex-col overflow-hidden">
+            <header className="flex items-center justify-between border-b border-[#2b2d31] bg-[#1a1d21] px-6 py-4 flex-shrink-0">
                 <div className="flex items-center gap-6">
                     <h1
                         onClick={() => navigate("/")}
@@ -47,7 +47,7 @@ function App() {
                 </div>
             </header>
 
-            <main className="flex flex-1 min-h-0">
+            <main className="flex flex-1 min-h-0 overflow-hidden">
                 <Routes>
                     <Route path="/" element={<GroupView />} />
                     <Route path="/groups/creation" element={<GroupCreation />} />
