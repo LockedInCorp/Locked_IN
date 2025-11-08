@@ -232,7 +232,7 @@ export default function DiscoverPage() {
 
                         <Button
                             className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-medium cursor-pointer"
-                            onClick={() => navigate("/groups/creation")}
+                            onClick={() => navigate("/groups/new")}
                         >
                             <Plus className="h-5 w-5 mr-2"/>
                             Create group

@@ -50,8 +50,8 @@ function App() {
             <main className="flex flex-1 min-h-0 overflow-hidden">
                 <Routes>
                     <Route path="/" element={<GroupView />} />
-                    <Route path="/groups/creation" element={<GroupCreation />} />
                     <Route path="/groups" element={<GroupDiscover />} />
+                    <Route path="/groups/new" element={<GroupCreation />} />
                 </Routes>
             </main>
         </div>

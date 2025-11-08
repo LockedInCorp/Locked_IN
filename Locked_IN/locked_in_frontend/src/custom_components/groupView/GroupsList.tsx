@@ -61,7 +61,7 @@ export function GroupsList() {
     const navigate = useNavigate();
 
     const handleCreateGroup = () => {
-        navigate("/creation");
+        navigate("/groups/new");
     }
 
     return (
