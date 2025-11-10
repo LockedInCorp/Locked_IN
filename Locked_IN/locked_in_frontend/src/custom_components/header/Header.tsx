@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 export function Header() {
     const navigate = useNavigate();
 
-    const isLoggedIn = false;
+    const isLoggedIn = true;
 
     return (
         <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4 flex-shrink-0">
@@ -39,6 +39,14 @@ export function Header() {
             <div className="flex items-center gap-3">
                 {isLoggedIn ? (
                     <>
+                        <Avatar className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
+                            <AvatarImage src="/assets/diverse-user-avatars.png" />
+                            <AvatarFallback>U</AvatarFallback>
+                        </Avatar>
+                    </>
+                   
+                ) : (
+                    <>
                         <Button
                             variant="outline"
                             onClick={() => {
@@ -57,13 +65,6 @@ export function Header() {
                         >
                             Sign Up
                         </Button>
-                    </>
-                ) : (
-                    <>
-                        <Avatar className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
-                            <AvatarImage src="public/assets/diverse-user-avatars.png" />
-                            <AvatarFallback>U</AvatarFallback>
-                        </Avatar>
                     </>
                 )}
             </div>
