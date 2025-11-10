@@ -5,7 +5,7 @@ import { GroupInfo } from "../custom_components/groupView/GroupInfo.tsx"
 
 export function GroupView() {
     return (
-        <div className="flex h-screen bg-background text-foreground overflow-hidden">
+        <>
             {/* Left Panel - Groups List */}
             <div className="w-[440px] border-r border-border flex-shrink-0">
                 <GroupsList/>
@@ -20,6 +20,6 @@ export function GroupView() {
             <div className="w-[320px] border-l border-border flex-shrink-0">
                 <GroupInfo/>
             </div>
-        </div>
+        </>
     )
 }
