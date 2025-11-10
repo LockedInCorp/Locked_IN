@@ -34,7 +34,7 @@ export default function FinderSettingsSection({
                             <button
                                 key={tag}
                                 onClick={() => toggleTag(tag)}
-                                className={`flex items-center rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                                className={`flex items-center rounded-md px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
                                     selectedTags.includes(tag)
                                         ? "bg-primary text-primary-foreground border-2 border-primary shadow-sm"
                                         : "bg-card text-muted-foreground border-2 border-transparent hover:bg-muted hover:text-foreground hover:border-border"

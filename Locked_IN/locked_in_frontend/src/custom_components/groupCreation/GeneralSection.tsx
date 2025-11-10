@@ -97,7 +97,7 @@ export default function GeneralSection({
                     <Label className="text-sm text-muted-foreground">Group Preview Image (optional)</Label>
                     <Button
                         variant="outline"
-                        className="border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
+                        className="border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                     >
                         <Upload className="mr-2 size-4" />
                         Choose file

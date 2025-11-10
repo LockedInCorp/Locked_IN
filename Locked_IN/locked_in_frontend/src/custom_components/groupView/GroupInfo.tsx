@@ -49,14 +49,10 @@ export function GroupInfo() {
                 </div>
 
                 {/* Description */}
-                <div className="mb-2">
-                    <p className="text-sm text-muted-foreground">Description</p>
-                </div>
+                <p className="text-sm text-muted-foreground mb-2">Description</p>
 
                 {/* Communication Service */}
-                <div>
-                    <p className="text-sm text-muted-foreground">Communication Service</p>
-                </div>
+                <p className="text-sm text-muted-foreground">Communication Service</p>
             </div>
 
             {/* Games Section */}
@@ -72,7 +68,7 @@ export function GroupInfo() {
             <div className="px-6 py-4 border-b border-border">
                 <button
                     onClick={() => setMembersExpanded(!membersExpanded)}
-                    className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground"
+                    className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
                 >
                     <div className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
@@ -116,7 +112,7 @@ export function GroupInfo() {
             <div className="px-6 py-4 flex-1">
                 <button
                     onClick={() => setRequestsExpanded(!requestsExpanded)}
-                    className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground"
+                    className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
                 >
                     <div className="flex items-center gap-2">
                         <Users className="h-4 w-4" />

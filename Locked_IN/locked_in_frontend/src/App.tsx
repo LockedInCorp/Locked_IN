@@ -4,46 +4,47 @@ import GroupCreation from "@/pages/GroupCreation"
 import GroupDiscover from "@/pages/GroupDiscover"
 import { User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 
 function App() {
     const navigate = useNavigate();
 
     return (
         <div className="h-dvh bg-background flex flex-col overflow-hidden">
-            <header className="flex items-center justify-between border-b border-[#2b2d31] bg-[#1a1d21] px-6 py-4 flex-shrink-0">
+            <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4 flex-shrink-0">
                 <div className="flex items-center gap-6">
                     <h1
                         onClick={() => navigate("/")}
-                        className="text-xl font-bold text-primary cursor-pointer"
+                        className="text-xl font-bold text-primary cursor-pointer hover:opacity-80 transition-opacity"
                     >
                         Locked IN!
                     </h1>
 
-                    <nav className="flex items-center gap-6 text-sm">
-                        <button
+                    <nav className="flex items-center gap-1">
+                        <Button
+                            variant="ghost"
                             onClick={() => navigate("/groups")}
-                            className="text-gray-300 transition-colors hover:text-white"
+                            className="text-muted-foreground hover:text-foreground hover:bg-transparent dark:hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                         >
                             Discover
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
+                            variant="ghost"
                             onClick={() => navigate("/")}
-                            className="text-gray-300 transition-colors hover:text-white"
+                            className="text-muted-foreground hover:text-foreground hover:bg-transparent dark:hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                         >
                             MyGroups
-                        </button>
+                        </Button>
                     </nav>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <User className="size-5 text-gray-400" />
-                    <div className="size-10 overflow-hidden rounded-full">
-                        <Avatar className="h-11 w-10">
-                            <AvatarImage src="/diverse-user-avatars.png" />
-                            <AvatarFallback>U</AvatarFallback>
-                        </Avatar>
-                    </div>
+                    <User className="size-5 text-muted-foreground" />
+                    <Avatar className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
+                        <AvatarImage src="/diverse-user-avatars.png" />
+                        <AvatarFallback>U</AvatarFallback>
+                    </Avatar>
                 </div>
             </header>
 

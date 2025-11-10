@@ -16,37 +16,36 @@ export default function GroupCreation() {
     }
 
     return (
-            <main className="flex flex-col h-full w-full overflow-hidden">
-                {/* <div className="mx-auto max-w-7xl w-full flex-col h-full"> */}
-                    {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto min-h-0">
-                        <div className="px-6 pt-12 pb-12">
-                            <h2 className="mb-8 text-center text-3xl font-bold text-foreground">Group Creation</h2>
+        <main className="flex flex-col h-full w-full overflow-hidden">
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="px-6 pt-12 pb-12">
+                    <h2 className="mb-8 text-center text-3xl font-bold text-foreground">Group Creation</h2>
 
-                            <div className="flex flex-col items-center">
-                                <div className="grid gap-6 lg:grid-cols-2 max-w-5xl">
-                                    <GeneralSection
-                                        blitzRoom={blitzRoom}
-                                        setBlitzRoom={setBlitzRoom}
-                                        autoAccept={autoAccept}
-                                        setAutoAccept={setAutoAccept}
-                                    />
-                                    <FinderSettingsSection
-                                        selectedTags={selectedTags}
-                                        toggleTag={toggleTag}
-                                        experience={experience}
-                                        setExperience={setExperience}
-                                    />
-                                </div>
+                    <div className="flex flex-col items-center">
+                        <div className="grid gap-6 lg:grid-cols-2 max-w-5xl">
+                            <GeneralSection
+                                blitzRoom={blitzRoom}
+                                setBlitzRoom={setBlitzRoom}
+                                autoAccept={autoAccept}
+                                setAutoAccept={setAutoAccept}
+                            />
+                            <FinderSettingsSection
+                                selectedTags={selectedTags}
+                                toggleTag={toggleTag}
+                                experience={experience}
+                                setExperience={setExperience}
+                            />
+                        </div>
 
-                                <div className="mt-8 w-full max-w-5xl flex justify-end">
-                                    <Button size="lg" className="bg-primary px-12 text-base font-semibold text-primary-foreground hover:bg-primary/90">
-                                        Create
-                                    </Button>
-                                </div>
-                            </div>
+                        <div className="mt-8 w-full max-w-5xl flex justify-end">
+                            <Button size="lg" className="bg-primary px-12 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer">
+                                Create
+                            </Button>
                         </div>
                     </div>
-            </main>
+                </div>
+            </div>
+        </main>
     )
 }

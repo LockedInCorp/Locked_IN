@@ -122,7 +122,7 @@ export default function DiscoverPage() {
                         {gameSearch && (
                             <button
                                 onClick={() => setGameSearch("")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                             >
                                 <X className="h-4 w-4" />
                             </button>
@@ -231,7 +231,7 @@ export default function DiscoverPage() {
                         </div>
 
                         <Button
-                            className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-medium cursor-pointer"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-medium"
                             onClick={() => navigate("/groups/new")}
                         >
                             <Plus className="h-5 w-5 mr-2"/>
@@ -246,7 +246,7 @@ export default function DiscoverPage() {
                         {mockGroups.map((group) => (
                             <div
                                 key={group.id}
-                                className="bg-card rounded-lg overflow-hidden border border-border hover:border-border transition-colors"
+                                className="bg-card rounded-lg overflow-hidden border border-border hover:border-border transition-colors cursor-pointer"
                             >
                                 {/* Card Header */}
                                 <div className="flex gap-3 p-4 border-b border-border">
