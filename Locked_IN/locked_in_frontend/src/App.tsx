@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom"
 import { GroupView } from "@/pages/GroupView"
 import GroupCreation from "@/pages/GroupCreation"
 import GroupDiscover from "@/pages/GroupDiscover"
+import Home from "@/pages/Home"
 import { Header } from "@/custom_components/header/Header"
 
 function App() {
@@ -11,7 +12,8 @@ function App() {
 
             <main className="flex flex-1 min-h-0 overflow-hidden">
                 <Routes>
-                    <Route path="/" element={<GroupView />} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="/my-groups" element={<GroupView />} />
                     <Route path="/groups" element={<GroupDiscover />} />
                     <Route path="/groups/new" element={<GroupCreation />} />
                 </Routes>

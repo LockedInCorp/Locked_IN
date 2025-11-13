@@ -10,6 +10,7 @@ export default function GroupCreation() {
     const [blitzRoom, setBlitzRoom] = useState(false)
     const [autoAccept, setAutoAccept] = useState(false)
     const [experience, setExperience] = useState("beginner")
+    const [groupSize, setGroupSize] = useState<string>("")
 
     const toggleTag = (tag: string) => {
         setSelectedTags(prev => (prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]))
@@ -29,6 +30,8 @@ export default function GroupCreation() {
                                 setBlitzRoom={setBlitzRoom}
                                 autoAccept={autoAccept}
                                 setAutoAccept={setAutoAccept}
+                                groupSize={groupSize}
+                                setGroupSize={setGroupSize}
                             />
                             <FinderSettingsSection
                                 selectedTags={selectedTags}

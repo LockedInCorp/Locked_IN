@@ -4,7 +4,6 @@ import { Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
 type GeneralSectionProps = {
@@ -12,6 +11,8 @@ type GeneralSectionProps = {
     setBlitzRoom: (v: boolean) => void
     autoAccept: boolean
     setAutoAccept: (v: boolean) => void
+    groupSize: string
+    setGroupSize: (v: string) => void
 }
 
 export default function GeneralSection({
@@ -19,6 +20,8 @@ export default function GeneralSection({
                                            setBlitzRoom,
                                            autoAccept,
                                            setAutoAccept,
+                                           groupSize,
+                                           setGroupSize,
                                        }: GeneralSectionProps) {
     return (
         <div className="rounded-lg border border-border bg-card p-6">
@@ -54,16 +57,15 @@ export default function GeneralSection({
                     <Label htmlFor="group-size" className="text-sm text-muted-foreground">
                         Group Size
                     </Label>
-                    <Select defaultValue="value">
-                        <SelectTrigger id="group-size" className="w-full border-border bg-card text-foreground">
-                            <SelectValue placeholder="Select size" />
-                        </SelectTrigger>
-                        <SelectContent className="border-border bg-card">
-                            <SelectItem value="2-4" className="text-foreground">2–4 players</SelectItem>
-                            <SelectItem value="5-10" className="text-foreground">5–10 players</SelectItem>
-                            <SelectItem value="10+" className="text-foreground">10+ players</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <Input
+                        id="group-size"
+                        type="number"
+                        min="2"
+                        placeholder="Enter number of players"
+                        value={groupSize}
+                        onChange={(e) => setGroupSize(e.target.value)}
+                        className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                    />
                 </div>
 
                 {/* Blitz-room */}
