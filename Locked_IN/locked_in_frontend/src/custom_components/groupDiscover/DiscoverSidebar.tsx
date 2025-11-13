@@ -40,7 +40,6 @@ export function DiscoverSidebar() {
                             <div key={`fav-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
                                 <span className="text-muted-foreground">List item</span>
                                 <Checkbox
-                                    defaultChecked
                                     className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                 />
                             </div>
@@ -59,7 +58,6 @@ export function DiscoverSidebar() {
                             <div key={`game-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
                                 <span className="text-muted-foreground">List item</span>
                                 <Checkbox
-                                    defaultChecked
                                     className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                 />
                             </div>
@@ -76,7 +74,6 @@ export function DiscoverSidebar() {
                         <div key={`tag-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
                             <span className="text-muted-foreground">List item</span>
                             <Checkbox
-                                defaultChecked
                                 className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
                         </div>

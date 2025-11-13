@@ -40,7 +40,6 @@ export default function Home() {
                 />
             </div>
 
-            {/* Main content wrapper - this ensures gradient matches content height */}
             <div className="relative min-h-full">
                 {/* Light source effect from right */}
                 <div 
@@ -65,7 +64,7 @@ export default function Home() {
                         <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
                             Connect with gamers who share your passion. Discover groups, join communities, 
                             and find your perfect gaming squad. Whether you're looking for competitive teammates 
-                            or casual players, Locked IN! helps you find the right people for every game.
+                            or casual players, "Locked IN!" helps you find the right people for every game.
                         </p>
 
                         <div className="flex gap-4">
@@ -108,14 +107,11 @@ export default function Home() {
                     </div>
                 </div>
 
-                {/* Right side - Character illustration placeholder */}
                 <div className="flex-1 flex items-center justify-center max-w-2xl">
                     <div className="relative">
-                        {/* Placeholder for character illustration */}
                         <div className="w-96 h-96 rounded-full bg-muted border-4 border-border flex items-center justify-center">
                             <Gamepad2 className="size-48 text-muted-foreground opacity-20" />
                         </div>
-                        {/* Shadow effect */}
                         <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 bg-foreground/5 blur-3xl rounded-full" />
                     </div>
                 </div>

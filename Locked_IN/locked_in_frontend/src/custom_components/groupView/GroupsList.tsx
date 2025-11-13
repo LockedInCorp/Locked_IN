@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 
 const groups = [
     {
-        id: 2,
+        id: 1,
         name: "Group name",
         lastMessage: "Last message",
         user: "User",
@@ -24,31 +24,7 @@ const groups = [
         avatar: "/diverse-group-avatars.png",
     },
     {
-        id: 2,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 2,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 2,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 2,
+        id: 3,
         name: "Group name",
         lastMessage: "Last message",
         user: "User",
