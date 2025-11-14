@@ -4,7 +4,6 @@ import { Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
 type GeneralSectionProps = {
@@ -12,6 +11,8 @@ type GeneralSectionProps = {
     setBlitzRoom: (v: boolean) => void
     autoAccept: boolean
     setAutoAccept: (v: boolean) => void
+    groupSize: string
+    setGroupSize: (v: string) => void
 }
 
 export default function GeneralSection({
@@ -19,58 +20,59 @@ export default function GeneralSection({
                                            setBlitzRoom,
                                            autoAccept,
                                            setAutoAccept,
+                                           groupSize,
+                                           setGroupSize,
                                        }: GeneralSectionProps) {
     return (
-        <div className="rounded-lg border border-[#3a3d42] bg-[#1a1d21] p-6">
-            <h3 className="mb-6 text-xl font-semibold text-white">General</h3>
+        <div className="rounded-lg border border-border bg-card p-6">
+            <h3 className="mb-6 text-xl font-semibold text-foreground">General</h3>
 
             <div className="space-y-6">
                 {/* Group Name */}
                 <div className="space-y-2">
-                    <Label htmlFor="group-name" className="text-sm text-gray-300">
+                    <Label htmlFor="group-name" className="text-sm text-muted-foreground">
                         Group Name
                     </Label>
                     <Input
                         id="group-name"
                         placeholder="Lock IN! group"
-                        className="border-[#3a3d42] bg-[#2b2d31] text-white placeholder:text-gray-500"
+                        className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
 
                 {/* Game */}
                 <div className="space-y-2">
-                    <Label htmlFor="game" className="text-sm text-gray-300">
+                    <Label htmlFor="game" className="text-sm text-muted-foreground">
                         Game
                     </Label>
                     <Input
                         id="game"
                         placeholder="ex. Terraria, Overwatch 2"
-                        className="border-[#3a3d42] bg-[#2b2d31] text-white placeholder:text-gray-500"
+                        className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
 
                 {/* Group Size */}
                 <div className="space-y-2">
-                    <Label htmlFor="group-size" className="text-sm text-gray-300">
+                    <Label htmlFor="group-size" className="text-sm text-muted-foreground">
                         Group Size
                     </Label>
-                    <Select defaultValue="value">
-                        <SelectTrigger id="group-size" className="w-full border-[#3a3d42] bg-[#2b2d31] text-white">
-                            <SelectValue placeholder="Select size" />
-                        </SelectTrigger>
-                        <SelectContent className="border-[#3a3d42] bg-[#2b2d31]">
-                            <SelectItem value="2-4" className="text-white">2–4 players</SelectItem>
-                            <SelectItem value="5-10" className="text-white">5–10 players</SelectItem>
-                            <SelectItem value="10+" className="text-white">10+ players</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <Input
+                        id="group-size"
+                        type="number"
+                        min="2"
+                        placeholder="Enter number of players"
+                        value={groupSize}
+                        onChange={(e) => setGroupSize(e.target.value)}
+                        className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                    />
                 </div>
 
                 {/* Blitz-room */}
                 <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                        <Label className="text-sm font-medium text-white">Blitz-room</Label>
-                        <p className="text-xs text-gray-400">Group will be deleted after the last player leaves</p>
+                        <Label className="text-sm font-medium text-foreground">Blitz-room</Label>
+                        <p className="text-xs text-muted-foreground">Group will be deleted after the last player leaves</p>
                     </div>
                     <Switch
                         checked={blitzRoom}
@@ -82,8 +84,8 @@ export default function GeneralSection({
                 {/* Auto-accept */}
                 <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                        <Label className="text-sm font-medium text-white">Auto-accept</Label>
-                        <p className="text-xs text-gray-400">You will not have to manually accept players join requests</p>
+                        <Label className="text-sm font-medium text-foreground">Auto-accept</Label>
+                        <p className="text-xs text-muted-foreground">You will not have to manually accept players join requests</p>
                     </div>
                     <Switch
                         checked={autoAccept}
@@ -94,10 +96,10 @@ export default function GeneralSection({
 
                 {/* Group Preview Image */}
                 <div className="space-y-2">
-                    <Label className="text-sm text-gray-300">Group Preview Image (optional)</Label>
+                    <Label className="text-sm text-muted-foreground">Group Preview Image (optional)</Label>
                     <Button
                         variant="outline"
-                        className="border-[#3a3d42] bg-[#2b2d31] text-gray-300 hover:bg-[#3a3d42] hover:text-white"
+                        className="border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                     >
                         <Upload className="mr-2 size-4" />
                         Choose file

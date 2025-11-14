@@ -8,7 +8,23 @@ import { Button } from "@/components/ui/button"
 
 const groups = [
     {
+        id: 1,
+        name: "Group name",
+        lastMessage: "Last message",
+        user: "User",
+        date: "12/12/2025",
+        avatar: "/diverse-group-avatars.png",
+    },
+    {
         id: 2,
+        name: "Group name",
+        lastMessage: "Last message",
+        user: "User",
+        date: "12/12/2025",
+        avatar: "/diverse-group-avatars.png",
+    },
+    {
+        id: 3,
         name: "Group name",
         lastMessage: "Last message",
         user: "User",
@@ -21,13 +37,13 @@ export function GroupsList() {
     const navigate = useNavigate();
 
     const handleCreateGroup = () => {
-        navigate("/creation");
+        navigate("/groups/new");
     }
 
     return (
-        <div className="flex flex-col h-max bg-background">
-            {/* Groups Section */}
-            <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex flex-col h-full bg-background">
+            {/* Header Section - Fixed */}
+            <div className="px-6 pt-6 pb-4 flex-shrink-0">
                 <h2 className="text-2xl font-bold text-primary mb-6">Your Groups</h2>
 
                 {/* Search Bar */}
@@ -44,8 +60,10 @@ export function GroupsList() {
                         <X className="h-4 w-4" />
                     </Button>
                 </div>
+            </div>
 
-                {/* Groups List OR Empty State */}
+            {/* Groups List OR Empty State - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 pb-6">
                 {groups.length > 0 ? (
                     <div className="space-y-3">
                         {groups.map((group) => (
@@ -72,7 +90,7 @@ export function GroupsList() {
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center mt-20 text-center text-muted-foreground">
-                        <p className="text-lg mb-4">You don’t have any groups yet.</p>
+                        <p className="text-lg mb-4">You don't have any groups yet.</p>
                         <Button
                             onClick={handleCreateGroup}
                             className="bg-primary text-primary-foreground hover:bg-primary/90"

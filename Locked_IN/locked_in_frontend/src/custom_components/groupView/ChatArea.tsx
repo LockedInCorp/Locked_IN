@@ -12,13 +12,13 @@ const messages: Msg[] = [
     { id: 2, sender: "Aaron", content: "Don't make it bad!", isCurrentUser: false },
     { id: 3, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
     { id: 4, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    { id: 5, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    { id: 6, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    { id: 7, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    { id: 8, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
-    { id: 9, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
-    { id: 10, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    { id: 11, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
+    // { id: 5, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
+    // { id: 6, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
+    // { id: 7, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
+    // { id: 8, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
+    // { id: 9, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
+    // { id: 10, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
+    // { id: 11, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
 ]
 
 const groups = messages.reduce<

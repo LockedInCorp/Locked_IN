@@ -1,6 +1,5 @@
 "use client"
 
-import { Check } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -23,25 +22,24 @@ export default function FinderSettingsSection({
                                                   setExperience,
                                               }: FinderSettingsProps) {
     return (
-        <div className="rounded-lg border border-[#3a3d42] bg-[#1a1d21] p-6">
-            <h3 className="mb-6 text-xl font-semibold text-white">Finder Settings</h3>
+        <div className="rounded-lg border border-border bg-card p-6">
+            <h3 className="mb-6 text-xl font-semibold text-foreground">Finder Settings</h3>
 
             <div className="space-y-6">
                 {/* Game Tags */}
                 <div className="space-y-3">
-                    <Label className="text-sm text-gray-300">Game Tags</Label>
+                    <Label className="text-sm text-muted-foreground">Game Tags</Label>
                     <div className="flex flex-wrap gap-2">
                         {gameTags.map(tag => (
                             <button
                                 key={tag}
                                 onClick={() => toggleTag(tag)}
-                                className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                                className={`flex items-center rounded-md px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
                                     selectedTags.includes(tag)
-                                        ? "bg-[#3a3d42] text-white"
-                                        : "bg-[#2b2d31] text-gray-400 hover:bg-[#3a3d42] hover:text-white"
+                                        ? "bg-primary text-primary-foreground border-2 border-primary shadow-sm"
+                                        : "bg-card text-muted-foreground border-2 border-transparent hover:bg-muted hover:text-foreground hover:border-border"
                                 }`}
                             >
-                                {selectedTags.includes(tag) && <Check className="size-4" />}
                                 {tag}
                             </button>
                         ))}
@@ -50,12 +48,12 @@ export default function FinderSettingsSection({
 
                 {/* Group Experience */}
                 <div className="space-y-3">
-                    <Label className="text-sm text-gray-300">Group Experience</Label>
+                    <Label className="text-sm text-muted-foreground">Group Experience</Label>
                     <RadioGroup value={experience} onValueChange={setExperience}>
                         {["beginner", "experienced", "professional"].map(level => (
                             <div key={level} className="flex items-center gap-2">
-                                <RadioGroupItem value={level} id={level} className="border-[#3a3d42]" />
-                                <Label htmlFor={level} className="cursor-pointer text-sm text-white capitalize">
+                                <RadioGroupItem value={level} id={level} className="border-border" />
+                                <Label htmlFor={level} className="cursor-pointer text-sm text-foreground capitalize">
                                     {level}
                                 </Label>
                             </div>
@@ -65,7 +63,7 @@ export default function FinderSettingsSection({
 
                 {/* Minimal Competitive Score */}
                 <div className="space-y-2">
-                    <Label htmlFor="competitive-score" className="text-sm text-gray-300">
+                    <Label htmlFor="competitive-score" className="text-sm text-muted-foreground">
                         Minimal Competitive score (optional)
                     </Label>
                     <Input
@@ -73,36 +71,36 @@ export default function FinderSettingsSection({
                         type="number"
                         placeholder="0"
                         defaultValue="0"
-                        className="border-[#3a3d42] bg-[#2b2d31] text-white placeholder:text-gray-500"
+                        className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
 
                 {/* Communication Service */}
                 <div className="space-y-2">
-                    <Label htmlFor="communication-service" className="text-sm text-gray-300">
+                    <Label htmlFor="communication-service" className="text-sm text-muted-foreground">
                         Communication Service
                     </Label>
                     <Select defaultValue="discord">
-                        <SelectTrigger id="communication-service" className="w-full border-[#3a3d42] bg-[#2b2d31] text-white">
+                        <SelectTrigger id="communication-service" className="w-full border-border bg-card text-foreground">
                             <SelectValue placeholder="Select service" />
                         </SelectTrigger>
-                        <SelectContent className="border-[#3a3d42] bg-[#2b2d31]">
-                            <SelectItem value="discord" className="text-white">Discord</SelectItem>
-                            <SelectItem value="teamspeak" className="text-white">TeamSpeak</SelectItem>
-                            <SelectItem value="mumble" className="text-white">Mumble</SelectItem>
+                        <SelectContent className="border-border bg-card">
+                            <SelectItem value="discord" className="text-foreground">Discord</SelectItem>
+                            <SelectItem value="teamspeak" className="text-foreground">TeamSpeak</SelectItem>
+                            <SelectItem value="mumble" className="text-foreground">Mumble</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
 
                 {/* Description */}
                 <div className="space-y-2">
-                    <Label htmlFor="description" className="text-sm text-gray-300">
+                    <Label htmlFor="description" className="text-sm text-muted-foreground">
                         Description (optional)
                     </Label>
                     <Textarea
                         id="description"
                         placeholder="Type your description here"
-                        className="min-h-32 resize-none border-[#3a3d42] bg-[#2b2d31] text-white placeholder:text-gray-500"
+                        className="min-h-32 resize-none border-border bg-card text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
             </div>
