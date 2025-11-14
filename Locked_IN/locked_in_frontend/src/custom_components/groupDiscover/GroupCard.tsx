@@ -12,7 +12,7 @@ export function GroupCard({ group }: GroupCardProps) {
             {/* Card Header */}
             <div className="flex gap-3 p-4 border-b border-border">
                 <img
-                    src={group.image || "/assets/sunset-silhouette-gaming.jpg"}
+                    src={"public/assets/sunset-silhouette-gaming.jpg"}
                     alt={group.title}
                     className="w-16 h-16 rounded-lg object-cover"
                 />
