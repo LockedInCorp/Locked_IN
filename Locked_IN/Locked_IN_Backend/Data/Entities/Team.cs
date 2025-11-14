@@ -43,6 +43,10 @@ public partial class Team
     [Column("creation_timespamp")]
     public DateTime CreationTimestamp { get; set; }
 
+    [Column("icon_url")]
+    [StringLength(255)]
+    public string? IconUrl { get; set; }
+
     [InverseProperty("Team")]
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 

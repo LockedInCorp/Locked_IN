@@ -55,7 +55,8 @@ public class TeamService : ITeamService
                     .Select(tpr => tpr.PreferenceTag.Preferencename)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList(),
-                CreationTimestamp = t.CreationTimestamp
+                CreationTimestamp = t.CreationTimestamp,
+                IconUrl = t.IconUrl
             })
             .FirstOrDefaultAsync();
 
@@ -104,7 +105,8 @@ public class TeamService : ITeamService
                     .Select(tpr => tpr.PreferenceTag.Preferencename)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList(),
-                CreationTimestamp = t.CreationTimestamp
+                CreationTimestamp = t.CreationTimestamp,
+                IconUrl = t.IconUrl
             })
             .ToListAsync();
 
@@ -152,7 +154,8 @@ public class TeamService : ITeamService
                     .Select(tpr => tpr.PreferenceTag.Preferencename)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList(),
-                CreationTimestamp = t.CreationTimestamp
+                CreationTimestamp = t.CreationTimestamp,
+                IconUrl = t.IconUrl
             })
             .ToListAsync();
 
@@ -200,6 +203,7 @@ public class TeamService : ITeamService
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList(),
                 CreationTimestamp = t.CreationTimestamp,
+                IconUrl = t.IconUrl,
                 SearchRank = EF.Functions.ToTsVector("english",t.Name).Rank(EF.Functions.WebSearchToTsQuery(searchTerm))
             })
             .OrderByDescending(t => t.SearchRank)
