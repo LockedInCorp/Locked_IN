@@ -25,7 +25,7 @@ export function GroupsList() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-background">
+        <div className="flex flex-col h-max bg-background">
             {/* Groups Section */}
             <div className="flex-1 overflow-y-auto px-6 py-6">
                 <h2 className="text-2xl font-bold text-primary mb-6">Your Groups</h2>

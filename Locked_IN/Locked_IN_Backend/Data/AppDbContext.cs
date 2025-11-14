@@ -314,7 +314,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             Isprivate = false,
             Isblitz = false,
             ExperienceTagId = 3,
-            CreationTimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc)
+            CreationTimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
         },
         new Team
         {
@@ -327,7 +328,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             Isprivate = true,
             Isblitz = true,
             ExperienceTagId = 1,
-            CreationTimestamp = new DateTime(2024, 10, 1, 12, 0, 0, DateTimeKind.Utc)
+            CreationTimestamp = new DateTime(2024, 10, 1, 12, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
         },
         new Team
         {
@@ -340,7 +342,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             Isprivate = false,
             Isblitz = false,
             ExperienceTagId = 4,
-            CreationTimestamp = new DateTime(2024, 10, 5, 15, 0, 0, DateTimeKind.Utc)
+            CreationTimestamp = new DateTime(2024, 10, 5, 15, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
         },
         new Team
         {
@@ -353,7 +356,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             Isprivate = false,
             Isblitz = true,
             ExperienceTagId = 2,
-            CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, DateTimeKind.Utc)
+            CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
         }
     );
 

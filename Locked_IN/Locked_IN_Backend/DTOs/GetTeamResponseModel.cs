@@ -31,5 +31,6 @@ public class GetTeamResponseModel
     public List<string>? PreferenceTags { get; set; }
     
     public DateTime CreationTimestamp { get; set; }
+    public string? IconUrl { get; set; }
     public float? SearchRank { get; set; }
 }

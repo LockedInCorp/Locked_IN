@@ -22,7 +22,7 @@ export function GroupInfo() {
     const [requestsExpanded, setRequestsExpanded] = useState(true)
 
     return (
-        <div className="flex flex-col h-full bg-background overflow-y-auto">
+        <div className="flex flex-col h-min bg-background overflow-y-auto">
             {/* Group Header */}
             <div className="px-6 py-6 border-b border-border">
                 <div className="flex items-center gap-3 mb-4">
