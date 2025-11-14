@@ -1,10 +1,22 @@
 import { useState } from "react"
-import { Star, Gamepad2, X } from "lucide-react"
+import { X, Check } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
 
 export function DiscoverSidebar() {
     const [gameSearch, setGameSearch] = useState("")
+    const [selectedFilters, setSelectedFilters] = useState<Set<number>>(new Set([0]))
+
+    const toggleFilter = (index: number) => {
+        const newSelected = new Set(selectedFilters)
+        if (newSelected.has(index)) {
+            newSelected.delete(index)
+        } else {
+            newSelected.add(index)
+        }
+        setSelectedFilters(newSelected)
+    }
 
     return (
         <div className="w-[380px] flex-shrink-0 p-6 space-y-6 overflow-y-auto">
@@ -29,40 +41,25 @@ export function DiscoverSidebar() {
                     )}
                 </div>
 
-                {/* Favorite Section */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-foreground">
-                        <Star className="h-4 w-4" />
-                        <span className="font-medium">Favorite</span>
-                    </div>
-                    <div className="space-y-2">
-                        {[1, 2, 3].map((item) => (
-                            <div key={`fav-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
-                                <span className="text-muted-foreground">List item</span>
-                                <Checkbox
-                                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* All Games Section */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-foreground">
-                        <Gamepad2 className="h-4 w-4" />
-                        <span className="font-medium">All games</span>
-                    </div>
-                    <div className="space-y-2">
-                        {[1, 2, 3].map((item) => (
-                            <div key={`game-${item}`} className="flex items-center justify-between bg-muted p-3 rounded-lg">
-                                <span className="text-muted-foreground">List item</span>
-                                <Checkbox
-                                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                                />
-                            </div>
-                        ))}
-                    </div>
+                {/* Game Selection Filter Buttons */}
+                <div className="flex flex-wrap gap-2">
+                    {/* TODO: Add games from the database */}
+                    {[1, 2, 3, 4, 5].map((item, index) => (
+                        <Button
+                            key={`filter-${item}`}
+                            onClick={() => toggleFilter(index)}
+                            className={`h-9 px-4 rounded-md font-medium transition-all ${
+                                selectedFilters.has(index)
+                                    ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                                    : "bg-muted hover:bg-muted/80 text-muted-foreground border border-border"
+                            }`}
+                        >
+                            {selectedFilters.has(index) && (
+                                <Check className="h-4 w-4 mr-1" />
+                            )}
+                            Label
+                        </Button>
+                    ))}
                 </div>
             </div>
 
