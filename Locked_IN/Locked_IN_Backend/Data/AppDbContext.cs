@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Locked_IN_Backend.Data.Entities;
+﻿using Locked_IN_Backend.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Data;
@@ -237,8 +235,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 
     }
 
-    private void SeedTestData(ModelBuilder modelBuilder) 
-    {
+private void SeedTestData(ModelBuilder modelBuilder)
+{
     modelBuilder.Entity<Game>().HasData(
         new Game { Id = 1, Name = "Counter-Strike 2" },
         new Game { Id = 2, Name = "League of Legends" },
@@ -260,45 +258,62 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         new PreferenceTag { Id = 5, Preferencename = "Fun First" },
         new PreferenceTag { Id = 6, Preferencename = "Skill Development" }
     );
-
+    
     modelBuilder.Entity<MemberStatus>().HasData(
-        new MemberStatus { Id = 1, Statusname = "Active" },
-        new MemberStatus { Id = 2, Statusname = "Pending" },
-        new MemberStatus { Id = 3, Statusname = "Inactive" }
+        new MemberStatus { Id = 1, Statusname = "Leader" },
+        new MemberStatus { Id = 2, Statusname = "Member" },
+        new MemberStatus { Id = 3, Statusname = "Pending" },
+        new MemberStatus { Id = 4, Statusname = "Rejected" }
     );
 
     modelBuilder.Entity<User>().HasData(
-        new User 
-        { 
-            Id = 1, 
-            Email = "john.doe@example.com", 
-            Nickname = "JohnDoe", 
+        new User
+        {
+            Id = 1,
+            Email = "john.doe@example.com",
+            Nickname = "JohnDoe",
             HashedPass = "hashed_password_1",
             Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}"
         },
-        new User 
-        { 
-            Id = 2, 
-            Email = "jane.smith@example.com", 
-            Nickname = "JaneSmith", 
+        new User
+        {
+            Id = 2,
+            Email = "jane.smith@example.com",
+            Nickname = "JaneSmith",
             HashedPass = "hashed_password_2",
             Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}"
         },
-        new User 
-        { 
-            Id = 3, 
-            Email = "mike.wilson@example.com", 
-            Nickname = "MikeWilson", 
+        new User
+        {
+            Id = 3,
+            Email = "mike.wilson@example.com",
+            Nickname = "MikeWilson",
             HashedPass = "hashed_password_3",
             Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}"
         },
-        new User 
-        { 
-            Id = 4, 
-            Email = "sarah.johnson@example.com", 
-            Nickname = "SarahJ", 
+        new User
+        {
+            Id = 4,
+            Email = "sarah.johnson@example.com",
+            Nickname = "SarahJ",
             HashedPass = "hashed_password_4",
             Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}"
+        },
+        new User
+        {
+            Id = 5,
+            Email = "test.user5@example.com",
+            Nickname = "TestUser5",
+            HashedPass = "hashed_password_5",
+            Availability = "{}"
+        },
+        new User
+        {
+            Id = 6,
+            Email = "test.user6@example.com",
+            Nickname = "TestUser6",
+            HashedPass = "hashed_password_6",
+            Availability = "{}"
         }
     );
 
@@ -378,7 +393,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             Jointimestamp = new DateTime(2024, 10, 3, 14, 30, 0, DateTimeKind.Utc),
             TeamId = 1,
             UserId = 2,
-            MemberStatusId = 1
+            MemberStatusId = 2
         },
         new TeamMember
         {
@@ -396,7 +411,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             Jointimestamp = new DateTime(2024, 10, 13, 11, 45, 0, DateTimeKind.Utc),
             TeamId = 2,
             UserId = 4,
-            MemberStatusId = 2
+            MemberStatusId = 3
         },
         new TeamMember
         {
@@ -422,17 +437,17 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
     modelBuilder.Entity<TeamPreferencetagRelation>().HasData(
         new TeamPreferencetagRelation { Id = 1, TeamId = 1, PreferenceTagId = 1 },
         new TeamPreferencetagRelation { Id = 2, TeamId = 1, PreferenceTagId = 3 },
-        
+
         new TeamPreferencetagRelation { Id = 3, TeamId = 2, PreferenceTagId = 2 },
         new TeamPreferencetagRelation { Id = 4, TeamId = 2, PreferenceTagId = 5 },
-        
+
         new TeamPreferencetagRelation { Id = 5, TeamId = 3, PreferenceTagId = 1 },
         new TeamPreferencetagRelation { Id = 6, TeamId = 3, PreferenceTagId = 4 },
-        
+
         new TeamPreferencetagRelation { Id = 7, TeamId = 4, PreferenceTagId = 2 },
         new TeamPreferencetagRelation { Id = 8, TeamId = 4, PreferenceTagId = 6 }
-    ); 
-    }
+    );
+}
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     
