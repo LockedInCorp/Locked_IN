@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Data.Entities;
 
@@ -14,14 +11,17 @@ public partial class Friendship
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Column("friendssince_timestamp", TypeName = "timestamp without time zone")]
-    public DateTime FriendssinceTimestamp { get; set; }
+    [Column("request_timestamp", TypeName = "timestamp with time zone")]
+    public DateTime RequestTimestamp { get; set; }
 
     [Column("user_id")]
     public int UserId { get; set; }
 
     [Column("user_2_id")]
     public int User2Id { get; set; }
+
+    [Column("status_id")]
+    public int StatusId { get; set; }
 
     [ForeignKey("UserId")]
     [InverseProperty("FriendshipUsers")]
@@ -30,4 +30,8 @@ public partial class Friendship
     [ForeignKey("User2Id")]
     [InverseProperty("FriendshipUser2s")]
     public virtual User User2 { get; set; } = null!;
+
+    [ForeignKey("StatusId")]
+    [InverseProperty("Friendships")]
+    public virtual FriendshipStatus Status { get; set; } = null!;
 }

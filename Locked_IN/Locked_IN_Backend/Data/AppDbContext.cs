@@ -17,6 +17,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ExperienceTag> ExperienceTags { get; set; }
 
     public virtual DbSet<Friendship> Friendships { get; set; }
+    
+    public virtual DbSet<FriendshipStatus> FriendshipStatuses { get; set; }
 
     public virtual DbSet<Game> Games { get; set; }
 
@@ -79,6 +81,16 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             entity.HasOne(d => d.User).WithMany(p => p.FriendshipUsers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("friendship_user_1");
+            
+            entity.HasOne(d => d.Status).WithMany(p => p.Friendships)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("friendship_status");
+        });
+        
+        modelBuilder.Entity<FriendshipStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("friendship_status_pk");
+            entity.Property(e => e.Id).ValueGeneratedNever(); 
         });
 
         modelBuilder.Entity<Game>(entity =>
@@ -265,6 +277,12 @@ private void SeedTestData(ModelBuilder modelBuilder)
         new MemberStatus { Id = 3, Statusname = "Pending" },
         new MemberStatus { Id = 4, Statusname = "Rejected" }
     );
+    
+    modelBuilder.Entity<FriendshipStatus>().HasData(
+        new FriendshipStatus { Id = 1, StatusName = "Pending" },
+        new FriendshipStatus { Id = 2, StatusName = "Accepted" },
+        new FriendshipStatus { Id = 3, StatusName = "Blocked" }
+    );
 
     modelBuilder.Entity<User>().HasData(
         new User
@@ -446,6 +464,25 @@ private void SeedTestData(ModelBuilder modelBuilder)
 
         new TeamPreferencetagRelation { Id = 7, TeamId = 4, PreferenceTagId = 2 },
         new TeamPreferencetagRelation { Id = 8, TeamId = 4, PreferenceTagId = 6 }
+    );
+    
+    modelBuilder.Entity<Friendship>().HasData(
+        new Friendship 
+        { 
+            Id = 1, 
+            UserId = 1, 
+            User2Id = 2, 
+            StatusId = 2, 
+            RequestTimestamp = new DateTime(2024, 10, 1, 0, 0, 0, DateTimeKind.Utc)
+        },
+        new Friendship 
+        { 
+            Id = 2, 
+            UserId = 3, 
+            User2Id = 1, 
+            StatusId = 1, 
+            RequestTimestamp = new DateTime(2024, 10, 5, 0, 0, 0, DateTimeKind.Utc)
+        }
     );
 }
 
