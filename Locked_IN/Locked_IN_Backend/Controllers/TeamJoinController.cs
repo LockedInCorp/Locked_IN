@@ -1,148 +1,108 @@
-using Locked_IN_Backend.Data;
-using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs;
-using Locked_IN_Backend.Misc.Enum;
+using Locked_IN_Backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace Locked_IN_Backend.Controllers
 {
-    [ApiController] [Route("api")]
+    [ApiController]
+    [Route("api")]
     public class TeamJoinController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly TeamSettings _teamSettings;
+        private readonly ITeamJoinService _teamJoinService;
 
-        public TeamJoinController(AppDbContext context, IOptions<TeamSettings> teamSettings)
+        public TeamJoinController(ITeamJoinService teamJoinService)
         {
-            _context = context;
-            _teamSettings = teamSettings.Value;
-
+            _teamJoinService = teamJoinService;
         }
-        
+
+        /// <summary>
+        /// Request to join a specific team
+        /// </summary>
+        /// <param name="teamId">The ID of the team to join</param>
+        /// <param name="joinRequest">DTO containing the User ID</param>
+        /// <returns>Confirmation or error message</returns>
         [HttpPost("teams/{teamId}/join")]
         public async Task<IActionResult> RequestToJoinTeam(int teamId, [FromBody] JoinRequestDto joinRequest)
         {
-            var team = await _context.Teams.FindAsync(teamId);
-            if (team == null)
-            {
-                return NotFound(new { Message = "Team not found" });
-            }
+            var result = await _teamJoinService.RequestToJoinTeamAsync(teamId, joinRequest.UserId);
             
-            var user = await _context.Users.FindAsync(joinRequest.UserId);
-            if (user == null)
+            return result.Status switch
             {
-                return NotFound(new { Message = "User not found" });
-            }
-            
-            TeamMember? preexistentTeamMember = await _context.TeamMembers
-                .Where(tm => tm.TeamId == teamId && tm.UserId == joinRequest.UserId).FirstOrDefaultAsync();
-            
-            if (preexistentTeamMember is not null)
-            {
-                Console.WriteLine(preexistentTeamMember.MemberStatusId);
-                if (preexistentTeamMember.MemberStatusId== (int)TeamMemberStatus.STATUS_PENDING)
-                {
-                    return BadRequest(new { Message = "User already has a pending join request" });
-                }
-                if (preexistentTeamMember.MemberStatusId == (int)TeamMemberStatus.STATUS_REJECTED)
-                {
-                    return BadRequest(new { Message = "User has been rejected from the team" });
-                }
-                if (preexistentTeamMember.MemberStatusId is (int)TeamMemberStatus.STATUS_MEMBER or (int)TeamMemberStatus.STATUS_LEADER)
-                {
-                    return BadRequest(new { Message = "User is already a member of that team" });
-                }
-            }
-            bool isTeamFull = team.MaxPlayerCount <= team.TeamMembers.Count;
-            if (isTeamFull)
-            {
-                return BadRequest(new { Message = "Team is already full" });
-            }
-            bool hasUserReachedMaxCountJoinRequest = _context.TeamMembers.Count(tm => tm.UserId == joinRequest.UserId) >= _teamSettings.MaxActiveJoinRequestsPerUser;
-            if (hasUserReachedMaxCountJoinRequest)
-            {
-                return BadRequest(new { Message = "User has reached the maximum number of active join requests" });
-            }
-            
-            int newMemberStatusId = team.Isprivate ? (int)TeamMemberStatus.STATUS_PENDING : (int)TeamMemberStatus.STATUS_MEMBER;
-
-            var newTeamMember = new TeamMember
-            {
-                TeamId = teamId,
-                UserId = joinRequest.UserId,
-                MemberStatusId = newMemberStatusId,
-                Jointimestamp = DateTime.UtcNow,
-                Isleader = false 
+                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
+                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
+                TeamJoinResultStatus.BadRequest => BadRequest(new { Message = result.Message }),
+                TeamJoinResultStatus.Conflict => Conflict(new { Message = result.Message }),
+                _ => StatusCode(500, "An unexpected error occurred")
             };
-
-            _context.TeamMembers.Add(newTeamMember);
-            await _context.SaveChangesAsync();
-            
-            if (newMemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING))
-            {
-                return Ok(new { Message = "Join request sent successfully. Awaiting admin approval." });
-            }
-            else
-            {
-                return Ok(new { Message = "Successfully joined public team." });
-            }
         }
-        
+
+        /// <summary>
+        /// Get all pending join requests for a team
+        /// </summary>
+        /// <param name="teamId">The ID of the team</param>
+        /// <returns>A list of pending join requests</returns>
         [HttpGet("teams/{teamId}/join-requests")]
         public async Task<IActionResult> GetJoinRequests(int teamId)
         {
-            var requests = await _context.TeamMembers
-                .Where(tm => tm.TeamId == teamId && tm.MemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING))
-                .Select(tm => new TeamJoinResponceDto() 
-                {
-                    TeamMemberId = tm.Id,
-                    UserId = tm.UserId,
-                    Nickname = tm.User.Nickname, 
-                    RequestTimestamp = tm.Jointimestamp
-                })
-                .ToListAsync();
-
+            var requests = await _teamJoinService.GetJoinRequestsAsync(teamId);
             return Ok(requests);
         }
-        
+
+        /// <summary>
+        /// Accept a pending join request
+        /// </summary>
+        /// <param name="teamMemberId">The ID of the TeamMember record (join request)</param>
+        /// <returns>Confirmation or error message</returns>
         [HttpPost("join-requests/{teamMemberId}/accept")]
         public async Task<IActionResult> AcceptJoinRequest(int teamMemberId)
         {
-            var request = await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId.Equals(TeamMemberStatus.STATUS_PENDING));
+            var result = await _teamJoinService.AcceptJoinRequestAsync(teamMemberId);
 
-            if (request == null)
+            return result.Status switch
             {
-                return NotFound(new { Message = "Join request not found or already handled" });
-            }
-            
-  
-            request.MemberStatusId = (int)TeamMemberStatus.STATUS_MEMBER;;
-            request.Jointimestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified); 
-
-            _context.TeamMembers.Update(request);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "User approved and added to team" });
+                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
+                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
+                TeamJoinResultStatus.BadRequest => BadRequest(new { Message = result.Message }),
+                _ => StatusCode(500, "An unexpected error occurred")
+            };
         }
-        
-        [HttpDelete("join-requests/{teamMemberId}/decline")]
+
+        /// <summary>
+        /// Decline a pending join request
+        /// </summary>
+        /// <param name="teamMemberId">The ID of the TeamMember record (join request)</param>
+        /// <returns>Confirmation or error message</returns>
+        [HttpPost("join-requests/{teamMemberId}/decline")]
         public async Task<IActionResult> DeclineJoinRequest(int teamMemberId)
         {
-            var request = await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId.Equals(TeamMemberStatus.STATUS_MEMBER));
+            var result = await _teamJoinService.DeclineJoinRequestAsync(teamMemberId);
 
-            if (request == null)
+            return result.Status switch
             {
-                return NotFound(new { Message = "Join request not found or already handled" });
-            }
-            
-            _context.TeamMembers.Remove(request);
-            await _context.SaveChangesAsync();
+                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
+                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
+                _ => StatusCode(500, "An unexpected error occurred")
+            };
+        }
 
-            return Ok(new { Message = "Join request declined" });
+        /// <summary>
+        /// Cancel a user's own pending join request
+        /// </summary>
+        /// <param name="teamId">The ID of the team</param>
+        /// <param name="cancelRequest">DTO containing the User ID</param>
+        /// <returns>Confirmation or error message</returns>
+        [HttpDelete("teams/{teamId}/cancel-join")]
+        public async Task<IActionResult> CancelJoinRequest(int teamId, [FromBody] JoinRequestDto cancelRequest)
+        {
+            var result = await _teamJoinService.CancelJoinRequestAsync(teamId, cancelRequest.UserId);
+
+            return result.Status switch
+            {
+                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
+                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
+                TeamJoinResultStatus.BadRequest => BadRequest(new { Message = result.Message }),
+                _ => StatusCode(500, "An unexpected error occurred")
+            };
         }
     }
 }

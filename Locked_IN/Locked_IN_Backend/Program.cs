@@ -17,6 +17,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
+
 builder.Services.AddScoped<SqlConnection>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
