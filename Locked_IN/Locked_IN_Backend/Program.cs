@@ -1,6 +1,7 @@
 using Locked_IN_Backend.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
+using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Services;
 using Microsoft.Data.SqlClient;
 
@@ -18,7 +19,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
-
+builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 
 builder.Services.AddScoped<SqlConnection>(sp =>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Locked_IN_Backend.Services;
 using Locked_IN_Backend.DTO;
+using Locked_IN_Backend.Interfaces;
 
 namespace Locked_IN_Backend.Controllers;
 
@@ -13,24 +14,6 @@ public class TeamController : ControllerBase
     public TeamController(ITeamService teamService)
     {
         _teamService = teamService;
-    }
-
-    /// <summary>
-    /// Get all teams
-    /// </summary>
-    /// <returns>List of all teams</returns>
-    [HttpGet]
-    public async Task<ActionResult<List<GetTeamResponseModel>>> GetAllTeams()
-    {
-        try
-        {
-            var teams = await _teamService.GetAllTeamsAsync();
-            return Ok(teams);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
     }
 
     /// <summary>
@@ -79,17 +62,12 @@ public class TeamController : ControllerBase
     /// Search teams by name
     /// </summary>
     /// <param name="searchTerm">Search term to find teams by name</param>
-    /// <returns>List of teams matching the search term, ordered by relevance</returns>
+    /// <returns>List of teams matching the search term, ordered by relevance. Returns all games if searchTerm is null or empty</returns>
     [HttpGet("search")]
-    public async Task<ActionResult<List<GetTeamResponseModel>>> SearchTeamsByName([FromQuery] string searchTerm)
+    public async Task<ActionResult<List<GetTeamResponseModel>>> SearchTeamsByName([FromQuery] string searchTerm = "")
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-            {
-                return BadRequest("Search term cannot be empty");
-            }
-
             var teams = await _teamService.GetTeamsByNameSearchAsync(searchTerm);
             return Ok(teams);
         }
