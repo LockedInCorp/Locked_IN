@@ -22,6 +22,10 @@ public partial class User
     [Column("hashed_pass")]
     [StringLength(100)]
     public string HashedPass { get; set; } = null!;
+    
+    [Column("avatar_url")]
+    [StringLength(255)]
+    public string? AvatarUrl { get; set; }
 
     [Column("availability", TypeName = "json")]
     public string Availability { get; set; } = null!;

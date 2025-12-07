@@ -283,57 +283,76 @@ private void SeedTestData(ModelBuilder modelBuilder)
         new FriendshipStatus { Id = 2, StatusName = "Accepted" },
         new FriendshipStatus { Id = 3, StatusName = "Blocked" }
     );
+    
+    modelBuilder.Entity<GameExp>().HasData(
+        new GameExp { Id = 1, Experience = "< 100 hours" },
+        new GameExp { Id = 2, Experience = "100-500 hours" },
+        new GameExp { Id = 3, Experience = "500-1000 hours" },
+        new GameExp { Id = 4, Experience = "1000+ hours" }
+    );
+    
+    modelBuilder.Entity<GameplayPref>().HasData(
+        new GameplayPref { Id = 1, Preference = "Voice Chat Only" },
+        new GameplayPref { Id = 2, Preference = "Ping Only" },
+        new GameplayPref { Id = 3, Preference = "Any Communication" }
+    );
 
     modelBuilder.Entity<User>().HasData(
-        new User
-        {
-            Id = 1,
-            Email = "john.doe@example.com",
-            Nickname = "JohnDoe",
-            HashedPass = "hashed_password_1",
-            Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}"
-        },
-        new User
-        {
-            Id = 2,
-            Email = "jane.smith@example.com",
-            Nickname = "JaneSmith",
-            HashedPass = "hashed_password_2",
-            Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}"
-        },
-        new User
-        {
-            Id = 3,
-            Email = "mike.wilson@example.com",
-            Nickname = "MikeWilson",
-            HashedPass = "hashed_password_3",
-            Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}"
-        },
-        new User
-        {
-            Id = 4,
-            Email = "sarah.johnson@example.com",
-            Nickname = "SarahJ",
-            HashedPass = "hashed_password_4",
-            Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}"
-        },
-        new User
-        {
-            Id = 5,
-            Email = "test.user5@example.com",
-            Nickname = "TestUser5",
-            HashedPass = "hashed_password_5",
-            Availability = "{}"
-        },
-        new User
-        {
-            Id = 6,
-            Email = "test.user6@example.com",
-            Nickname = "TestUser6",
-            HashedPass = "hashed_password_6",
-            Availability = "{}"
-        }
-    );
+            new User 
+            { 
+                Id = 1, 
+                Email = "john.doe@example.com", 
+                Nickname = "JohnDoe", 
+                HashedPass = "hashed_password_1",
+                AvatarUrl = "https://example.com/avatars/john.png",
+                Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}"
+            },
+            new User 
+            { 
+                Id = 2, 
+                Email = "jane.smith@example.com", 
+                Nickname = "JaneSmith", 
+                HashedPass = "hashed_password_2",
+                AvatarUrl = null,
+                Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}"
+            },
+            new User 
+            { 
+                Id = 3, 
+                Email = "mike.wilson@example.com", 
+                Nickname = "MikeWilson", 
+                HashedPass = "hashed_password_3",
+                AvatarUrl = null,
+                Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}"
+            },
+            new User 
+            { 
+                Id = 4, 
+                Email = "sarah.johnson@example.com", 
+                Nickname = "SarahJ", 
+                HashedPass = "hashed_password_4",
+                AvatarUrl = null,
+                Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}"
+            },
+            new User 
+            { 
+                Id = 5, 
+                Email = "test.user5@example.com", 
+                Nickname = "TestUser5", 
+                HashedPass = "hashed_password_5",
+                AvatarUrl = null,
+                Availability = "{}"
+            },
+            new User 
+            { 
+                Id = 6, 
+                Email = "test.user6@example.com", 
+                Nickname = "TestUser6", 
+                HashedPass = "hashed_password_6",
+                AvatarUrl = null,
+                Availability = "{}"
+            }
+        );
 
     modelBuilder.Entity<Team>().HasData(
         new Team

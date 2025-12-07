@@ -21,6 +21,12 @@ builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
 
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<ITagService, TagService>();
+
+builder.Services.AddScoped<IGameProfileService, GameProfileService>();
+
 builder.Services.AddScoped<SqlConnection>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
