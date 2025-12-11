@@ -53,7 +53,7 @@ public class TeamService : ITeamService
                         : null
                 }).ToList(),
                 PreferenceTags = t.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Preferencename)
+                    .Select(tpr => tpr.PreferenceTag.Name)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList(),
                 CreationTimestamp = t.CreationTimestamp,
@@ -107,7 +107,7 @@ public class TeamService : ITeamService
                         : null
                 }).ToList(),
                 PreferenceTags = t.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Preferencename)
+                    .Select(tpr => tpr.PreferenceTag.Name)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList(),
                 CreationTimestamp = t.CreationTimestamp,
@@ -161,7 +161,7 @@ public class TeamService : ITeamService
                     : null
             }).ToList(),
             PreferenceTags = t.TeamPreferencetagRelations
-                .Select(tpr => tpr.PreferenceTag.Preferencename)
+                .Select(tpr => tpr.PreferenceTag.Name)
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToList(),
             CreationTimestamp = t.CreationTimestamp,
