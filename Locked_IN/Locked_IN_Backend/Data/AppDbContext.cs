@@ -263,12 +263,12 @@ private void SeedTestData(ModelBuilder modelBuilder)
     );
 
     modelBuilder.Entity<PreferenceTag>().HasData(
-        new PreferenceTag { Id = 1, Preferencename = "Competitive" },
-        new PreferenceTag { Id = 2, Preferencename = "Casual" },
-        new PreferenceTag { Id = 3, Preferencename = "Communication" },
-        new PreferenceTag { Id = 4, Preferencename = "Strategy Focus" },
-        new PreferenceTag { Id = 5, Preferencename = "Fun First" },
-        new PreferenceTag { Id = 6, Preferencename = "Skill Development" }
+        new PreferenceTag { Id = 1, Name = "Competitive" },
+        new PreferenceTag { Id = 2, Name = "Casual" },
+        new PreferenceTag { Id = 3, Name = "Communication" },
+        new PreferenceTag { Id = 4, Name = "Strategy Focus" },
+        new PreferenceTag { Id = 5, Name = "Fun First" },
+        new PreferenceTag { Id = 6, Name = "Skill Development" }
     );
     
     modelBuilder.Entity<MemberStatus>().HasData(

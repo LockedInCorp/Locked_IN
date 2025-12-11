@@ -1,6 +1,7 @@
 using Locked_IN_Backend.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
+using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Services;
 using Microsoft.Data.SqlClient;
 
@@ -18,8 +19,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
-
+builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+builder.Services.AddScoped<ITagService, TagsService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 
@@ -34,6 +36,18 @@ builder.Services.AddScoped<SqlConnection>(sp =>
     return new SqlConnection(connectionString);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+builder.Services.AddOpenApi();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -44,5 +58,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
+app.UseCors("AllowFrontend");
+
 
 app.Run();
