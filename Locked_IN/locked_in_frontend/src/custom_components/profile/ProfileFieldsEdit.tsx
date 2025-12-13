@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { X } from "lucide-react"
+import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import type { GameProfile } from "./ProfileFields"
 
 // Sample list of games - replace with actual API call later
 const availableGames = [
@@ -27,16 +29,19 @@ const availableGames = [
     "Cyberpunk 2077"
 ]
 
+const gamePreferences = ["Chill", "Competitive", "Roleplay", "Strategic", "Hardcore"]
+const experienceLevels = ["Beginner", "Experienced", "Professional"]
+
 type ProfileFieldsEditProps = {
     nickname: string
     location: string
     dateOfBirth: string
-    favoriteGames: string[]
+    gameProfiles: GameProfile[]
     aboutMe: string
     onNicknameChange: (value: string) => void
     onLocationChange: (value: string) => void
     onDateOfBirthChange: (value: string) => void
-    onFavoriteGamesChange: (games: string[]) => void
+    onGameProfilesChange: (profiles: GameProfile[]) => void
     onAboutMeChange: (value: string) => void
 }
 
@@ -44,28 +49,71 @@ export default function ProfileFieldsEdit({
     nickname,
     location,
     dateOfBirth,
-    favoriteGames,
+    gameProfiles,
     aboutMe,
     onNicknameChange,
     onLocationChange,
     onDateOfBirthChange,
-    onFavoriteGamesChange,
+    onGameProfilesChange,
     onAboutMeChange
 }: ProfileFieldsEditProps) {
+    const [expandedGames, setExpandedGames] = useState<Set<string>>(new Set())
     const [selectedGame, setSelectedGame] = useState<string>("")
     const [customGame, setCustomGame] = useState<string>("")
 
+    const toggleGame = (gameName: string) => {
+        const newExpanded = new Set(expandedGames)
+        if (newExpanded.has(gameName)) {
+            newExpanded.delete(gameName)
+        } else {
+            newExpanded.add(gameName)
+        }
+        setExpandedGames(newExpanded)
+    }
+
     const handleAddGame = (game: string) => {
         const trimmedGame = game.trim()
-        if (trimmedGame && !favoriteGames.includes(trimmedGame)) {
-            onFavoriteGamesChange([...favoriteGames, trimmedGame])
+        if (trimmedGame && !gameProfiles.some(p => p.gameName === trimmedGame)) {
+            const newProfile: GameProfile = {
+                gameName: trimmedGame,
+                preferences: [],
+                experience: "",
+                inGameNickname: "",
+                ranking: "",
+                role: ""
+            }
+            onGameProfilesChange([...gameProfiles, newProfile])
             setSelectedGame("")
             setCustomGame("")
+            // Auto-expand the newly added game
+            setExpandedGames(new Set([...expandedGames, trimmedGame]))
         }
     }
 
     const handleRemoveGame = (gameToRemove: string) => {
-        onFavoriteGamesChange(favoriteGames.filter(game => game !== gameToRemove))
+        onGameProfilesChange(gameProfiles.filter(profile => profile.gameName !== gameToRemove))
+        const newExpanded = new Set(expandedGames)
+        newExpanded.delete(gameToRemove)
+        setExpandedGames(newExpanded)
+    }
+
+    const handleUpdateGameProfile = (gameName: string, updates: Partial<GameProfile>) => {
+        onGameProfilesChange(
+            gameProfiles.map(profile =>
+                profile.gameName === gameName ? { ...profile, ...updates } : profile
+            )
+        )
+    }
+
+    const togglePreference = (gameName: string, preference: string) => {
+        const profile = gameProfiles.find(p => p.gameName === gameName)
+        if (!profile) return
+
+        const newPreferences = profile.preferences.includes(preference)
+            ? profile.preferences.filter(p => p !== preference)
+            : [...profile.preferences, preference]
+
+        handleUpdateGameProfile(gameName, { preferences: newPreferences })
     }
 
     const handleCustomGameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -76,7 +124,7 @@ export default function ProfileFieldsEdit({
     }
 
     // Filter out already selected games from available games
-    const availableGamesFiltered = availableGames.filter(game => !favoriteGames.includes(game))
+    const availableGamesFiltered = availableGames.filter(game => !gameProfiles.some(p => p.gameName === game))
 
     return (
         <div className="space-y-6">
@@ -116,73 +164,179 @@ export default function ProfileFieldsEdit({
                 />
             </div>
 
-            {/* Favorite Games */}
+            {/* Game Profiles */}
             <div className="space-y-3">
-                <Label className="text-sm text-muted-foreground">Favorite Games</Label>
+                <Label className="text-sm text-muted-foreground">Game Profiles</Label>
                 
-                {/* Dropdown to select games */}
-                <Select value={selectedGame} onValueChange={(value) => {
-                    setSelectedGame(value)
-                    handleAddGame(value)
-                }}>
-                    <SelectTrigger className="w-full border-border bg-card text-foreground">
-                        <SelectValue placeholder="Select a game to add" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border bg-card">
-                        {availableGamesFiltered.length > 0 ? (
-                            availableGamesFiltered.map((game) => (
-                                <SelectItem key={game} value={game} className="text-foreground">
-                                    {game}
-                                </SelectItem>
-                            ))
-                        ) : (
-                            <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                                All games added
-                            </div>
-                        )}
-                    </SelectContent>
-                </Select>
+                {/* Add new game section */}
+                <div className="space-y-2">
+                    {/* Dropdown to select games */}
+                    <Select value={selectedGame} onValueChange={(value) => {
+                        setSelectedGame(value)
+                        handleAddGame(value)
+                    }}>
+                        <SelectTrigger className="w-full border-border bg-card text-foreground">
+                            <SelectValue placeholder="Select a game to add" />
+                        </SelectTrigger>
+                        <SelectContent className="border-border bg-card">
+                            {availableGamesFiltered.length > 0 ? (
+                                availableGamesFiltered.map((game) => (
+                                    <SelectItem key={game} value={game} className="text-foreground">
+                                        {game}
+                                    </SelectItem>
+                                ))
+                            ) : (
+                                <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                                    All games added
+                                </div>
+                            )}
+                        </SelectContent>
+                    </Select>
 
-                {/* Custom game input */}
-                <div className="flex gap-2">
-                    <Input
-                        type="text"
-                        value={customGame}
-                        onChange={(e) => setCustomGame(e.target.value)}
-                        onKeyPress={handleCustomGameKeyPress}
-                        placeholder="Or enter a custom game name"
-                        className="flex-1 border-border bg-card text-foreground placeholder:text-muted-foreground"
-                    />
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddGame(customGame)}
-                        disabled={!customGame.trim() || favoriteGames.includes(customGame.trim())}
-                        className="border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Add
-                    </Button>
+                    {/* Custom game input */}
+                    <div className="flex gap-2">
+                        <Input
+                            type="text"
+                            value={customGame}
+                            onChange={(e) => setCustomGame(e.target.value)}
+                            onKeyPress={handleCustomGameKeyPress}
+                            placeholder="ex. Terraria, Overwatch"
+                            className="flex-1 border-border bg-card text-foreground placeholder:text-muted-foreground"
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleAddGame(customGame)}
+                            disabled={!customGame.trim() || gameProfiles.some(p => p.gameName === customGame.trim())}
+                            className="border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Add
+                        </Button>
+                    </div>
                 </div>
 
-                {/* Tags list with delete buttons */}
-                {favoriteGames.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                        {favoriteGames.map((game, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium bg-primary text-primary-foreground border-2 border-primary shadow-sm"
-                            >
-                                <span>{game}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveGame(game)}
-                                    className="ml-1 hover:bg-primary-foreground/20 rounded-full p-0.5 transition-colors cursor-pointer"
-                                    aria-label={`Remove ${game}`}
+                {/* Game profiles list */}
+                {gameProfiles.length > 0 && (
+                    <div className="space-y-2 mt-3">
+                        {gameProfiles.map((profile) => {
+                            const isExpanded = expandedGames.has(profile.gameName)
+                            return (
+                                <div
+                                    key={profile.gameName}
+                                    className="rounded-lg border border-border bg-card overflow-hidden"
                                 >
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </div>
-                        ))}
+                                    {/* Collapsed Header */}
+                                    <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
+                                        <button
+                                            onClick={() => toggleGame(profile.gameName)}
+                                            className="flex-1 flex items-center justify-between cursor-pointer"
+                                        >
+                                            <span className="text-sm font-semibold text-foreground">{profile.gameName}</span>
+                                            {isExpanded ? (
+                                                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                                            ) : (
+                                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                            )}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveGame(profile.gameName)}
+                                            className="ml-2 p-1.5 hover:bg-destructive/20 rounded transition-colors cursor-pointer"
+                                            aria-label={`Remove ${profile.gameName}`}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                                        </button>
+                                    </div>
+
+                                    {/* Expanded Content */}
+                                    {isExpanded && (
+                                        <div className="px-4 py-4 space-y-4 bg-card">
+                                            {/* Gameplay Preferences */}
+                                            <div className="space-y-3">
+                                                <Label className="text-sm text-muted-foreground">Choose your gameplay preferences</Label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {gamePreferences.map((pref) => {
+                                                        const isSelected = profile.preferences.includes(pref)
+                                                        return (
+                                                            <button
+                                                                key={pref}
+                                                                type="button"
+                                                                onClick={() => togglePreference(profile.gameName, pref)}
+                                                                className={`flex items-center rounded-md px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
+                                                                    isSelected
+                                                                        ? "bg-primary text-primary-foreground border-2 border-primary shadow-sm"
+                                                                        : "bg-card text-muted-foreground border-2 border-transparent hover:bg-muted hover:text-foreground hover:border-border"
+                                                                }`}
+                                                            >
+                                                                {isSelected && <Check className="h-3 w-3 mr-1" />}
+                                                                {pref}
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* Experience */}
+                                            <div className="space-y-3">
+                                                <Label className="text-sm text-muted-foreground">Choose your game experience</Label>
+                                                <RadioGroup
+                                                    value={profile.experience}
+                                                    onValueChange={(value) => handleUpdateGameProfile(profile.gameName, { experience: value })}
+                                                >
+                                                    {experienceLevels.map((level) => (
+                                                        <div key={level} className="flex items-center gap-2">
+                                                            <RadioGroupItem value={level} id={`${profile.gameName}-${level}`} className="border-border" />
+                                                            <Label htmlFor={`${profile.gameName}-${level}`} className="cursor-pointer text-sm text-foreground">
+                                                                {level}
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </RadioGroup>
+                                            </div>
+
+                                            {/* In-game Nickname */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`${profile.gameName}-nickname`} className="text-sm text-muted-foreground">Enter your in-game nickname</Label>
+                                                <Input
+                                                    id={`${profile.gameName}-nickname`}
+                                                    type="text"
+                                                    value={profile.inGameNickname}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameName, { inGameNickname: e.target.value })}
+                                                    placeholder="Enter your in-game nickname"
+                                                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                                                />
+                                            </div>
+
+                                            {/* Ranking */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`${profile.gameName}-ranking`} className="text-sm text-muted-foreground">Enter your game ranking (optional)</Label>
+                                                <Input
+                                                    id={`${profile.gameName}-ranking`}
+                                                    type="text"
+                                                    value={profile.ranking || ""}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameName, { ranking: e.target.value })}
+                                                    placeholder="0"
+                                                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                                                />
+                                            </div>
+
+                                            {/* Role */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`${profile.gameName}-role`} className="text-sm text-muted-foreground">Enter your in-game role (optional)</Label>
+                                                <Input
+                                                    id={`${profile.gameName}-role`}
+                                                    type="text"
+                                                    value={profile.role || ""}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameName, { role: e.target.value })}
+                                                    placeholder="e.g. Tank, Damager"
+                                                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
                 )}
             </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import ProfileHeader from "@/custom_components/profile/ProfileHeader"
 import ProfileFields from "@/custom_components/profile/ProfileFields"
 import ProfileFieldsEdit from "@/custom_components/profile/ProfileFieldsEdit"
+import type { GameProfile } from "@/custom_components/profile/ProfileFields"
 
 export default function Profile() {
     // Sample data - will be replaced with actual data later
@@ -12,7 +13,16 @@ export default function Profile() {
         nickname: "Jan Kowalski",
         location: "Warsaw, Poland",
         dateOfBirth: "01.01.2001",
-        favoriteGames: ["Dota 2"],
+        gameProfiles: [
+            {
+                gameName: "Dota 2",
+                preferences: ["Competitive", "Strategic"],
+                experience: "Experienced",
+                inGameNickname: "JanKowalski123",
+                ranking: "4500",
+                role: "Support"
+            }
+        ] as GameProfile[],
         aboutMe: "I like pilaying Dota 2!",
         avatarUrl: "/assets/diverse-user-avatars.png",
         avatarFallback: "JK"
@@ -21,6 +31,7 @@ export default function Profile() {
     const [isEditing, setIsEditing] = useState(false)
     const [profileData, setProfileData] = useState(initialProfileData)
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+    const [profileDataBeforeEdit, setProfileDataBeforeEdit] = useState(initialProfileData)
 
     const handleAvatarChange = (file: File | null) => {
         if (file) {
@@ -56,8 +67,8 @@ export default function Profile() {
     }
 
     const handleCancel = () => {
-        // Reset to initial data
-        setProfileData(initialProfileData)
+        // Reset to state before entering edit mode
+        setProfileData(profileDataBeforeEdit)
         setAvatarPreview(null)
         setIsEditing(false)
     }
@@ -81,12 +92,12 @@ export default function Profile() {
                                 nickname={profileData.nickname}
                                 location={profileData.location}
                                 dateOfBirth={profileData.dateOfBirth}
-                                favoriteGames={profileData.favoriteGames}
+                                gameProfiles={profileData.gameProfiles}
                                 aboutMe={profileData.aboutMe}
                                 onNicknameChange={(value) => setProfileData({ ...profileData, nickname: value })}
                                 onLocationChange={(value) => setProfileData({ ...profileData, location: value })}
                                 onDateOfBirthChange={(value) => setProfileData({ ...profileData, dateOfBirth: value })}
-                                onFavoriteGamesChange={(games) => setProfileData({ ...profileData, favoriteGames: games })}
+                                onGameProfilesChange={(profiles) => setProfileData({ ...profileData, gameProfiles: profiles })}
                                 onAboutMeChange={(value) => setProfileData({ ...profileData, aboutMe: value })}
                             />
                         ) : (
@@ -94,7 +105,7 @@ export default function Profile() {
                                 nickname={profileData.nickname}
                                 location={profileData.location}
                                 dateOfBirth={profileData.dateOfBirth}
-                                favoriteGames={profileData.favoriteGames}
+                                gameProfiles={profileData.gameProfiles}
                                 aboutMe={profileData.aboutMe}
                             />
                         )}
@@ -120,7 +131,11 @@ export default function Profile() {
                             ) : (
                                 <Button 
                                     className="bg-primary px-6 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                                    onClick={() => setIsEditing(true)}
+                                    onClick={() => {
+                                        // Save current state before entering edit mode
+                                        setProfileDataBeforeEdit(profileData)
+                                        setIsEditing(true)
+                                    }}
                                 >
                                     Edit profile
                                 </Button>
