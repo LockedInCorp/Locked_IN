@@ -4,6 +4,8 @@ import GroupCreation from "@/pages/GroupCreation"
 import GroupDiscover from "@/pages/GroupDiscover"
 import Home from "@/pages/Home"
 import Profile from "@/pages/Profile"
+import Register from "@/pages/Register"
+import Login from "@/pages/Login"
 import { Header } from "@/custom_components/header/Header"
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
                     <Route path="/groups" element={<GroupDiscover />} />
                     <Route path="/groups/new" element={<GroupCreation />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Login />} />
                 </Routes>
             </main>
         </div>
