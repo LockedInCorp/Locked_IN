@@ -3,6 +3,7 @@ import { GroupView } from "@/pages/GroupView"
 import GroupCreation from "@/pages/GroupCreation"
 import GroupDiscover from "@/pages/GroupDiscover"
 import Home from "@/pages/Home"
+import Profile from "@/pages/Profile"
 import { Header } from "@/custom_components/header/Header"
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
                     <Route path="/my-groups" element={<GroupView />} />
                     <Route path="/groups" element={<GroupDiscover />} />
                     <Route path="/groups/new" element={<GroupCreation />} />
+                    <Route path="/profile" element={<Profile />} />
                 </Routes>
             </main>
         </div>
