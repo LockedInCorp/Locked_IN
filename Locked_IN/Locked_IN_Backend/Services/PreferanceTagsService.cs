@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Services;
 
-public class TagsService : ITagService
+public class PreferanceTagsService : IPreferanceTagsService
 {
     private readonly AppDbContext _context;
 
-    public TagsService(AppDbContext context)
+    public PreferanceTagsService(AppDbContext context)
     {
         _context = context;
     }

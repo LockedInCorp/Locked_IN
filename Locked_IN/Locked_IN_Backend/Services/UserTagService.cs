@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Services
 {
-    public class TagService : ITagService
+    public class UserTagService : ITagService
     {
         private readonly AppDbContext _context;
 
-        public TagService(AppDbContext context)
+        public UserTagService(AppDbContext context)
         {
             _context = context;
         }

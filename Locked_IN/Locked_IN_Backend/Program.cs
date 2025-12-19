@@ -21,12 +21,10 @@ builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
-builder.Services.AddScoped<ITagService, TagsService>();
-
+builder.Services.AddScoped<ITagService, UserTagService>();
+builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
 builder.Services.AddScoped<IUserService, UserService>();
-
-builder.Services.AddScoped<ITagService, TagService>();
-
+builder.Services.AddScoped<ITagService, UserTagService>();
 builder.Services.AddScoped<IGameProfileService, GameProfileService>();
 
 builder.Services.AddScoped<SqlConnection>(sp =>
