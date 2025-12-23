@@ -11,12 +11,13 @@ export function DiscoverSidebar({
     selectedGames,
     onToggleGameFilter,
     onAddGameFilter,
+    selectedTagIds,
+    onToggleTagFilter,
 }: DiscoverSidebarProps) {
 
     const [suggestions, setSuggestions] = useState<Array<{ id: string; label: string }>>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    // Tags
     const [tags, setTags] = useState<Array<{ id: string; name: string }>>([])
     const [tagsLoading, setTagsLoading] = useState(false)
     const [tagsError, setTagsError] = useState<string | null>(null)
@@ -26,7 +27,7 @@ export function DiscoverSidebar({
         return Array.from(selectedGames).map((id) => ({ id, label: byId.get(id) ?? id }))
     }, [selectedGames, visibleGames])
 
-    // Debounced search to backend
+
     useEffect(() => {
         const q = gameSearch.trim()
         if (!q) {
@@ -65,14 +66,14 @@ export function DiscoverSidebar({
         }
     }, [gameSearch, selectedGames, visibleGames])
 
-    // Load tags from backend
+
     useEffect(() => {
         let cancelled = false
         const load = async () => {
             try {
                 setTagsLoading(true)
                 setTagsError(null)
-                const res = await fetch('https://localhost:7252/api/Tag')
+                const res = await fetch('https://localhost:7252/api/PreferanceTag')
                 if (!res.ok) throw new Error(`Tags fetch failed: ${res.status}`)
                 const data: Array<{ id: number | string; name: string }> = await res.json()
                 if (cancelled) return
@@ -182,7 +183,11 @@ export function DiscoverSidebar({
                     {!tagsLoading && !tagsError && tags.map((tag) => (
                         <div key={tag.id} className="flex items-center justify-between bg-muted p-3 rounded-lg">
                             <span className="text-muted-foreground">{tag.name}</span>
-                            <Checkbox className="data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                            <Checkbox
+                                checked={selectedTagIds.has(tag.id)}
+                                onCheckedChange={() => onToggleTagFilter(tag.id)}
+                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
                         </div>
                     ))}
                 </div>

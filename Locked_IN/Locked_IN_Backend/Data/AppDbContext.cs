@@ -410,6 +410,90 @@ private void SeedTestData(ModelBuilder modelBuilder)
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 5,
+            Name = "Aim Squad",
+            MinCompScore = 1200,
+            MaxPlayerCount = 5,
+            Description = "TestDescription5",
+            GameId = 1,
+            Isprivate = false,
+            Isblitz = true,
+            ExperienceTagId = 2,
+            CreationTimestamp = new DateTime(2024, 9, 15, 19, 30, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 6,
+            Name = "Nexus Five",
+            MinCompScore = 900,
+            MaxPlayerCount = 5,
+            Description = "TestDescription6",
+            GameId = 2,
+            Isprivate = true,
+            Isblitz = false,
+            ExperienceTagId = 1,
+            CreationTimestamp = new DateTime(2024, 8, 30, 8, 45, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 7,
+            Name = "VLR Strike",
+            MinCompScore = 1800,
+            MaxPlayerCount = 5,
+            Description = "TestDescription7",
+            GameId = 3,
+            Isprivate = false,
+            Isblitz = false,
+            ExperienceTagId = 3,
+            CreationTimestamp = new DateTime(2024, 10, 2, 21, 10, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 8,
+            Name = "Chill Queue",
+            MinCompScore = null,
+            MaxPlayerCount = 5,
+            Description = "TestDescription8",
+            GameId = 2,
+            Isprivate = false,
+            Isblitz = false,
+            ExperienceTagId = 1,
+            CreationTimestamp = new DateTime(2024, 9, 5, 13, 5, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 9,
+            Name = "Peak Hold",
+            MinCompScore = 1600,
+            MaxPlayerCount = 5,
+            Description = "TestDescription9",
+            GameId = 1,
+            Isprivate = true,
+            Isblitz = true,
+            ExperienceTagId = 4,
+            CreationTimestamp = new DateTime(2024, 11, 1, 9, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 10,
+            Name = "Spike Rush",
+            MinCompScore = 1100,
+            MaxPlayerCount = 5,
+            Description = "TestDescription10",
+            GameId = 3,
+            Isprivate = false,
+            Isblitz = true,
+            ExperienceTagId = 2,
+            CreationTimestamp = new DateTime(2024, 8, 20, 17, 25, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
         }
     );
 
@@ -467,6 +551,60 @@ private void SeedTestData(ModelBuilder modelBuilder)
             TeamId = 4,
             UserId = 2,
             MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 7,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 9, 16, 10, 0, 0, DateTimeKind.Utc),
+            TeamId = 5,
+            UserId = 3,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 8,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 9, 1, 12, 30, 0, DateTimeKind.Utc),
+            TeamId = 6,
+            UserId = 4,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 9,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 10, 3, 20, 15, 0, DateTimeKind.Utc),
+            TeamId = 7,
+            UserId = 5,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 10,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 9, 6, 9, 5, 0, DateTimeKind.Utc),
+            TeamId = 8,
+            UserId = 6,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 11,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 11, 2, 10, 0, 0, DateTimeKind.Utc),
+            TeamId = 9,
+            UserId = 1,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 12,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 8, 21, 18, 0, 0, DateTimeKind.Utc),
+            TeamId = 10,
+            UserId = 2,
+            MemberStatusId = 1
         }
     );
 
@@ -482,7 +620,25 @@ private void SeedTestData(ModelBuilder modelBuilder)
         new TeamPreferencetagRelation { Id = 6, TeamId = 3, PreferenceTagId = 4 },
 
         new TeamPreferencetagRelation { Id = 7, TeamId = 4, PreferenceTagId = 2 },
-        new TeamPreferencetagRelation { Id = 8, TeamId = 4, PreferenceTagId = 6 }
+        new TeamPreferencetagRelation { Id = 8, TeamId = 4, PreferenceTagId = 6 },
+
+        new TeamPreferencetagRelation { Id = 9, TeamId = 5, PreferenceTagId = 1 },
+        new TeamPreferencetagRelation { Id = 10, TeamId = 5, PreferenceTagId = 6 },
+
+        new TeamPreferencetagRelation { Id = 11, TeamId = 6, PreferenceTagId = 2 },
+        new TeamPreferencetagRelation { Id = 12, TeamId = 6, PreferenceTagId = 3 },
+
+        new TeamPreferencetagRelation { Id = 13, TeamId = 7, PreferenceTagId = 4 },
+        new TeamPreferencetagRelation { Id = 14, TeamId = 7, PreferenceTagId = 1 },
+
+        new TeamPreferencetagRelation { Id = 15, TeamId = 8, PreferenceTagId = 5 },
+        new TeamPreferencetagRelation { Id = 16, TeamId = 8, PreferenceTagId = 2 },
+
+        new TeamPreferencetagRelation { Id = 17, TeamId = 9, PreferenceTagId = 3 },
+        new TeamPreferencetagRelation { Id = 18, TeamId = 9, PreferenceTagId = 6 },
+
+        new TeamPreferencetagRelation { Id = 19, TeamId = 10, PreferenceTagId = 4 },
+        new TeamPreferencetagRelation { Id = 20, TeamId = 10, PreferenceTagId = 1 }
     );
     
     modelBuilder.Entity<Friendship>().HasData(

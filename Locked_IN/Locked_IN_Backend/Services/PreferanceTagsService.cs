@@ -14,7 +14,7 @@ public class PreferanceTagsService : IPreferanceTagsService
         _context = context;
     }
     
-    public async Task<List<GetTagsResponceModel>> GetTagsAsync()
+    public async Task<List<GetTagsResponceModel>> GetPreferanceTagsAsync()
     {
         var query = _context.PreferenceTags.AsQueryable();
     

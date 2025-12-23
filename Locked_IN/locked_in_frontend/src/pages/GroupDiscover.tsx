@@ -1,54 +1,87 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSidebar"
 import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
-import type { GroupCard, GameOption } from "@/custom_components/groupDiscover/types"
+import type { GroupCard, GameOption, TeamSearchResult, PagedResult } from "@/custom_components/groupDiscover/types"
 
-const MOCK_FAVORITES: GameOption[] = [
-    { id: "ow2", label: "Overwatch 2", isFavorite: true },
-    { id: "lol", label: "League of Legends", isFavorite: true },
-    { id: "val", label: "Valorant", isFavorite: true },
-]
-
-// Placeholder ALL_GAMES_MOCK removed. Search now queries backend.
-
-const mockGroups: GroupCard[] = [
-// ... existing code ...
-    {
-        id: "6",
-        title: "Lets get ON!",
-        game: "Overwatch",
-        creator: "Riggid",
-        description:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        image: "/sunset-silhouette-gaming.jpg",
-        tags: ["Chill", "Arcade", "NewPeople"],
-        currentMembers: 1,
-        maxMembers: 6,
-    },
-]
 
 export default function DiscoverPage() {
     const [groupSearch, setGroupSearch] = useState("")
     const [showPending, setShowPending] = useState(false)
 
-    // Sidebar State
     const [gameSearch, setGameSearch] = useState("")
     const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set())
+    const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(new Set())
     const [customGames, setCustomGames] = useState<Array<{ id: string; label: string }>>([])
 
-    const visibleGames: GameOption[] = [
-        ...MOCK_FAVORITES,
-        ...customGames.map((g) => ({ ...g, isFavorite: false })),
-    ]
+    const [groups, setGroups] = useState<GroupCard[]>([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [pageSize, setPageSize] = useState(12)
+    const [sortBy, setSortBy] = useState("relevance")
+
+    const visibleGames: GameOption[] = customGames.map((g) => ({ ...g, isFavorite: false }))
+
+    useEffect(() => {
+        const fetchGroups = async () => {
+            try {
+                const gameIds = Array.from(selectedGames).map(id => `gameIds=${id}`).join("&")
+                const tagIds = Array.from(selectedTagIds).map(id => `preferenceTagIds=${id}`).join("&")
+                const queryParams = [
+                    `searchTerm=${encodeURIComponent(groupSearch)}`,
+                    `page=${currentPage}`,
+                    `pageSize=${pageSize}`,
+                    `sortBy=${sortBy}`,
+                    gameIds,
+                    tagIds
+                ].filter(Boolean).join("&")
+                
+                const url = `https://localhost:7252/api/Team/search/advanced?${queryParams}`
+                const response = await fetch(url)
+                if (!response.ok) throw new Error("Failed to fetch")
+                const data: PagedResult<TeamSearchResult> = await response.json()
+                
+                const mappedGroups: GroupCard[] = data.items.map((team) => ({
+                    id: team.id.toString(),
+                    title: team.name,
+                    game: team.gameName || "Unknown Game",
+                    creator: team.teamLeaderNickname || "Unknown",
+                    description: team.description,
+                    image: team.iconUrl || "/assets/sunset-silhouette-gaming.jpg",
+                    tags: team.preferenceTags || [],
+                    currentMembers: team.currentMemberCount,
+                    maxMembers: team.maxPlayerCount,
+                    isPending: false
+                }))
+
+                setGroups(mappedGroups)
+                setTotalPages(data.totalPages)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        fetchGroups()
+    }, [groupSearch, selectedGames, selectedTagIds, currentPage, pageSize, sortBy])
+
+    const handleToggleTagFilter = (tagId: string) => {
+        setSelectedTagIds((prev) => {
+            const next = new Set(prev)
+            if (next.has(tagId)) {
+                next.delete(tagId)
+            } else {
+                next.add(tagId)
+            }
+            return next
+        })
+    }
 
     const handleAddGameFilter = (game: { id: string; label: string }) => {
-        const isFavorite = MOCK_FAVORITES.some((f) => f.id === game.id)
         const isCustom = customGames.some((c) => c.id === game.id)
 
-        if (!isFavorite && !isCustom) {
+        if (!isCustom) {
             setCustomGames((prev) => [...prev, game])
         }
 
@@ -70,10 +103,7 @@ export default function DiscoverPage() {
                 return next
             })
 
-            const isFavorite = MOCK_FAVORITES.some((f) => f.id === gameId)
-            if (!isFavorite) {
-                setCustomGames((prev) => prev.filter((g) => g.id !== gameId))
-            }
+            setCustomGames((prev) => prev.filter((g) => g.id !== gameId))
         } else {
             setSelectedGames((prev) => {
                 const next = new Set(prev)
@@ -92,6 +122,8 @@ export default function DiscoverPage() {
                 selectedGames={selectedGames}
                 onToggleGameFilter={handleToggleGameFilter}
                 onAddGameFilter={handleAddGameFilter}
+                selectedTagIds={selectedTagIds}
+                onToggleTagFilter={handleToggleTagFilter}
             />
 
             <div className="flex-1 flex flex-col p-6 overflow-hidden">
@@ -100,9 +132,18 @@ export default function DiscoverPage() {
                     onGroupSearchChange={setGroupSearch}
                     showPending={showPending}
                     onShowPendingChange={setShowPending}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    sortBy={sortBy}
+                    onSortByChange={setSortBy}
                 />
 
-                <GroupCardGrid groups={mockGroups} />
+                <GroupCardGrid
+                    groups={groups}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     )

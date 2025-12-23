@@ -1,16 +1,15 @@
-import { useState } from "react"
 import type { GroupCard } from "./types"
 import { GroupCard as GroupCardComponent } from "./GroupCard"
 import { Button } from "@/components/ui/button"
 
 interface GroupCardGridProps {
     groups: GroupCard[]
+    currentPage: number
+    totalPages: number
+    onPageChange: (page: number) => void
 }
 
-export function GroupCardGrid({ groups }: GroupCardGridProps) {
-    const [currentPage, setCurrentPage] = useState(1)
-    const totalPages = 20
-
+export function GroupCardGrid({ groups, currentPage, totalPages, onPageChange }: GroupCardGridProps) {
     const getPageNumbers = () => {
         const pages: (number | string)[] = []
         
@@ -51,7 +50,7 @@ export function GroupCardGrid({ groups }: GroupCardGridProps) {
                     ) : (
                         <Button
                             key={page}
-                            onClick={() => setCurrentPage(page as number)}
+                            onClick={() => onPageChange(page as number)}
                             className={`h-9 w-9 px-0 rounded-md font-medium transition-all ${
                                 currentPage === page
                                     ? "bg-primary hover:bg-primary/90 text-primary-foreground"

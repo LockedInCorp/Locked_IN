@@ -2,6 +2,7 @@
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.Interfaces;
 
 namespace Locked_IN_Backend.Services;
@@ -175,5 +176,122 @@ public class TeamService : ITeamService
 
     return teams;
 }
+
+    public async Task<PagedResult<GetTeamsCardResponceModel>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy)
+    {
+        var query = _context.Teams.AsQueryable();
+
+        if (gameIds != null && gameIds.Count > 0)
+        {
+            query = query.Where(t => gameIds.Contains(t.GameId));
+        }
+
+        if (preferenceTagIds != null && preferenceTagIds.Count > 0)
+        {
+            query = query.Where(t => t.TeamPreferencetagRelations
+                .Any(rel => preferenceTagIds.Contains(rel.PreferenceTagId)));
+        }
+
+        var hasSearch = !string.IsNullOrWhiteSpace(searchTerm);
+        if (hasSearch)
+        {
+            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name)
+                .Matches(EF.Functions.WebSearchToTsQuery(searchTerm)));
+        }
+
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 12;
+
+        var totalCount = await query.CountAsync();
+
+        var intermediate = query.Select(t => new
+        {
+            Team = t,
+            SearchRank = hasSearch
+                ? EF.Functions.ToTsVector("english", t.Name)
+                    .Rank(EF.Functions.WebSearchToTsQuery(searchTerm))
+                : 0,
+            LatestMemberJoin = t.TeamMembers
+                .OrderByDescending(tm => tm.Jointimestamp)
+                .Select(tm => (DateTime?)tm.Jointimestamp)
+                .FirstOrDefault(),
+            LeaderNickname = t.TeamMembers
+                .Where(tm => tm.Isleader)
+                .Select(tm => tm.User.Nickname)
+                .FirstOrDefault()
+        });
+
+        var sort = (sortBy ?? string.Empty).Trim().ToLower();
+        if (sort == "relevance")
+        {
+            intermediate = intermediate
+                .OrderByDescending(x => x.SearchRank)
+                .ThenByDescending(x => x.Team.CreationTimestamp);
+        }
+        else if (sort == "popular")
+        {
+            intermediate = intermediate
+                .OrderByDescending(x => x.LatestMemberJoin)
+                .ThenByDescending(x => x.Team.CreationTimestamp);
+        }
+        else if (sort == "newest")
+        {
+            intermediate = intermediate
+                .OrderByDescending(x => x.Team.CreationTimestamp);
+        }
+        else
+        {
+            if (hasSearch)
+            {
+                intermediate = intermediate
+                    .OrderByDescending(x => x.SearchRank)
+                    .ThenByDescending(x => x.Team.CreationTimestamp);
+            }
+            else
+            {
+                intermediate = intermediate
+                    .OrderByDescending(x => x.Team.CreationTimestamp);
+            }
+        }
+
+        var items = await intermediate
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new GetTeamsCardResponceModel
+            {
+                Id = x.Team.Id,
+                Name = x.Team.Name,
+                MinCompScore = x.Team.MinCompScore,
+                MaxPlayerCount = x.Team.MaxPlayerCount,
+                Description = x.Team.Description,
+                GameId = x.Team.GameId,
+                GameName = x.Team.Game.Name,
+                IsPrivate = x.Team.Isprivate,
+                IsBlitz = x.Team.Isblitz,
+                ExperienceTagId = x.Team.ExperienceTagId,
+                ExperienceLevel = x.Team.ExperienceTag.Experiencelevel,
+                CurrentMemberCount = x.Team.TeamMembers.Count,
+                PreferenceTags = x.Team.TeamPreferencetagRelations
+                    .Select(tpr => tpr.PreferenceTag.Name)
+                    .Where(name => !string.IsNullOrEmpty(name))
+                    .ToList(),
+                CreationTimestamp = x.Team.CreationTimestamp,
+                IconUrl = x.Team.IconUrl,
+                SearchRank = x.SearchRank,
+                TeamLeaderNickname = x.LeaderNickname
+            })
+            .ToListAsync();
+
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        return new PagedResult<GetTeamsCardResponceModel>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages
+        };
+    }
 
 }
