@@ -1,0 +1,123 @@
+@Locked_IN_Backend_HostAddress = http://localhost:5122
+@baseUrl = {{Locked_IN_Backend_HostAddress}}/api/chat
+
+### Variables - Update these with actual user IDs from your database
+@userId1 = 1
+@userId2 = 2
+@chatId = 1
+
+### ============================================
+### CHAT FUNCTIONALITY TESTS
+### ============================================
+
+### 1. Create a Direct Chat between two users
+POST {{baseUrl}}?userId={{userId1}}
+Content-Type: application/json
+
+{
+  "type": "Direct",
+  "name": null,
+  "teamId": null,
+  "participantUserIds": [1, 2]
+}
+
+### 2. Create a Group Chat
+POST {{baseUrl}}?userId={{userId1}}
+Content-Type: application/json
+
+{
+  "type": "Group",
+  "name": "Test Group Chat",
+  "teamId": null,
+  "participantUserIds": [1, 2, 3]
+}
+
+### 3. Create a Team Chat (requires existing teamId)
+POST {{baseUrl}}?userId={{userId1}}
+Content-Type: application/json
+
+{
+  "type": "Team",
+  "name": "Team Chat",
+  "teamId": 1,
+  "participantUserIds": [1, 2]
+}
+
+### 4. Get all chats for a user
+GET {{baseUrl}}/user/{{userId1}}
+
+### 5. Get specific chat by ID
+GET {{baseUrl}}/{{chatId}}?userId={{userId1}}
+
+### 6. Send a message to a chat
+POST {{baseUrl}}/messages?userId={{userId1}}
+Content-Type: application/json
+
+{
+  "chatId": {{chatId}},
+  "content": "Hello! This is a test message.",
+  "attachmentUrl": null
+}
+
+### 7. Send a message with attachment URL
+POST {{baseUrl}}/messages?userId={{userId1}}
+Content-Type: application/json
+
+{
+  "chatId": {{chatId}},
+  "content": "Check out this image!",
+  "attachmentUrl": "https://example.com/image.png"
+}
+
+### 8. Get messages from a chat (paginated)
+GET {{baseUrl}}/{{chatId}}/messages?userId={{userId1}}&pageNumber=1&pageSize=50
+
+### 9. Get messages - second page
+GET {{baseUrl}}/{{chatId}}/messages?userId={{userId1}}&pageNumber=2&pageSize=50
+
+### 10. Edit a message
+PUT {{baseUrl}}/messages?userId={{userId1}}
+Content-Type: application/json
+
+{
+  "messageId": 1,
+  "content": "This message has been edited!"
+}
+
+### 11. Delete a message (soft delete)
+DELETE {{baseUrl}}/messages/1?userId={{userId1}}
+
+### 12. Mark chat as read
+POST {{baseUrl}}/{{chatId}}/read?userId={{userId1}}
+
+### 13. Join a chat group
+POST {{baseUrl}}/{{chatId}}/join?userId={{userId2}}
+
+### 14. Leave a chat group
+POST {{baseUrl}}/{{chatId}}/leave?userId={{userId2}}
+
+### ============================================
+### ERROR TESTING
+### ============================================
+
+### Try to send message to chat you're not in (should fail)
+POST {{baseUrl}}/messages?userId=999
+Content-Type: application/json
+
+{
+  "chatId": {{chatId}},
+  "content": "This should fail"
+}
+
+### Try to edit someone else's message (should fail)
+PUT {{baseUrl}}/messages?userId={{userId2}}
+Content-Type: application/json
+
+{
+  "messageId": 1,
+  "content": "Trying to edit user1's message"
+}
+
+### Try to get chat you're not a participant in (should fail)
+GET {{baseUrl}}/{{chatId}}?userId=999
+

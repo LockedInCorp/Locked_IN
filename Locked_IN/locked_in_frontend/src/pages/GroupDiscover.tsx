@@ -32,54 +32,6 @@ const mockGroups: GroupCard[] = [
         currentMembers: 1,
         maxMembers: 6,
     },
-    {
-        id: "3",
-        title: "Lets get ON!",
-        game: "Overwatch",
-        creator: "Riggid",
-        description:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        image: "/sunset-silhouette-gaming.jpg",
-        tags: ["Chill", "Arcade", "NewPeople"],
-        currentMembers: 1,
-        maxMembers: 6,
-    },
-    {
-        id: "4",
-        title: "Lets get ON!",
-        game: "Overwatch",
-        creator: "Riggid",
-        description:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        image: "/sunset-silhouette-gaming.jpg",
-        tags: ["Chill", "Arcade", "NewPeople"],
-        currentMembers: 1,
-        maxMembers: 6,
-    },
-    {
-        id: "5",
-        title: "Lets get ON!",
-        game: "Overwatch",
-        creator: "Riggid",
-        description:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        image: "/sunset-silhouette-gaming.jpg",
-        tags: ["Chill", "Arcade", "NewPeople"],
-        currentMembers: 1,
-        maxMembers: 6,
-    },
-    {
-        id: "6",
-        title: "Lets get ON!",
-        game: "Overwatch",
-        creator: "Riggid",
-        description:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        image: "/sunset-silhouette-gaming.jpg",
-        tags: ["Chill", "Arcade", "NewPeople"],
-        currentMembers: 1,
-        maxMembers: 6,
-    },
 ]
 
 export default function DiscoverPage() {
