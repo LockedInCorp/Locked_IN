@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
 import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSidebar"
 import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
 import type { GroupCard } from "@/custom_components/groupDiscover/types"
+import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 
 const mockGroups: GroupCard[] = [
     {
@@ -83,8 +83,7 @@ const mockGroups: GroupCard[] = [
 ]
 
 export default function DiscoverPage() {
-    const [groupSearch, setGroupSearch] = useState("")
-    const [showPending, setShowPending] = useState(false)
+    const { groupSearch, showPending, setGroupSearch, setShowPending } = useGroupDiscoveryStore()
 
     return (
         <div className="flex h-full overflow-hidden">

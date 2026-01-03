@@ -1,14 +1,14 @@
-import { useState } from "react"
 import type { GroupCard } from "./types"
 import { GroupCard as GroupCardComponent } from "./GroupCard"
 import { Button } from "@/components/ui/button"
+import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 
 interface GroupCardGridProps {
     groups: GroupCard[]
 }
 
 export function GroupCardGrid({ groups }: GroupCardGridProps) {
-    const [currentPage, setCurrentPage] = useState(1)
+    const { currentPage, setCurrentPage } = useGroupDiscoveryStore()
     const totalPages = 20
 
     const getPageNumbers = () => {

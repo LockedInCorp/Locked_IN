@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useGroupViewStore } from "@/stores/groupViewStore"
 
 const members = [
     { id: 1, name: "Friend Name", avatar: "/diverse-user-avatars.png" },
@@ -18,8 +18,7 @@ const requests = [
 ]
 
 export function GroupInfo() {
-    const [membersExpanded, setMembersExpanded] = useState(true)
-    const [requestsExpanded, setRequestsExpanded] = useState(true)
+    const { membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useGroupViewStore()
 
     return (
         <div className="flex flex-col h-min bg-background overflow-y-auto">
@@ -67,7 +66,7 @@ export function GroupInfo() {
             {/* Members Section */}
             <div className="px-6 py-4 border-b border-border">
                 <button
-                    onClick={() => setMembersExpanded(!membersExpanded)}
+                    onClick={toggleMembersExpanded}
                     className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
                 >
                     <div className="flex items-center gap-2">
@@ -111,7 +110,7 @@ export function GroupInfo() {
             {/* Requests Section */}
             <div className="px-6 py-4 flex-1">
                 <button
-                    onClick={() => setRequestsExpanded(!requestsExpanded)}
+                    onClick={toggleRequestsExpanded}
                     className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
                 >
                     <div className="flex items-center gap-2">

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { GameProfile } from "./ProfileFields"
+import { useProfileStore } from "@/stores/profileStore"
 
 // Sample list of games - replace with actual API call later
 const availableGames = [
@@ -57,19 +57,15 @@ export default function ProfileFieldsEdit({
     onGameProfilesChange,
     onAboutMeChange
 }: ProfileFieldsEditProps) {
-    const [expandedGames, setExpandedGames] = useState<Set<string>>(new Set())
-    const [selectedGame, setSelectedGame] = useState<string>("")
-    const [customGame, setCustomGame] = useState<string>("")
-
-    const toggleGame = (gameName: string) => {
-        const newExpanded = new Set(expandedGames)
-        if (newExpanded.has(gameName)) {
-            newExpanded.delete(gameName)
-        } else {
-            newExpanded.add(gameName)
-        }
-        setExpandedGames(newExpanded)
-    }
+    const {
+        expandedGames,
+        selectedGame,
+        customGame,
+        toggleExpandedGame,
+        setExpandedGames,
+        setSelectedGame,
+        setCustomGame
+    } = useProfileStore()
 
     const handleAddGame = (game: string) => {
         const trimmedGame = game.trim()
@@ -86,15 +82,18 @@ export default function ProfileFieldsEdit({
             setSelectedGame("")
             setCustomGame("")
             // Auto-expand the newly added game
-            setExpandedGames(new Set([...expandedGames, trimmedGame]))
+            toggleExpandedGame(trimmedGame)
         }
     }
 
     const handleRemoveGame = (gameToRemove: string) => {
         onGameProfilesChange(gameProfiles.filter(profile => profile.gameName !== gameToRemove))
-        const newExpanded = new Set(expandedGames)
-        newExpanded.delete(gameToRemove)
-        setExpandedGames(newExpanded)
+        // Remove from expandedGames if it exists there
+        if (expandedGames.has(gameToRemove)) {
+            const newExpanded = new Set(expandedGames)
+            newExpanded.delete(gameToRemove)
+            setExpandedGames(newExpanded)
+        }
     }
 
     const handleUpdateGameProfile = (gameName: string, updates: Partial<GameProfile>) => {
@@ -228,7 +227,7 @@ export default function ProfileFieldsEdit({
                                     {/* Collapsed Header */}
                                     <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
                                         <button
-                                            onClick={() => toggleGame(profile.gameName)}
+                                            onClick={() => toggleExpandedGame(profile.gameName)}
                                             className="flex-1 flex items-center justify-between cursor-pointer"
                                         >
                                             <span className="text-sm font-semibold text-foreground">{profile.gameName}</span>

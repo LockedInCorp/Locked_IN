@@ -1,22 +1,11 @@
-import { useState } from "react"
 import { X, Check } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
+import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 
 export function DiscoverSidebar() {
-    const [gameSearch, setGameSearch] = useState("")
-    const [selectedFilters, setSelectedFilters] = useState<Set<number>>(new Set([0]))
-
-    const toggleFilter = (index: number) => {
-        const newSelected = new Set(selectedFilters)
-        if (newSelected.has(index)) {
-            newSelected.delete(index)
-        } else {
-            newSelected.add(index)
-        }
-        setSelectedFilters(newSelected)
-    }
+    const { gameSearch, selectedFilters, setGameSearch, toggleFilter } = useGroupDiscoveryStore()
 
     return (
         <div className="w-[380px] flex-shrink-0 p-6 space-y-6 overflow-y-auto">
