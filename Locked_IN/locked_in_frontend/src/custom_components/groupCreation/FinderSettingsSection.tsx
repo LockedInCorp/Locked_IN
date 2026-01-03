@@ -6,13 +6,19 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-const gameTags = ["Chill", "Competitive", "Role-play", "Strategic", "Hardcore"]
+const gameTags = ["Chill", "Competitive", "Roleplay", "Strategic", "Hardcore"]
 
 type FinderSettingsProps = {
     selectedTags: string[]
     toggleTag: (tag: string) => void
     experience: string
     setExperience: (v: string) => void
+    competitiveScore?: string
+    setCompetitiveScore?: (v: string) => void
+    communicationService?: string
+    setCommunicationService?: (v: string) => void
+    description?: string
+    setDescription?: (v: string) => void
 }
 
 export default function FinderSettingsSection({
@@ -20,6 +26,12 @@ export default function FinderSettingsSection({
                                                   toggleTag,
                                                   experience,
                                                   setExperience,
+                                                  competitiveScore = "0",
+                                                  setCompetitiveScore,
+                                                  communicationService = "discord",
+                                                  setCommunicationService,
+                                                  description = "",
+                                                  setDescription,
                                               }: FinderSettingsProps) {
     return (
         <div className="rounded-lg border border-border bg-card p-6">
@@ -70,7 +82,8 @@ export default function FinderSettingsSection({
                         id="competitive-score"
                         type="number"
                         placeholder="0"
-                        defaultValue="0"
+                        value={competitiveScore}
+                        onChange={(e) => setCompetitiveScore?.(e.target.value)}
                         className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
@@ -80,7 +93,7 @@ export default function FinderSettingsSection({
                     <Label htmlFor="communication-service" className="text-sm text-muted-foreground">
                         Communication Service
                     </Label>
-                    <Select defaultValue="discord">
+                    <Select value={communicationService} onValueChange={(value) => setCommunicationService?.(value)}>
                         <SelectTrigger id="communication-service" className="w-full border-border bg-card text-foreground">
                             <SelectValue placeholder="Select service" />
                         </SelectTrigger>
@@ -100,6 +113,8 @@ export default function FinderSettingsSection({
                     <Textarea
                         id="description"
                         placeholder="Type your description here"
+                        value={description}
+                        onChange={(e) => setDescription?.(e.target.value)}
                         className="min-h-32 resize-none border-border bg-card text-foreground placeholder:text-muted-foreground"
                     />
                 </div>

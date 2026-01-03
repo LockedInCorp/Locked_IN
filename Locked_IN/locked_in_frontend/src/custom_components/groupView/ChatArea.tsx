@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreVertical, ImageIcon, Send } from "lucide-react"
+import { ImageIcon, Send } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,9 +34,6 @@ export function ChatArea() {
                         <p className="text-xs text-muted-foreground">icon</p>
                     </div>
                 </div>
-                <Button size="icon" variant="ghost" className="text-foreground">
-                    <MoreVertical className="h-5 w-5" />
-                </Button>
             </div>
 
             {/* Chat Area */}

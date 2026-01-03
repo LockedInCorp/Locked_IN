@@ -1,5 +1,6 @@
 "use client"
 
+import { useNavigate } from "react-router-dom"
 import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -18,10 +19,17 @@ const requests = [
 ]
 
 export function GroupInfo() {
-    const { membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useGroupViewStore()
+    const navigate = useNavigate()
+    const { selectedGroupId, membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useGroupViewStore()
+
+    const handleEdit = () => {
+        // Use selectedGroupId if available, otherwise use a placeholder ID for testing
+        const groupId = selectedGroupId || "1"
+        navigate(`/groups/edit/${groupId}`)
+    }
 
     return (
-        <div className="flex flex-col h-min bg-background overflow-y-auto">
+        <div className="flex flex-col h-full bg-background overflow-y-auto">
             {/* Group Header */}
             <div className="px-6 py-6 border-b border-border">
                 <div className="flex items-center gap-3 mb-4">
@@ -153,7 +161,12 @@ export function GroupInfo() {
                 >
                     Leave
                 </Button>
-                <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">Edit</Button>
+                <Button 
+                    onClick={handleEdit}
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                    Edit
+                </Button>
             </div>
         </div>
     )
