@@ -16,11 +16,14 @@ public partial class Chat
     public string Type { get; set; } = null!;
 
     [Column("name")]
-    [StringLength(20)]
+    [StringLength(100)]
     public string? Name { get; set; }
 
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
+
+    [Column("last_message_at", TypeName = "timestamp without time zone")]
+    public DateTime? LastMessageAt { get; set; }
 
     [Column("team_id")]
     public int? TeamId { get; set; }

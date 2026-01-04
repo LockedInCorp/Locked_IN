@@ -4,8 +4,6 @@ import { useState, useEffect } from "react"
 import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSidebar"
 import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
-import type { GroupCard, GameOption, TeamSearchResult, PagedResult } from "@/custom_components/groupDiscover/types"
-
 
 export default function DiscoverPage() {
     const [groupSearch, setGroupSearch] = useState("")
