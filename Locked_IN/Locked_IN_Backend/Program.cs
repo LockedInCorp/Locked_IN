@@ -5,6 +5,9 @@ using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Services;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Hubs;
+using Locked_IN_Backend.Interfaces.Repositories;
+using Locked_IN_Backend.Repositories;
+using Locked_IN_Backend.Mappings;
 using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +19,7 @@ builder.Services.Configure<TeamSettings>(
     builder.Configuration.GetSection(TeamSettings.SectionName));
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(cfg => {}, typeof(Program));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -56,7 +60,7 @@ builder.Services.AddCors(options =>
         }
     });
 });
-
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
 builder.Services.AddScoped<IGameService, GameService>();
@@ -65,16 +69,10 @@ builder.Services.AddScoped<ITagService, UserTagService>();
 builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGameProfileService, GameProfileService>();
-
-// Chat Service
 builder.Services.AddScoped<IChatService, ChatService>();
-
 builder.Services.AddScoped<IUserService, UserService>();
-
 builder.Services.AddScoped<ITagService, TagService>();
-
 builder.Services.AddScoped<IGameProfileService, GameProfileService>();
-
 builder.Services.AddScoped<SqlConnection>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
