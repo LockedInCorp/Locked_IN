@@ -23,6 +23,12 @@ public partial class Chatparticipant
     [Column("joined_at", TypeName = "timestamp without time zone")]
     public DateTime JoinedAt { get; set; }
 
+    [Column("last_read_at", TypeName = "timestamp without time zone")]
+    public DateTime? LastReadAt { get; set; }
+
+    [Column("unread_count")]
+    public int UnreadCount { get; set; } = 0;
+
     [Column("role_id")]
     public int RoleId { get; set; }
 

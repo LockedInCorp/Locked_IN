@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 export function Header() {
     const navigate = useNavigate();
 
-    const isLoggedIn = true;
+    const isLoggedIn = false;
 
     return (
         <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4 flex-shrink-0">
@@ -39,7 +39,10 @@ export function Header() {
             <div className="flex items-center gap-3">
                 {isLoggedIn ? (
                     <>
-                        <Avatar className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-ring transition-all">
+                        <Avatar 
+                            className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-ring transition-all"
+                            onClick={() => navigate("/profile")}
+                        >
                             <AvatarImage src="/assets/diverse-user-avatars.png" />
                             <AvatarFallback>U</AvatarFallback>
                         </Avatar>
@@ -49,19 +52,14 @@ export function Header() {
                     <>
                         <Button
                             variant="outline"
-                            onClick={() => {
-                                // TODO: Implement login functionality
-                                console.log("Lock In clicked")
-                            }}
+                            onClick={() => navigate("/login")}
                             className="border-primary text-primary hover:bg-primary/10"
                         >
                             Lock In
                         </Button>
                         <Button
-                            onClick={() => {
-                                // TODO: Implement sign up functionality
-                                console.log("Sign Up clicked")
-                            }}
+                            onClick={() => navigate("/register")}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
                         >
                             Sign Up
                         </Button>

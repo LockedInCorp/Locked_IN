@@ -227,3 +227,4 @@ Locked_IN/Locked_IN_Backend/Migrations/20251028151248_InitialMigration.Designer.
 Locked_IN/Locked_IN_Backend/Migrations/AppDbContextModelSnapshot.cs
 
 .idea/
+Locked_IN/Locked_IN_Backend/appsettings.json
