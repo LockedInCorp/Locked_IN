@@ -69,6 +69,12 @@ builder.Services.AddScoped<IGameProfileService, GameProfileService>();
 // Chat Service
 builder.Services.AddScoped<IChatService, ChatService>();
 
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<ITagService, TagService>();
+
+builder.Services.AddScoped<IGameProfileService, GameProfileService>();
+
 builder.Services.AddScoped<SqlConnection>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
