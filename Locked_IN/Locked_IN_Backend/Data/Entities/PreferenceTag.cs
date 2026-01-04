@@ -16,7 +16,7 @@ public partial class PreferenceTag
 
     [Column("preferencename")]
     [StringLength(20)]
-    public string Preferencename { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     [InverseProperty("PreferenceTag")]
     public virtual ICollection<GameprofilePreferencetagRelation> GameprofilePreferencetagRelations { get; set; } = new List<GameprofilePreferencetagRelation>();
