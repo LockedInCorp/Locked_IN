@@ -297,6 +297,12 @@ private void SeedTestData(ModelBuilder modelBuilder)
         new GameplayPref { Id = 3, Preference = "Any Communication" }
     );
 
+    modelBuilder.Entity<Role>().HasData(
+        new Role { Id = 1, Rolename = "Member" },
+        new Role { Id = 2, Rolename = "Admin" },
+        new Role { Id = 3, Rolename = "Moderator" }
+    );
+
     modelBuilder.Entity<User>().HasData(
             new User 
             { 
