@@ -1,6 +1,6 @@
 namespace Locked_IN_Backend.DTOs;
 
-public class GetTeamsCardResponceModel
+public class GetTeamsCardDto
 {
     public int Id { get; set; }
     

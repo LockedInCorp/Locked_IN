@@ -4,5 +4,5 @@ namespace Locked_IN_Backend.Interfaces;
 
 public interface IGameService
 { 
-    Task<List<GetGamesResponceModel>> GetGamesByNameAsync(string searchTerm);
+    Task<List<GetGameDto>> GetGamesByNameAsync(string searchTerm);
 }

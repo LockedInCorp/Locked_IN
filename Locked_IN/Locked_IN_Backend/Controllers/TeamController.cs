@@ -23,7 +23,7 @@ public class TeamController : ControllerBase
     /// <param name="id">Team ID</param>
     /// <returns>Team details</returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<GetTeamResponseModel>> GetTeamById(int id)
+    public async Task<ActionResult<GetTeamDto>> GetTeamById(int id)
     {
         try
         {
@@ -46,7 +46,7 @@ public class TeamController : ControllerBase
     /// <param name="gameId">Game ID</param>
     /// <returns>List of teams for the specified game</returns>
     [HttpGet("game/{gameId}")]
-    public async Task<ActionResult<List<GetTeamResponseModel>>> GetTeamsByGameId(int gameId)
+    public async Task<ActionResult<List<GetTeamDto>>> GetTeamsByGameId(int gameId)
     {
         try
         {
@@ -65,7 +65,7 @@ public class TeamController : ControllerBase
     /// <param name="searchTerm">Search term to find teams by name</param>
     /// <returns>List of teams matching the search term, ordered by relevance. Returns all games if searchTerm is null or empty</returns>
     [HttpGet("search")]
-    public async Task<ActionResult<List<GetTeamResponseModel>>> SearchTeamsByName([FromQuery] string searchTerm = "")
+    public async Task<ActionResult<List<GetTeamDto>>> SearchTeamsByName([FromQuery] string searchTerm = "")
     {
         try
         {
@@ -88,7 +88,7 @@ public class TeamController : ControllerBase
     /// <returns>List of teams that match all provided filters.</returns>
     /// #TODO refactor to POST
     [HttpGet("search/advanced")]
-    public async Task<ActionResult<PagedResult<GetTeamsCardResponceModel>>> AdvancedSearch(
+    public async Task<ActionResult<PagedResult<GetTeamsCardDto>>> AdvancedSearch(
         [FromQuery] List<int> gameIds,
         [FromQuery] List<int> preferenceTagIds,
         [FromQuery] string searchTerm = "",

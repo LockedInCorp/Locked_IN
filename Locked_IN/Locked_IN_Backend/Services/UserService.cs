@@ -36,7 +36,7 @@ namespace Locked_IN_Backend.Services
                 availabilityDict = new Dictionary<string, List<string>>();
             }
 
-            var response = new UserProfileResponseDto
+            var response = new UserProfileDto
             {
                 Id = user.Id,
                 Email = user.Email,

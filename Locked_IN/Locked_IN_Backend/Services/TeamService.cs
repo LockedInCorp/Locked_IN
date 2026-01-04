@@ -16,11 +16,11 @@ public class TeamService : ITeamService
         _context = context;
     }
     
-    public async Task<GetTeamResponseModel?> GetTeamByIdAsync(int teamId)
+    public async Task<GetTeamDto?> GetTeamByIdAsync(int teamId)
     {
         var team = await _context.Teams
             .Where(b => b.Id == teamId)
-            .Select(t => new GetTeamResponseModel
+            .Select(t => new GetTeamDto
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -34,7 +34,7 @@ public class TeamService : ITeamService
                 ExperienceTagId = t.ExperienceTagId,
                 ExperienceLevel = t.ExperienceTag.Experiencelevel,
                 CurrentMemberCount = t.TeamMembers.Count,
-                Members = t.TeamMembers.Select(tm => new GetTeamMemberResponseModel
+                Members = t.TeamMembers.Select(tm => new GetTeamMemberDto
                 {
                     Id = tm.Id,
                     IsLeader = tm.Isleader,
@@ -44,7 +44,7 @@ public class TeamService : ITeamService
                     MemberStatusId = tm.MemberStatusId,
                     MemberStatusName = tm.MemberStatus.Statusname,
                     User = tm.User != null
-                        ? new GetUserResponseModel
+                        ? new GetUserForTeamViewDto
                         {
                             Id = tm.User.Id,
                             Email = tm.User.Email,
@@ -70,11 +70,11 @@ public class TeamService : ITeamService
 
     //#TODO replace all the nested TeamMember and GameTag calls with a different service ??
 
-    public async Task<List<GetTeamResponseModel>> GetTeamsByGameIdAsync(int gameId)
+    public async Task<List<GetTeamDto>> GetTeamsByGameIdAsync(int gameId)
     {
         var teams = await _context.Teams
             .Where(t => t.GameId == gameId)
-            .Select(t => new GetTeamResponseModel
+            .Select(t => new GetTeamDto
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -88,7 +88,7 @@ public class TeamService : ITeamService
                 ExperienceTagId = t.ExperienceTagId,
                 ExperienceLevel = t.ExperienceTag.Experiencelevel,
                 CurrentMemberCount = t.TeamMembers.Count,
-                Members = t.TeamMembers.Select(tm => new GetTeamMemberResponseModel
+                Members = t.TeamMembers.Select(tm => new GetTeamMemberDto
                 {
                     Id = tm.Id,
                     IsLeader = tm.Isleader,
@@ -98,7 +98,7 @@ public class TeamService : ITeamService
                     MemberStatusId = tm.MemberStatusId,
                     MemberStatusName = tm.MemberStatus.Statusname,
                     User = tm.User != null
-                        ? new GetUserResponseModel
+                        ? new GetUserForTeamViewDto
                         {
                             Id = tm.User.Id,
                             Email = tm.User.Email,
@@ -118,7 +118,7 @@ public class TeamService : ITeamService
 
         return teams;
     }
-    public async Task<List<GetTeamResponseModel>> GetTeamsByNameSearchAsync(string searchTerm = "")
+    public async Task<List<GetTeamDto>> GetTeamsByNameSearchAsync(string searchTerm = "")
     {
     var query = _context.Teams.AsQueryable();
     
@@ -128,7 +128,7 @@ public class TeamService : ITeamService
     }
     
     var teams = await query
-        .Select(t => new GetTeamResponseModel
+        .Select(t => new GetTeamDto
         {
             Id = t.Id,
             Name = t.Name,
@@ -142,7 +142,7 @@ public class TeamService : ITeamService
             ExperienceTagId = t.ExperienceTagId,
             ExperienceLevel = t.ExperienceTag.Experiencelevel,
             CurrentMemberCount = t.TeamMembers.Count,
-            Members = t.TeamMembers.Select(tm => new GetTeamMemberResponseModel
+            Members = t.TeamMembers.Select(tm => new GetTeamMemberDto
             {
                 Id = tm.Id,
                 IsLeader = tm.Isleader,
@@ -152,7 +152,7 @@ public class TeamService : ITeamService
                 MemberStatusId = tm.MemberStatusId,
                 MemberStatusName = tm.MemberStatus.Statusname,
                 User = tm.User != null
-                    ? new GetUserResponseModel
+                    ? new GetUserForTeamViewDto
                     {
                         Id = tm.User.Id,
                         Email = tm.User.Email,
@@ -177,7 +177,7 @@ public class TeamService : ITeamService
     return teams;
 }
 
-    public async Task<PagedResult<GetTeamsCardResponceModel>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy)
+    public async Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy)
     {
         var query = _context.Teams.AsQueryable();
 
@@ -257,7 +257,7 @@ public class TeamService : ITeamService
         var items = await intermediate
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => new GetTeamsCardResponceModel
+            .Select(x => new GetTeamsCardDto
             {
                 Id = x.Team.Id,
                 Name = x.Team.Name,
@@ -284,7 +284,7 @@ public class TeamService : ITeamService
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-        return new PagedResult<GetTeamsCardResponceModel>
+        return new PagedResult<GetTeamsCardDto>
         {
             Items = items,
             TotalCount = totalCount,

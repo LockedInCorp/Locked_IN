@@ -171,7 +171,7 @@ namespace Locked_IN_Backend.Services
             var requests = await _context.Friendships
                 .Where(f => f.User2Id == userId && f.StatusId == (int)FriendshipStatusEnum.Pending)
                 .Include(f => f.User)
-                .Select(f => new PendingRequestDto
+                .Select(f => new PendingFriendshipRequestDto
                 {
                     FriendshipId = f.Id,
                     RequesterId = f.UserId,

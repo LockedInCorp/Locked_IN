@@ -14,7 +14,7 @@ public class GameService : IGameService
     {
         _context = context;
     }
-    public async Task<List<GetGamesResponceModel>> GetGamesByNameAsync(string searchTerm = "")
+    public async Task<List<GetGameDto>> GetGamesByNameAsync(string searchTerm = "")
     {
         var query = _context.Games.AsQueryable();
     
@@ -24,7 +24,7 @@ public class GameService : IGameService
         }
     
         var games = await query
-            .Select(t => new GetGamesResponceModel()
+            .Select(t => new GetGameDto()
             {
                 Id = t.Id,
                 Name = t.Name

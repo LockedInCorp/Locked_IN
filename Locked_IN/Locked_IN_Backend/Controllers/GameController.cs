@@ -15,7 +15,7 @@ public class GameController : ControllerBase
         _teamService = teamService;
     }
     [HttpGet("search")]
-    public async Task<ActionResult<List<GetGamesResponceModel>>> SearchGamesByName([FromQuery] string searchTerm = "")
+    public async Task<ActionResult<List<GetGameDto>>> SearchGamesByName([FromQuery] string searchTerm = "")
     {
         try
         {
