@@ -1,9 +1,12 @@
 ﻿using Locked_IN_Backend.Data.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Data;
 
-public partial class AppDbContext : DbContext
+//#TODO maybe it is better to separate the identity context from appDbContext
+public partial class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -51,6 +54,7 @@ public partial class AppDbContext : DbContext
 
 protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Chat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chat_pk");
@@ -242,13 +246,15 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
-        OnModelCreatingPartial(modelBuilder);
         SeedTestData(modelBuilder);
 
     }
 
 private void SeedTestData(ModelBuilder modelBuilder)
 {
+    var hasher = new PasswordHasher<User>();
+    string pepper = "LockedInSecretPepper2026";
+
     modelBuilder.Entity<Game>().HasData(
         new Game { Id = 1, Name = "Counter-Strike 2" },
         new Game { Id = 2, Name = "League of Legends" },
@@ -309,54 +315,60 @@ private void SeedTestData(ModelBuilder modelBuilder)
                 Id = 1, 
                 Email = "john.doe@example.com", 
                 Nickname = "JohnDoe", 
-                HashedPass = "hashed_password_1",
+                PasswordHash = hasher.HashPassword(null!, "password1" + pepper),
                 AvatarUrl = "https://example.com/avatars/john.png",
-                Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}"
+                Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}",
+                ConcurrencyStamp = "6f9098be-b650-4411-a000-5eb43a9552bb"
             },
             new User 
             { 
                 Id = 2, 
                 Email = "jane.smith@example.com", 
                 Nickname = "JaneSmith", 
-                HashedPass = "hashed_password_2",
+                PasswordHash = hasher.HashPassword(null!, "password2" + pepper),
                 AvatarUrl = null,
-                Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}"
+                Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}",
+                ConcurrencyStamp = "cdf5a155-7689-41bb-899d-082da450358d"
             },
             new User 
             { 
                 Id = 3, 
                 Email = "mike.wilson@example.com", 
                 Nickname = "MikeWilson", 
-                HashedPass = "hashed_password_3",
+                PasswordHash = hasher.HashPassword(null!, "password3" + pepper),
                 AvatarUrl = null,
-                Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}"
+                Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}",
+                ConcurrencyStamp = "7215511a-a6f6-4c13-9150-4adcd0386aa2"
             },
             new User 
             { 
                 Id = 4, 
                 Email = "sarah.johnson@example.com", 
                 Nickname = "SarahJ", 
-                HashedPass = "hashed_password_4",
+                PasswordHash = hasher.HashPassword(null!, "password4" + pepper),
                 AvatarUrl = null,
-                Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}"
+                Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}",
+                ConcurrencyStamp = "d88cb586-3c32-4568-8926-bc13615faee5"
             },
             new User 
             { 
                 Id = 5, 
                 Email = "test.user5@example.com", 
                 Nickname = "TestUser5", 
-                HashedPass = "hashed_password_5",
+                PasswordHash = hasher.HashPassword(null!, "password5" + pepper),
                 AvatarUrl = null,
-                Availability = "{}"
+                Availability = "{}",
+                ConcurrencyStamp = "72731087-823f-47c7-914a-c94b877b812b"
             },
             new User 
             { 
                 Id = 6, 
                 Email = "test.user6@example.com", 
                 Nickname = "TestUser6", 
-                HashedPass = "hashed_password_6",
+                PasswordHash = hasher.HashPassword(null!, "password6" + pepper),
                 AvatarUrl = null,
-                Availability = "{}"
+                Availability = "{}",
+                ConcurrencyStamp = "cfdd42d5-0600-4945-a36f-17b0f22459f4"
             }
         );
 
@@ -666,7 +678,5 @@ private void SeedTestData(ModelBuilder modelBuilder)
         }
     );
 }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     
 }

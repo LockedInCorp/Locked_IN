@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Locked_IN_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251118154209_AddGINFullTextSearchForGames")]
-    partial class AddGINFullTextSearchForGames
+    [Migration("20260105182620_UserAsIdentityChange")]
+    partial class UserAsIdentityChange
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,9 +38,13 @@ namespace Locked_IN_Backend.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime?>("LastMessageAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_message_at");
+
                     b.Property<string>("Name")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.Property<int?>("TeamId")
@@ -78,9 +82,17 @@ namespace Locked_IN_Backend.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("joined_at");
 
+                    b.Property<DateTime?>("LastReadAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_read_at");
+
                     b.Property<int>("RoleId")
                         .HasColumnType("integer")
                         .HasColumnName("role_id");
+
+                    b.Property<int>("UnreadCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("unread_count");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
@@ -288,6 +300,28 @@ namespace Locked_IN_Backend.Migrations
                         .HasName("game_exp_pk");
 
                     b.ToTable("game_exp");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Experience = "< 100 hours"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Experience = "100-500 hours"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Experience = "500-1000 hours"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Experience = "1000+ hours"
+                        });
                 });
 
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.GameProfile", b =>
@@ -383,6 +417,23 @@ namespace Locked_IN_Backend.Migrations
                         .HasName("gameplay_pref_pk");
 
                     b.ToTable("gameplay_pref");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Preference = "Voice Chat Only"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Preference = "Ping Only"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Preference = "Any Communication"
+                        });
                 });
 
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.GameprofilePreferencetagRelation", b =>
@@ -461,15 +512,32 @@ namespace Locked_IN_Backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AttachmentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("attachment_url");
+
                     b.Property<int>("ChatparticipantChatparticipantId")
                         .HasColumnType("integer")
                         .HasColumnName("chatparticipant_chatparticipant_id");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
                         .HasColumnName("content");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTime?>("EditedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("edited_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("timestamp without time zone")
@@ -492,7 +560,7 @@ namespace Locked_IN_Backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Preferencename")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
@@ -507,32 +575,32 @@ namespace Locked_IN_Backend.Migrations
                         new
                         {
                             Id = 1,
-                            Preferencename = "Competitive"
+                            Name = "Competitive"
                         },
                         new
                         {
                             Id = 2,
-                            Preferencename = "Casual"
+                            Name = "Casual"
                         },
                         new
                         {
                             Id = 3,
-                            Preferencename = "Communication"
+                            Name = "Communication"
                         },
                         new
                         {
                             Id = 4,
-                            Preferencename = "Strategy Focus"
+                            Name = "Strategy Focus"
                         },
                         new
                         {
                             Id = 5,
-                            Preferencename = "Fun First"
+                            Name = "Fun First"
                         },
                         new
                         {
                             Id = 6,
-                            Preferencename = "Skill Development"
+                            Name = "Skill Development"
                         });
                 });
 
@@ -555,6 +623,23 @@ namespace Locked_IN_Backend.Migrations
                         .HasName("role_pk");
 
                     b.ToTable("role");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Rolename = "Member"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Rolename = "Admin"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Rolename = "Moderator"
+                        });
                 });
 
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Team", b =>
@@ -675,6 +760,89 @@ namespace Locked_IN_Backend.Migrations
                             Isprivate = false,
                             MaxPlayerCount = 6,
                             Name = "Casual Gamers"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreationTimestamp = new DateTime(2024, 9, 15, 19, 30, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription5",
+                            ExperienceTagId = 2,
+                            GameId = 1,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = true,
+                            Isprivate = false,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 1200,
+                            Name = "Aim Squad"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreationTimestamp = new DateTime(2024, 8, 30, 8, 45, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription6",
+                            ExperienceTagId = 1,
+                            GameId = 2,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = false,
+                            Isprivate = true,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 900,
+                            Name = "Nexus Five"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreationTimestamp = new DateTime(2024, 10, 2, 21, 10, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription7",
+                            ExperienceTagId = 3,
+                            GameId = 3,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = false,
+                            Isprivate = false,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 1800,
+                            Name = "VLR Strike"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreationTimestamp = new DateTime(2024, 9, 5, 13, 5, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription8",
+                            ExperienceTagId = 1,
+                            GameId = 2,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = false,
+                            Isprivate = false,
+                            MaxPlayerCount = 5,
+                            Name = "Chill Queue"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreationTimestamp = new DateTime(2024, 11, 1, 9, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription9",
+                            ExperienceTagId = 4,
+                            GameId = 1,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = true,
+                            Isprivate = true,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 1600,
+                            Name = "Peak Hold"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreationTimestamp = new DateTime(2024, 8, 20, 17, 25, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription10",
+                            ExperienceTagId = 2,
+                            GameId = 3,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = true,
+                            Isprivate = false,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 1100,
+                            Name = "Spike Rush"
                         });
                 });
 
@@ -772,6 +940,60 @@ namespace Locked_IN_Backend.Migrations
                             MemberStatusId = 1,
                             TeamId = 4,
                             UserId = 2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 9, 16, 10, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 5,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 9, 1, 12, 30, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 6,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 10, 3, 20, 15, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 7,
+                            UserId = 5
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 9, 6, 9, 5, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 8,
+                            UserId = 6
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 11, 2, 10, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 9,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 8, 21, 18, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 10,
+                            UserId = 2
                         });
                 });
 
@@ -849,6 +1071,78 @@ namespace Locked_IN_Backend.Migrations
                             Id = 8,
                             PreferenceTagId = 6,
                             TeamId = 4
+                        },
+                        new
+                        {
+                            Id = 9,
+                            PreferenceTagId = 1,
+                            TeamId = 5
+                        },
+                        new
+                        {
+                            Id = 10,
+                            PreferenceTagId = 6,
+                            TeamId = 5
+                        },
+                        new
+                        {
+                            Id = 11,
+                            PreferenceTagId = 2,
+                            TeamId = 6
+                        },
+                        new
+                        {
+                            Id = 12,
+                            PreferenceTagId = 3,
+                            TeamId = 6
+                        },
+                        new
+                        {
+                            Id = 13,
+                            PreferenceTagId = 4,
+                            TeamId = 7
+                        },
+                        new
+                        {
+                            Id = 14,
+                            PreferenceTagId = 1,
+                            TeamId = 7
+                        },
+                        new
+                        {
+                            Id = 15,
+                            PreferenceTagId = 5,
+                            TeamId = 8
+                        },
+                        new
+                        {
+                            Id = 16,
+                            PreferenceTagId = 2,
+                            TeamId = 8
+                        },
+                        new
+                        {
+                            Id = 17,
+                            PreferenceTagId = 3,
+                            TeamId = 9
+                        },
+                        new
+                        {
+                            Id = 18,
+                            PreferenceTagId = 6,
+                            TeamId = 9
+                        },
+                        new
+                        {
+                            Id = 19,
+                            PreferenceTagId = 4,
+                            TeamId = 10
+                        },
+                        new
+                        {
+                            Id = 20,
+                            PreferenceTagId = 1,
+                            TeamId = 10
                         });
                 });
 
@@ -856,27 +1150,39 @@ namespace Locked_IN_Backend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Availability")
                         .IsRequired()
                         .HasColumnType("json")
                         .HasColumnName("availability");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("email");
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("avatar_url");
 
-                    b.Property<string>("HashedPass")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("hashed_pass");
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Nickname")
                         .IsRequired()
@@ -884,60 +1190,263 @@ namespace Locked_IN_Backend.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("nickname");
 
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.HasKey("Id")
                         .HasName("user_pk");
 
-                    b.ToTable("User");
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
+                            AccessFailedCount = 0,
                             Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}",
+                            AvatarUrl = "https://example.com/avatars/john.png",
+                            ConcurrencyStamp = "6f9098be-b650-4411-a000-5eb43a9552bb",
                             Email = "john.doe@example.com",
-                            HashedPass = "hashed_password_1",
-                            Nickname = "JohnDoe"
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Nickname = "JohnDoe",
+                            PasswordHash = "hashed_password_1",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         },
                         new
                         {
                             Id = 2,
+                            AccessFailedCount = 0,
                             Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}",
+                            ConcurrencyStamp = "cdf5a155-7689-41bb-899d-082da450358d",
                             Email = "jane.smith@example.com",
-                            HashedPass = "hashed_password_2",
-                            Nickname = "JaneSmith"
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Nickname = "JaneSmith",
+                            PasswordHash = "hashed_password_2",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         },
                         new
                         {
                             Id = 3,
+                            AccessFailedCount = 0,
                             Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}",
+                            ConcurrencyStamp = "7215511a-a6f6-4c13-9150-4adcd0386aa2",
                             Email = "mike.wilson@example.com",
-                            HashedPass = "hashed_password_3",
-                            Nickname = "MikeWilson"
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Nickname = "MikeWilson",
+                            PasswordHash = "hashed_password_3",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         },
                         new
                         {
                             Id = 4,
+                            AccessFailedCount = 0,
                             Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}",
+                            ConcurrencyStamp = "d88cb586-3c32-4568-8926-bc13615faee5",
                             Email = "sarah.johnson@example.com",
-                            HashedPass = "hashed_password_4",
-                            Nickname = "SarahJ"
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Nickname = "SarahJ",
+                            PasswordHash = "hashed_password_4",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         },
                         new
                         {
                             Id = 5,
+                            AccessFailedCount = 0,
                             Availability = "{}",
+                            ConcurrencyStamp = "72731087-823f-47c7-914a-c94b877b812b",
                             Email = "test.user5@example.com",
-                            HashedPass = "hashed_password_5",
-                            Nickname = "TestUser5"
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Nickname = "TestUser5",
+                            PasswordHash = "hashed_password_5",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         },
                         new
                         {
                             Id = 6,
+                            AccessFailedCount = 0,
                             Availability = "{}",
+                            ConcurrencyStamp = "cfdd42d5-0600-4945-a36f-17b0f22459f4",
                             Email = "test.user6@example.com",
-                            HashedPass = "hashed_password_6",
-                            Nickname = "TestUser6"
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Nickname = "TestUser6",
+                            PasswordHash = "hashed_password_6",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Chat", b =>
@@ -1150,6 +1659,57 @@ namespace Locked_IN_Backend.Migrations
                     b.Navigation("PreferenceTag");
 
                     b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.HasOne("Locked_IN_Backend.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.HasOne("Locked_IN_Backend.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Locked_IN_Backend.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.HasOne("Locked_IN_Backend.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Locked_IN_Backend.Data.Entities.Chat", b =>

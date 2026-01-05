@@ -43,6 +43,6 @@ public class MappingProfile : Profile
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList()))
             .ForMember(dest => dest.SearchRank, opt => opt.Ignore())
-            .ForMember(dest => dest.TeamLeaderNickname, opt => opt.Ignore()); // Will be set manually in AdvancedSearch
+            .ForMember(dest => dest.TeamLeaderNickname, opt => opt.Ignore());
     }
 }

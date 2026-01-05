@@ -1,28 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace Locked_IN_Backend.Data.Entities;
 
 [Table("User")]
-public partial class User
+public partial class User : IdentityUser<int>
 {
-    [Key]
-    [Column("id")]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
-    [Column("email")]
-    [StringLength(50)]
-    public string Email { get; set; } = null!;
-
     [Column("nickname")]
     [StringLength(50)]
     public string Nickname { get; set; } = null!;
 
-    [Column("hashed_pass")]
-    [StringLength(100)]
-    public string HashedPass { get; set; } = null!;
-    
     [Column("avatar_url")]
     [StringLength(255)]
     public string? AvatarUrl { get; set; }
