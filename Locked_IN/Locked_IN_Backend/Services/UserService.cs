@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AutoMapper;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.Interfaces;
@@ -11,11 +12,13 @@ namespace Locked_IN_Backend.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IFileUploadService _fileUploadService;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IFileUploadService fileUploadService)
+        public UserService(IUserRepository userRepository, IFileUploadService fileUploadService, IMapper mapper)
         {
             _userRepository = userRepository;
             _fileUploadService = fileUploadService;
+            _mapper = mapper;
         }
 
         public async Task<UserResult> GetUserProfileAsync(int userId)
@@ -27,40 +30,19 @@ namespace Locked_IN_Backend.Services
                 return new UserResult(false, "User not found.");
             }
 
-            Dictionary<string, List<string>>? availabilityDict = null;
-            try 
-            {
-                if (!string.IsNullOrEmpty(user.Availability))
-                {
-                    availabilityDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(user.Availability);
-                }
-            }
-            catch
-            {
-                availabilityDict = new Dictionary<string, List<string>>();
-            }
+            var response = _mapper.Map<UserProfileDto>(user);
 
-            IFormFile? avatarFile = null;
             if (!string.IsNullOrEmpty(user.AvatarUrl))
             {
                 try
                 {
-                    avatarFile = await _fileUploadService.GetUserAvatarAsync(user.AvatarUrl);
+                    response.Avatar = await _fileUploadService.GetUserAvatarAsync(user.AvatarUrl);
                 }
                 catch
                 {
-                    // If image retrieval fails, we just return null for Avatar
+                    return new UserResult(false, "Avatar download failed.");
                 }
             }
-
-            var response = new UserProfileDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                Username = user.UserName,
-                Avatar = avatarFile,
-                Availability = availabilityDict
-            };
 
             return new UserResult(true, "User profile retrieved.", response);
         }
@@ -80,13 +62,8 @@ namespace Locked_IN_Backend.Services
                 }
             }
 
-            var user = new User
-            {
-                UserName = dto.Username,
-                Email = dto.Email,
-                AvatarUrl = avatarUrl,
-                Availability = "{}"
-            };
+            var user = _mapper.Map<User>(dto);
+            user.AvatarUrl = avatarUrl;
 
             var result = await _userRepository.CreateUserAsync(user, dto.Password);
             
