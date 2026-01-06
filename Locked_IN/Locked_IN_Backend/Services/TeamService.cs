@@ -50,7 +50,7 @@ public class TeamService : ITeamService
             {
                 var dto = _mapper.Map<GetTeamsCardDto>(r.Team);
                 dto.SearchRank = r.SearchRank;
-                dto.TeamLeaderNickname = r.TeamLeaderNickname;
+                dto.TeamLeaderUsername = r.TeamLeaderUsername;
                 return dto;
             }).ToList(),
             TotalCount = pagedResults.TotalCount,

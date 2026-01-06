@@ -9,7 +9,7 @@ public class MessageResponseDto
     public bool IsDeleted { get; set; }
     public string? AttachmentUrl { get; set; }
     public int SenderId { get; set; }
-    public string SenderNickname { get; set; } = null!;
+    public string SenderUsername { get; set; } = null!;
     public string? SenderAvatarUrl { get; set; }
     public int ChatId { get; set; }
 }

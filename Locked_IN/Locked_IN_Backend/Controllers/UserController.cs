@@ -16,6 +16,18 @@ namespace Locked_IN_Backend.Controllers
         }
 
         /// <summary>
+        /// Register a new user
+        /// </summary>
+        /// <param name="dto">User registration data</param>
+        /// <returns>Registered user profile</returns>
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromForm] RegisterDto dto)
+        {
+            var result = await _userService.RegisterAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
         /// Get user profile details by ID
         /// </summary>
         /// <param name="userId">The ID of the user</param>

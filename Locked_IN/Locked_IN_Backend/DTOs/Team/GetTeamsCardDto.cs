@@ -31,5 +31,5 @@ public class GetTeamsCardDto
     public DateTime CreationTimestamp { get; set; }
     public string? IconUrl { get; set; }
     public float? SearchRank { get; set; }
-    public string? TeamLeaderNickname { get; set; }
+    public string? TeamLeaderUsername { get; set; }
 }

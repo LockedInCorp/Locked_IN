@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Locked_IN_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260105182620_UserAsIdentityChange")]
-    partial class UserAsIdentityChange
+    [Migration("20260106153050_AddNewSeededDataForTeams")]
+    partial class AddNewSeededDataForTeams
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1184,12 +1184,6 @@ namespace Locked_IN_Backend.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Nickname")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("nickname");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -1240,10 +1234,12 @@ namespace Locked_IN_Backend.Migrations
                             Email = "john.doe@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            Nickname = "JohnDoe",
-                            PasswordHash = "hashed_password_1",
+                            NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
+                            NormalizedUserName = "JOHNDOE",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFz4U7kFKcc8J4S/Br6baGK1iH6So5ybj0cnVfoMjlCQkJtIW+sFO1BOnrE6L2loWw==",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            TwoFactorEnabled = false,
+                            UserName = "JohnDoe"
                         },
                         new
                         {
@@ -1254,10 +1250,12 @@ namespace Locked_IN_Backend.Migrations
                             Email = "jane.smith@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            Nickname = "JaneSmith",
-                            PasswordHash = "hashed_password_2",
+                            NormalizedEmail = "JANE.SMITH@EXAMPLE.COM",
+                            NormalizedUserName = "JANESMITH",
+                            PasswordHash = "AQAAAAIAAYagAAAAED8nCUGuveDpz3K4/VRMu1958B4eFKkPbCBy6YyERM3MfnsRKsy1DjHXa1K4O/+QeQ==",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            TwoFactorEnabled = false,
+                            UserName = "JaneSmith"
                         },
                         new
                         {
@@ -1268,10 +1266,12 @@ namespace Locked_IN_Backend.Migrations
                             Email = "mike.wilson@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            Nickname = "MikeWilson",
-                            PasswordHash = "hashed_password_3",
+                            NormalizedEmail = "MIKE.WILSON@EXAMPLE.COM",
+                            NormalizedUserName = "MIKEWILSON",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAsIsmk+dryXt4PmmKJh4JI13MUapXDSV2TV86uN9H8BQ4z8tLZidkz9EO4JNegVbg==",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            TwoFactorEnabled = false,
+                            UserName = "MikeWilson"
                         },
                         new
                         {
@@ -1282,10 +1282,12 @@ namespace Locked_IN_Backend.Migrations
                             Email = "sarah.johnson@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            Nickname = "SarahJ",
-                            PasswordHash = "hashed_password_4",
+                            NormalizedEmail = "SARAH.JOHNSON@EXAMPLE.COM",
+                            NormalizedUserName = "SARAHJ",
+                            PasswordHash = "AQAAAAIAAYagAAAAEATi+RUXol0s9TAlaVgkeLeVDGWd6MqPLy9snA6HouQ1lF97Df8cgQTP/ZZHxZocwg==",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            TwoFactorEnabled = false,
+                            UserName = "SarahJ"
                         },
                         new
                         {
@@ -1296,10 +1298,12 @@ namespace Locked_IN_Backend.Migrations
                             Email = "test.user5@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            Nickname = "TestUser5",
-                            PasswordHash = "hashed_password_5",
+                            NormalizedEmail = "TEST.USER5@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER5",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGpBx2tVsCNrIpRMczTrAb94PYTWtFcBuqBSX28V0hKe/calB1dZ76OTiLv/FklJ9A==",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser5"
                         },
                         new
                         {
@@ -1310,10 +1314,12 @@ namespace Locked_IN_Backend.Migrations
                             Email = "test.user6@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            Nickname = "TestUser6",
-                            PasswordHash = "hashed_password_6",
+                            NormalizedEmail = "TEST.USER6@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER6",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser6"
                         });
                 });
 

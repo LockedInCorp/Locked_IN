@@ -6,5 +6,5 @@ public class TeamSearchResult
 {
     public Team Team { get; set; } = null!;
     public float SearchRank { get; set; }
-    public string? TeamLeaderNickname { get; set; }
+    public string? TeamLeaderUsername { get; set; }
 }

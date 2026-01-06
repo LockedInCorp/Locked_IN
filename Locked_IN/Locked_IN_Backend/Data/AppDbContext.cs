@@ -252,9 +252,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 
 private void SeedTestData(ModelBuilder modelBuilder)
 {
-    var hasher = new PasswordHasher<User>();
-    string pepper = "LockedInSecretPepper2026";
-
     modelBuilder.Entity<Game>().HasData(
         new Game { Id = 1, Name = "Counter-Strike 2" },
         new Game { Id = 2, Name = "League of Legends" },
@@ -314,8 +311,10 @@ private void SeedTestData(ModelBuilder modelBuilder)
             { 
                 Id = 1, 
                 Email = "john.doe@example.com", 
-                Nickname = "JohnDoe", 
-                PasswordHash = hasher.HashPassword(null!, "password1" + pepper),
+                UserName = "JohnDoe", 
+                NormalizedUserName = "JOHNDOE",
+                NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEFz4U7kFKcc8J4S/Br6baGK1iH6So5ybj0cnVfoMjlCQkJtIW+sFO1BOnrE6L2loWw==",
                 AvatarUrl = "https://example.com/avatars/john.png",
                 Availability = "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}",
                 ConcurrencyStamp = "6f9098be-b650-4411-a000-5eb43a9552bb"
@@ -324,8 +323,10 @@ private void SeedTestData(ModelBuilder modelBuilder)
             { 
                 Id = 2, 
                 Email = "jane.smith@example.com", 
-                Nickname = "JaneSmith", 
-                PasswordHash = hasher.HashPassword(null!, "password2" + pepper),
+                UserName = "JaneSmith", 
+                NormalizedUserName = "JANESMITH",
+                NormalizedEmail = "JANE.SMITH@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAED8nCUGuveDpz3K4/VRMu1958B4eFKkPbCBy6YyERM3MfnsRKsy1DjHXa1K4O/+QeQ==",
                 AvatarUrl = null,
                 Availability = "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}",
                 ConcurrencyStamp = "cdf5a155-7689-41bb-899d-082da450358d"
@@ -334,8 +335,10 @@ private void SeedTestData(ModelBuilder modelBuilder)
             { 
                 Id = 3, 
                 Email = "mike.wilson@example.com", 
-                Nickname = "MikeWilson", 
-                PasswordHash = hasher.HashPassword(null!, "password3" + pepper),
+                UserName = "MikeWilson", 
+                NormalizedUserName = "MIKEWILSON",
+                NormalizedEmail = "MIKE.WILSON@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEAsIsmk+dryXt4PmmKJh4JI13MUapXDSV2TV86uN9H8BQ4z8tLZidkz9EO4JNegVbg==",
                 AvatarUrl = null,
                 Availability = "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}",
                 ConcurrencyStamp = "7215511a-a6f6-4c13-9150-4adcd0386aa2"
@@ -344,8 +347,10 @@ private void SeedTestData(ModelBuilder modelBuilder)
             { 
                 Id = 4, 
                 Email = "sarah.johnson@example.com", 
-                Nickname = "SarahJ", 
-                PasswordHash = hasher.HashPassword(null!, "password4" + pepper),
+                UserName = "SarahJ", 
+                NormalizedUserName = "SARAHJ",
+                NormalizedEmail = "SARAH.JOHNSON@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEATi+RUXol0s9TAlaVgkeLeVDGWd6MqPLy9snA6HouQ1lF97Df8cgQTP/ZZHxZocwg==",
                 AvatarUrl = null,
                 Availability = "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}",
                 ConcurrencyStamp = "d88cb586-3c32-4568-8926-bc13615faee5"
@@ -354,8 +359,10 @@ private void SeedTestData(ModelBuilder modelBuilder)
             { 
                 Id = 5, 
                 Email = "test.user5@example.com", 
-                Nickname = "TestUser5", 
-                PasswordHash = hasher.HashPassword(null!, "password5" + pepper),
+                UserName = "TestUser5", 
+                NormalizedUserName = "TESTUSER5",
+                NormalizedEmail = "TEST.USER5@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEGpBx2tVsCNrIpRMczTrAb94PYTWtFcBuqBSX28V0hKe/calB1dZ76OTiLv/FklJ9A==",
                 AvatarUrl = null,
                 Availability = "{}",
                 ConcurrencyStamp = "72731087-823f-47c7-914a-c94b877b812b"
@@ -364,8 +371,10 @@ private void SeedTestData(ModelBuilder modelBuilder)
             { 
                 Id = 6, 
                 Email = "test.user6@example.com", 
-                Nickname = "TestUser6", 
-                PasswordHash = hasher.HashPassword(null!, "password6" + pepper),
+                UserName = "TestUser6", 
+                NormalizedUserName = "TESTUSER6",
+                NormalizedEmail = "TEST.USER6@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
                 AvatarUrl = null,
                 Availability = "{}",
                 ConcurrencyStamp = "cfdd42d5-0600-4945-a36f-17b0f22459f4"

@@ -157,7 +157,7 @@ namespace Locked_IN_Backend.Services
                 {
                     FriendshipId = f.Id,
                     FriendId = f.UserId == userId ? f.User2Id : f.UserId,
-                    FriendNickname = f.UserId == userId ? f.User2.Nickname : f.User.Nickname,
+                    FriendUsername = f.UserId == userId ? f.User2.UserName : f.User.UserName,
                     Status = f.Status.StatusName,
                     Since = f.RequestTimestamp
                 })
@@ -175,7 +175,7 @@ namespace Locked_IN_Backend.Services
                 {
                     FriendshipId = f.Id,
                     RequesterId = f.UserId,
-                    RequesterNickname = f.User.Nickname,
+                    RequesterUsername = f.User.UserName,
                     RequestTimestamp = f.RequestTimestamp
                 })
                 .ToListAsync();

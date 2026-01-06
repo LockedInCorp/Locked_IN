@@ -100,7 +100,7 @@ namespace Locked_IN_Backend.Services
                 {
                     TeamMemberId = tm.Id,
                     UserId = tm.UserId,
-                    Nickname = tm.User.Nickname,
+                    Username = tm.User.UserName,
                     RequestTimestamp = tm.Jointimestamp
                 })
                 .ToListAsync();

@@ -6,7 +6,7 @@ public class GetUserForTeamViewDto
     
     public string Email { get; set; } = null!;
     
-    public string Nickname { get; set; } = null!;
+    public string Username { get; set; } = null!;
     
     public string Availability { get; set; } = null!;
 }

@@ -7,6 +7,7 @@ namespace Locked_IN_Backend.Services
     public interface IUserService
     {
         Task<UserResult> GetUserProfileAsync(int userId);
+        Task<UserResult> RegisterAsync(RegisterDto dto);
         Task<UserResult> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto);
         Task<UserResult> UpdateAvailabilityAsync(int userId, UpdateAvailabilityDto dto);
     }

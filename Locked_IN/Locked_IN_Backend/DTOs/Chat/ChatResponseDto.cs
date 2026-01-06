@@ -16,7 +16,7 @@ public class ChatResponseDto
 public class ChatParticipantDto
 {
     public int UserId { get; set; }
-    public string Nickname { get; set; } = null!;
+    public string Username { get; set; } = null!;
     public string? AvatarUrl { get; set; }
     public int RoleId { get; set; }
     public DateTime JoinedAt { get; set; }

@@ -7,10 +7,6 @@ namespace Locked_IN_Backend.Data.Entities;
 [Table("User")]
 public partial class User : IdentityUser<int>
 {
-    [Column("nickname")]
-    [StringLength(50)]
-    public string Nickname { get; set; } = null!;
-
     [Column("avatar_url")]
     [StringLength(255)]
     public string? AvatarUrl { get; set; }

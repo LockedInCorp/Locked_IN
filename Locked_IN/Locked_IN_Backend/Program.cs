@@ -7,9 +7,9 @@ using Locked_IN_Backend.Services;
 using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Repositories;
-using Locked_IN_Backend.Mappings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
+using Minio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     {
         options.Password.RequireDigit = true;
-        
+        options.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -67,6 +67,7 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
 builder.Services.AddScoped<IGameService, GameService>();
@@ -76,6 +77,13 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IGameProfileService, GameProfileService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
+builder.Services.AddMinio(configureSource => configureSource
+    .WithEndpoint(builder.Configuration["Minio:Endpoint"])
+    .WithCredentials(builder.Configuration["Minio:AccessKey"], builder.Configuration["Minio:SecretKey"])
+    .WithSSL(bool.Parse(builder.Configuration["Minio:Secure"] ?? "false"))
+    .Build());
+
 builder.Services.AddScoped<SqlConnection>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();

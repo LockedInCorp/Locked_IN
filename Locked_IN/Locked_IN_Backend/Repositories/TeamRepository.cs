@@ -149,9 +149,9 @@ public class TeamRepository : ITeamRepository
                 .OrderByDescending(tm => tm.Jointimestamp)
                 .Select(tm => (DateTime?)tm.Jointimestamp)
                 .FirstOrDefault(),
-            LeaderNickname = t.TeamMembers
+            TeamLeaderUsername = t.TeamMembers
                 .Where(tm => tm.Isleader)
-                .Select(tm => tm.User.Nickname)
+                .Select(tm => tm.User.UserName)
                 .FirstOrDefault(),
             CreationTimestamp = t.CreationTimestamp
         });
@@ -212,7 +212,7 @@ public class TeamRepository : ITeamRepository
         {
             Team = teamMap[r.TeamId],
             SearchRank = r.SearchRank,
-            TeamLeaderNickname = r.LeaderNickname
+            TeamLeaderUsername = r.TeamLeaderUsername
         }).ToList();
 
         return new PagedResult<TeamSearchResult>

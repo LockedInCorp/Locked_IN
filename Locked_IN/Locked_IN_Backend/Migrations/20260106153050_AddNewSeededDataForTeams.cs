@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Locked_IN_Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class UserAsIdentityChange : Migration
+    public partial class AddNewSeededDataForTeams : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,7 +35,6 @@ namespace Locked_IN_Backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    nickname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     avatar_url = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     availability = table.Column<string>(type: "json", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -555,15 +554,15 @@ namespace Locked_IN_Backend.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "availability", "avatar_url", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "nickname", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                columns: new[] { "Id", "AccessFailedCount", "availability", "avatar_url", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}", "https://example.com/avatars/john.png", "6f9098be-b650-4411-a000-5eb43a9552bb", "john.doe@example.com", false, false, null, "JohnDoe", null, null, "hashed_password_1", null, false, null, false, null },
-                    { 2, 0, "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}", null, "cdf5a155-7689-41bb-899d-082da450358d", "jane.smith@example.com", false, false, null, "JaneSmith", null, null, "hashed_password_2", null, false, null, false, null },
-                    { 3, 0, "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}", null, "7215511a-a6f6-4c13-9150-4adcd0386aa2", "mike.wilson@example.com", false, false, null, "MikeWilson", null, null, "hashed_password_3", null, false, null, false, null },
-                    { 4, 0, "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}", null, "d88cb586-3c32-4568-8926-bc13615faee5", "sarah.johnson@example.com", false, false, null, "SarahJ", null, null, "hashed_password_4", null, false, null, false, null },
-                    { 5, 0, "{}", null, "72731087-823f-47c7-914a-c94b877b812b", "test.user5@example.com", false, false, null, "TestUser5", null, null, "hashed_password_5", null, false, null, false, null },
-                    { 6, 0, "{}", null, "cfdd42d5-0600-4945-a36f-17b0f22459f4", "test.user6@example.com", false, false, null, "TestUser6", null, null, "hashed_password_6", null, false, null, false, null }
+                    { 1, 0, "{\"monday\": [\"18:00\", \"22:00\"], \"friday\": [\"19:00\", \"23:00\"]}", "https://example.com/avatars/john.png", "6f9098be-b650-4411-a000-5eb43a9552bb", "john.doe@example.com", false, false, null, "JOHN.DOE@EXAMPLE.COM", "JOHNDOE", "AQAAAAIAAYagAAAAEFz4U7kFKcc8J4S/Br6baGK1iH6So5ybj0cnVfoMjlCQkJtIW+sFO1BOnrE6L2loWw==", null, false, null, false, "JohnDoe" },
+                    { 2, 0, "{\"tuesday\": [\"17:00\", \"21:00\"], \"saturday\": [\"14:00\", \"18:00\"]}", null, "cdf5a155-7689-41bb-899d-082da450358d", "jane.smith@example.com", false, false, null, "JANE.SMITH@EXAMPLE.COM", "JANESMITH", "AQAAAAIAAYagAAAAED8nCUGuveDpz3K4/VRMu1958B4eFKkPbCBy6YyERM3MfnsRKsy1DjHXa1K4O/+QeQ==", null, false, null, false, "JaneSmith" },
+                    { 3, 0, "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}", null, "7215511a-a6f6-4c13-9150-4adcd0386aa2", "mike.wilson@example.com", false, false, null, "MIKE.WILSON@EXAMPLE.COM", "MIKEWILSON", "AQAAAAIAAYagAAAAEAsIsmk+dryXt4PmmKJh4JI13MUapXDSV2TV86uN9H8BQ4z8tLZidkz9EO4JNegVbg==", null, false, null, false, "MikeWilson" },
+                    { 4, 0, "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}", null, "d88cb586-3c32-4568-8926-bc13615faee5", "sarah.johnson@example.com", false, false, null, "SARAH.JOHNSON@EXAMPLE.COM", "SARAHJ", "AQAAAAIAAYagAAAAEATi+RUXol0s9TAlaVgkeLeVDGWd6MqPLy9snA6HouQ1lF97Df8cgQTP/ZZHxZocwg==", null, false, null, false, "SarahJ" },
+                    { 5, 0, "{}", null, "72731087-823f-47c7-914a-c94b877b812b", "test.user5@example.com", false, false, null, "TEST.USER5@EXAMPLE.COM", "TESTUSER5", "AQAAAAIAAYagAAAAEGpBx2tVsCNrIpRMczTrAb94PYTWtFcBuqBSX28V0hKe/calB1dZ76OTiLv/FklJ9A==", null, false, null, false, "TestUser5" },
+                    { 6, 0, "{}", null, "cfdd42d5-0600-4945-a36f-17b0f22459f4", "test.user6@example.com", false, false, null, "TEST.USER6@EXAMPLE.COM", "TESTUSER6", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser6" }
                 });
 
             migrationBuilder.InsertData(

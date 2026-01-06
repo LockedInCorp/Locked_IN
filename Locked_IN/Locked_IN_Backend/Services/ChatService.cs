@@ -14,6 +14,7 @@ public static class DateTimeHelper
         return DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
     }
 }
+//TODO refactore all of this
 
 public class ChatService : IChatService
 {
@@ -165,7 +166,7 @@ public class ChatService : IChatService
                 IsDeleted = message.IsDeleted,
                 AttachmentUrl = message.AttachmentUrl,
                 SenderId = userId,
-                SenderNickname = participant.User.Nickname,
+                SenderUsername = participant.User.UserName,
                 SenderAvatarUrl = participant.User.AvatarUrl,
                 ChatId = sendMessageDto.ChatId
             };
@@ -205,7 +206,7 @@ public class ChatService : IChatService
                 IsDeleted = m.IsDeleted,
                 AttachmentUrl = m.AttachmentUrl,
                 SenderId = m.ChatparticipantChatparticipant.UserId,
-                SenderNickname = m.ChatparticipantChatparticipant.User.Nickname,
+                SenderUsername = m.ChatparticipantChatparticipant.User.UserName,
                 SenderAvatarUrl = m.ChatparticipantChatparticipant.User.AvatarUrl,
                 ChatId = chatId
             })
@@ -247,7 +248,7 @@ public class ChatService : IChatService
                 Participants = participant.Chat.Chatparticipants.Select(p => new ChatParticipantDto
                 {
                     UserId = p.UserId,
-                    Nickname = p.User.Nickname,
+                    Username = p.User.UserName,
                     AvatarUrl = p.User.AvatarUrl,
                     RoleId = p.RoleId,
                     JoinedAt = p.JoinedAt
@@ -261,7 +262,7 @@ public class ChatService : IChatService
                     IsDeleted = lastMessage.IsDeleted,
                     AttachmentUrl = lastMessage.AttachmentUrl,
                     SenderId = lastMessage.ChatparticipantChatparticipant.UserId,
-                    SenderNickname = lastMessage.ChatparticipantChatparticipant.User.Nickname,
+                    SenderUsername = lastMessage.ChatparticipantChatparticipant.User.UserName,
                     SenderAvatarUrl = lastMessage.ChatparticipantChatparticipant.User.AvatarUrl,
                     ChatId = participant.Chat.Id
                 } : null
@@ -452,7 +453,7 @@ public class ChatService : IChatService
             Participants = participant.Chat.Chatparticipants.Select(p => new ChatParticipantDto
             {
                 UserId = p.UserId,
-                Nickname = p.User.Nickname,
+                Username = p.User.UserName,
                 AvatarUrl = p.User.AvatarUrl,
                 RoleId = p.RoleId,
                 JoinedAt = p.JoinedAt
@@ -466,7 +467,7 @@ public class ChatService : IChatService
                 IsDeleted = lastMessage.IsDeleted,
                 AttachmentUrl = lastMessage.AttachmentUrl,
                 SenderId = lastMessage.ChatparticipantChatparticipant.UserId,
-                SenderNickname = lastMessage.ChatparticipantChatparticipant.User.Nickname,
+                SenderUsername = lastMessage.ChatparticipantChatparticipant.User.UserName,
                 SenderAvatarUrl = lastMessage.ChatparticipantChatparticipant.User.AvatarUrl,
                 ChatId = chatId
             } : null
