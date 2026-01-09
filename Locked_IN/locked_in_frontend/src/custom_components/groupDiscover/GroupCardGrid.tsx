@@ -5,6 +5,9 @@ import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 
 interface GroupCardGridProps {
     groups: GroupCard[]
+    currentPage: number
+    totalPages: number
+    onPageChange: (page: number) => void
 }
 
 export function GroupCardGrid({ groups }: GroupCardGridProps) {
@@ -51,7 +54,7 @@ export function GroupCardGrid({ groups }: GroupCardGridProps) {
                     ) : (
                         <Button
                             key={page}
-                            onClick={() => setCurrentPage(page as number)}
+                            onClick={() => onPageChange(page as number)}
                             className={`h-9 w-9 px-0 rounded-md font-medium transition-all ${
                                 currentPage === page
                                     ? "bg-primary hover:bg-primary/90 text-primary-foreground"

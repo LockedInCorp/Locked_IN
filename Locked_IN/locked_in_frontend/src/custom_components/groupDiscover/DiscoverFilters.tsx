@@ -11,6 +11,10 @@ export function DiscoverFilters({
     onGroupSearchChange,
     showPending,
     onShowPendingChange,
+    pageSize,
+    onPageSizeChange,
+    sortBy,
+    onSortByChange,
 }: DiscoverFiltersProps) {
     const navigate = useNavigate()
 
@@ -26,18 +30,18 @@ export function DiscoverFilters({
 
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <Select defaultValue="20">
+                    <Select value={pageSize.toString()} onValueChange={(v) => onPageSizeChange(parseInt(v))}>
                         <SelectTrigger className="w-[140px] bg-card border-border text-foreground">
                             <SelectValue placeholder="View"/>
                         </SelectTrigger>
                         <SelectContent className="bg-card border-border text-foreground">
-                            <SelectItem value="10">View: 10</SelectItem>
-                            <SelectItem value="20">View: 20</SelectItem>
-                            <SelectItem value="50">View: 50</SelectItem>
+                            <SelectItem value="6">View: 6</SelectItem>
+                            <SelectItem value="12">View: 12</SelectItem>
+                            <SelectItem value="24">View: 24</SelectItem>
                         </SelectContent>
                     </Select>
 
-                    <Select defaultValue="relevance">
+                    <Select value={sortBy} onValueChange={onSortByChange}>
                         <SelectTrigger className="w-[200px] bg-card border-border text-foreground">
                             <SelectValue placeholder="Sort by"/>
                         </SelectTrigger>

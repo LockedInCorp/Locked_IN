@@ -1,214 +1,62 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Locked_IN_Backend.Data;
+﻿using AutoMapper;
 using Locked_IN_Backend.DTO;
-using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.Interfaces;
+using Locked_IN_Backend.Interfaces.Repositories;
 
 namespace Locked_IN_Backend.Services;
 
 public class TeamService : ITeamService
 {
-    private readonly AppDbContext _context;
+    private readonly ITeamRepository _teamRepository;
+    private readonly IMapper _mapper;
 
-    public TeamService(AppDbContext context)
+    public TeamService(ITeamRepository teamRepository, IMapper mapper)
     {
-        _context = context;
+        _teamRepository = teamRepository;
+        _mapper = mapper;
     }
     
-    public async Task<GetTeamResponseModel?> GetTeamByIdAsync(int teamId)
+    public async Task<GetTeamDto?> GetTeamByIdAsync(int teamId)
     {
-        var team = await _context.Teams
-            .Where(b => b.Id == teamId)
-            .Select(t => new GetTeamResponseModel
-            {
-                Id = t.Id,
-                Name = t.Name,
-                MinCompScore = t.MinCompScore,
-                MaxPlayerCount = t.MaxPlayerCount,
-                Description = t.Description,
-                GameId = t.GameId,
-                GameName = t.Game.Name,
-                IsPrivate = t.Isprivate,
-                IsBlitz = t.Isblitz,
-                ExperienceTagId = t.ExperienceTagId,
-                ExperienceLevel = t.ExperienceTag.Experiencelevel,
-                CurrentMemberCount = t.TeamMembers.Count,
-                Members = t.TeamMembers.Select(tm => new GetTeamMemberResponseModel
-                {
-                    Id = tm.Id,
-                    IsLeader = tm.Isleader,
-                    JoinTimestamp = tm.Jointimestamp,
-                    TeamId = tm.TeamId,
-                    UserId = tm.UserId,
-                    MemberStatusId = tm.MemberStatusId,
-                    MemberStatusName = tm.MemberStatus.Statusname,
-                    User = tm.User != null
-                        ? new GetUserResponseModel
-                        {
-                            Id = tm.User.Id,
-                            Email = tm.User.Email,
-                            Nickname = tm.User.Nickname,
-                            Availability = tm.User.Availability
-                        }
-                        : null
-                }).ToList(),
-                PreferenceTags = t.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Preferencename)
-                    .Where(name => !string.IsNullOrEmpty(name))
-                    .ToList(),
-                CreationTimestamp = t.CreationTimestamp,
-                IconUrl = t.IconUrl
-            })
-            .FirstOrDefaultAsync();
-
-
-        if (team == null)
-            return null;
-        return team;
+        var team = await _teamRepository.GetTeamById(teamId);
+        return _mapper.Map<GetTeamDto>(team);
     }
 
-    //#TODO replace all the nested TeamMember and GameTag calls with a different service ??
-    public async Task<List<GetTeamResponseModel>> GetAllTeamsAsync()
+    public async Task<List<GetTeamDto>> GetTeamsByGameIdAsync(int gameId)
     {
-        var teams = await _context.Teams
-            .Select(t => new GetTeamResponseModel
-            {
-                Id = t.Id,
-                Name = t.Name,
-                MinCompScore = t.MinCompScore,
-                MaxPlayerCount = t.MaxPlayerCount,
-                Description = t.Description,
-                GameId = t.GameId,
-                GameName = t.Game.Name,
-                IsPrivate = t.Isprivate,
-                IsBlitz = t.Isblitz,
-                ExperienceTagId = t.ExperienceTagId,
-                ExperienceLevel = t.ExperienceTag.Experiencelevel,
-                CurrentMemberCount = t.TeamMembers.Count,
-                Members = t.TeamMembers.Select(tm => new GetTeamMemberResponseModel
-                {
-                    Id = tm.Id,
-                    IsLeader = tm.Isleader,
-                    JoinTimestamp = tm.Jointimestamp,
-                    TeamId = tm.TeamId,
-                    UserId = tm.UserId,
-                    MemberStatusId = tm.MemberStatusId,
-                    MemberStatusName = tm.MemberStatus.Statusname,
-                    User = tm.User != null ? new GetUserResponseModel
-                    {
-                        Id = tm.User.Id,
-                        Email = tm.User.Email,
-                        Nickname = tm.User.Nickname,
-                        Availability = tm.User.Availability
-                    } : null
-                }).ToList(),
-                PreferenceTags = t.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Preferencename)
-                    .Where(name => !string.IsNullOrEmpty(name))
-                    .ToList(),
-                CreationTimestamp = t.CreationTimestamp,
-                IconUrl = t.IconUrl
-            })
-            .ToListAsync();
-
-        return teams;
+        var teams = await _teamRepository.GetTeamsByGameIdAsync(gameId);
+        return _mapper.Map<List<GetTeamDto>>(teams);
     }
 
-    public async Task<List<GetTeamResponseModel>> GetTeamsByGameIdAsync(int gameId)
+    public async Task<List<GetTeamDto>> GetTeamsByNameSearchAsync(string searchTerm = "")
     {
-        var teams = await _context.Teams
-            .Where(t => t.GameId == gameId)
-            .Select(t => new GetTeamResponseModel
-            {
-                Id = t.Id,
-                Name = t.Name,
-                MinCompScore = t.MinCompScore,
-                MaxPlayerCount = t.MaxPlayerCount,
-                Description = t.Description,
-                GameId = t.GameId,
-                GameName = t.Game.Name,
-                IsPrivate = t.Isprivate,
-                IsBlitz = t.Isblitz,
-                ExperienceTagId = t.ExperienceTagId,
-                ExperienceLevel = t.ExperienceTag.Experiencelevel,
-                CurrentMemberCount = t.TeamMembers.Count,
-                Members = t.TeamMembers.Select(tm => new GetTeamMemberResponseModel
-                {
-                    Id = tm.Id,
-                    IsLeader = tm.Isleader,
-                    JoinTimestamp = tm.Jointimestamp,
-                    TeamId = tm.TeamId,
-                    UserId = tm.UserId,
-                    MemberStatusId = tm.MemberStatusId,
-                    MemberStatusName = tm.MemberStatus.Statusname,
-                    User = tm.User != null
-                        ? new GetUserResponseModel
-                        {
-                            Id = tm.User.Id,
-                            Email = tm.User.Email,
-                            Nickname = tm.User.Nickname,
-                            Availability = tm.User.Availability
-                        }
-                        : null
-                }).ToList(),
-                PreferenceTags = t.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Preferencename)
-                    .Where(name => !string.IsNullOrEmpty(name))
-                    .ToList(),
-                CreationTimestamp = t.CreationTimestamp,
-                IconUrl = t.IconUrl
-            })
-            .ToListAsync();
-
-        return teams;
+        var searchResults = await _teamRepository.GetTeamsByNameSearchAsync(searchTerm);
+        return searchResults.Select(r =>
+        {
+            var dto = _mapper.Map<GetTeamDto>(r.Team);
+            dto.SearchRank = r.SearchRank;
+            return dto;
+        }).ToList();
     }
-    public async Task<List<GetTeamResponseModel>> GetTeamsByNameSearchAsync(string searchTerm)
-    {
-        var teams = await _context.Teams
-            .Where(t => EF.Functions.ToTsVector("english",t.Name).Matches(EF.Functions.WebSearchToTsQuery(searchTerm)))
-            .Select(t => new GetTeamResponseModel
-            {
-                Id = t.Id,
-                Name = t.Name,
-                MinCompScore = t.MinCompScore,
-                MaxPlayerCount = t.MaxPlayerCount,
-                Description = t.Description,
-                GameId = t.GameId,
-                GameName = t.Game.Name,
-                IsPrivate = t.Isprivate,
-                IsBlitz = t.Isblitz,
-                ExperienceTagId = t.ExperienceTagId,
-                ExperienceLevel = t.ExperienceTag.Experiencelevel,
-                CurrentMemberCount = t.TeamMembers.Count,
-                Members = t.TeamMembers.Select(tm => new GetTeamMemberResponseModel
-                {
-                    Id = tm.Id,
-                    IsLeader = tm.Isleader,
-                    JoinTimestamp = tm.Jointimestamp,
-                    TeamId = tm.TeamId,
-                    UserId = tm.UserId,
-                    MemberStatusId = tm.MemberStatusId,
-                    MemberStatusName = tm.MemberStatus.Statusname,
-                    User = tm.User != null
-                        ? new GetUserResponseModel
-                        {
-                            Id = tm.User.Id,
-                            Email = tm.User.Email,
-                            Nickname = tm.User.Nickname,
-                            Availability = tm.User.Availability
-                        }
-                        : null
-                }).ToList(),
-                PreferenceTags = t.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Preferencename)
-                    .Where(name => !string.IsNullOrEmpty(name))
-                    .ToList(),
-                CreationTimestamp = t.CreationTimestamp,
-                IconUrl = t.IconUrl,
-                SearchRank = EF.Functions.ToTsVector("english",t.Name).Rank(EF.Functions.WebSearchToTsQuery(searchTerm))
-            })
-            .OrderByDescending(t => t.SearchRank)
-            .ToListAsync();
 
-        return teams;
+    public async Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy)
+    {
+        var pagedResults = await _teamRepository.GetTeamsAdvancedAsync(gameIds, preferenceTagIds, searchTerm, page, pageSize, sortBy);
+        
+        return new PagedResult<GetTeamsCardDto>
+        {
+            Items = pagedResults.Items.Select(r =>
+            {
+                var dto = _mapper.Map<GetTeamsCardDto>(r.Team);
+                dto.SearchRank = r.SearchRank;
+                dto.TeamLeaderUsername = r.TeamLeaderUsername;
+                return dto;
+            }).ToList(),
+            TotalCount = pagedResults.TotalCount,
+            Page = pagedResults.Page,
+            PageSize = pagedResults.PageSize,
+            TotalPages = pagedResults.TotalPages
+        };
     }
 }

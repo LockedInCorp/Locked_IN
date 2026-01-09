@@ -1,11 +1,11 @@
 namespace Locked_IN_Backend.DTOs.User
 {
-    public class UserProfileResponseDto
+    public class UserProfileDto
     {
         public int Id { get; set; }
         public string Email { get; set; } = string.Empty;
-        public string Nickname { get; set; } = string.Empty;
-        public string? AvatarUrl { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public IFormFile Avatar { get; set; }
         public Dictionary<string, List<string>>? Availability { get; set; }
     }
 }
