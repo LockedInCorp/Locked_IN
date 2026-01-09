@@ -1,94 +1,11 @@
-import { X, Search } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { X, Check } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import type { DiscoverSidebarProps } from "./types"
+import { Button } from "@/components/ui/button"
+import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 
-export function DiscoverSidebar({
-    gameSearch,
-    onGameSearchChange,
-    visibleGames,
-    selectedGames,
-    onToggleGameFilter,
-    onAddGameFilter,
-    selectedTagIds,
-    onToggleTagFilter,
-}: DiscoverSidebarProps) {
-
-    const [suggestions, setSuggestions] = useState<Array<{ id: string; label: string }>>([])
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [tags, setTags] = useState<Array<{ id: string; name: string }>>([])
-    const [tagsLoading, setTagsLoading] = useState(false)
-    const [tagsError, setTagsError] = useState<string | null>(null)
-
-    const selectedGameTags = useMemo(() => {
-        const byId = new Map(visibleGames.map((g) => [g.id, g.label]))
-        return Array.from(selectedGames).map((id) => ({ id, label: byId.get(id) ?? id }))
-    }, [selectedGames, visibleGames])
-
-
-    useEffect(() => {
-        const q = gameSearch.trim()
-        if (!q) {
-            setSuggestions([])
-            setError(null)
-            setLoading(false)
-            return
-        }
-
-        let active = true
-        const timer = setTimeout(async () => {
-            try {
-                setLoading(true)
-                setError(null)
-                const res = await fetch(
-                    `https://localhost:7252/api/Game/search?searchTerm=${encodeURIComponent(q)}`
-                )
-                if (!res.ok) throw new Error(`Search failed: ${res.status}`)
-                const data: Array<{ id: number | string; name: string }> = await res.json()
-                if (!active) return
-                const mapped = data
-                    .map((g) => ({ id: String(g.id), label: g.name }))
-                    .filter((g) => !selectedGames.has(g.id) && !visibleGames.some((v) => v.id === g.id))
-                setSuggestions(mapped)
-            } catch {
-                setError('Failed to load suggestions')
-                setSuggestions([])
-            } finally {
-                if (active) setLoading(false)
-            }
-        }, 300)
-
-        return () => {
-            active = false
-            clearTimeout(timer)
-        }
-    }, [gameSearch, selectedGames, visibleGames])
-
-
-    useEffect(() => {
-        let cancelled = false
-        const load = async () => {
-            try {
-                setTagsLoading(true)
-                setTagsError(null)
-                const res = await fetch('https://localhost:7252/api/PreferanceTag')
-                if (!res.ok) throw new Error(`Tags fetch failed: ${res.status}`)
-                const data: Array<{ id: number | string; name: string }> = await res.json()
-                if (cancelled) return
-                setTags(data.map(t => ({ id: String(t.id), name: t.name })))
-            } catch {
-                if (cancelled) return
-                setTagsError('Failed to load tags')
-                setTags([])
-            } finally {
-                if (!cancelled) setTagsLoading(false)
-            }
-        }
-        load()
-        return () => { cancelled = true }
-    }, [])
+export function DiscoverSidebar() {
+    const { gameSearch, selectedFilters, setGameSearch, toggleFilter } = useGroupDiscoveryStore()
 
     return (
         <div className="w-[380px] flex-shrink-0 p-6 space-y-6 overflow-y-auto">

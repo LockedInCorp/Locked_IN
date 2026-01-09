@@ -1,39 +1,25 @@
 "use client"
 
-import { MoreVertical, ImageIcon, Send } from "lucide-react"
+import { ImageIcon, Send } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-
-type Msg = { id: number; sender: string; content: string; isCurrentUser: boolean }
-
-const messages: Msg[] = [
-    { id: 1, sender: "You",   content: "Hey Jude!",        isCurrentUser: true },
-    { id: 2, sender: "Aaron", content: "Don't make it bad!", isCurrentUser: false },
-    { id: 3, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
-    { id: 4, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    // { id: 5, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    // { id: 6, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    // { id: 7, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    // { id: 8, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
-    // { id: 9, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
-    // { id: 10, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
-    // { id: 11, sender: "You",   content: "Take a sad song!", isCurrentUser: true },
-]
-
-const groups = messages.reduce<
-    { sender: string; isCurrentUser: boolean; items: Msg[] }[]
->((acc, m) => {
-    const last = acc[acc.length - 1]
-    if (last && last.sender === m.sender && last.isCurrentUser === m.isCurrentUser) {
-        last.items.push(m)
-    } else {
-        acc.push({ sender: m.sender, isCurrentUser: m.isCurrentUser, items: [m] })
-    }
-    return acc
-}, [])
+import { useGroupViewStore, type Message } from "@/stores/groupViewStore"
 
 export function ChatArea() {
+    const { messages } = useGroupViewStore()
+    
+    const groups = messages.reduce<
+        { sender: string; isCurrentUser: boolean; items: Message[] }[]
+    >((acc, m) => {
+        const last = acc[acc.length - 1]
+        if (last && last.sender === m.sender && last.isCurrentUser === m.isCurrentUser) {
+            last.items.push(m)
+        } else {
+            acc.push({ sender: m.sender, isCurrentUser: m.isCurrentUser, items: [m] })
+        }
+        return acc
+    }, [])
     return (
         <div className="flex flex-col h-svh">
             {/* Header */}
@@ -48,9 +34,6 @@ export function ChatArea() {
                         <p className="text-xs text-muted-foreground">icon</p>
                     </div>
                 </div>
-                <Button size="icon" variant="ghost" className="text-foreground">
-                    <MoreVertical className="h-5 w-5" />
-                </Button>
             </div>
 
             {/* Chat Area */}

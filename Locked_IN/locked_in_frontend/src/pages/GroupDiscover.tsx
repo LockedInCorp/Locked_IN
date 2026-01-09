@@ -6,8 +6,7 @@ import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilte
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
 
 export default function DiscoverPage() {
-    const [groupSearch, setGroupSearch] = useState("")
-    const [showPending, setShowPending] = useState(false)
+    const { groupSearch, showPending, setGroupSearch, setShowPending } = useGroupDiscoveryStore()
 
     const [gameSearch, setGameSearch] = useState("")
     const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set())

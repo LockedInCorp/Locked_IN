@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom"
 import { GroupView } from "@/pages/GroupView"
 import GroupCreation from "@/pages/GroupCreation"
+import GroupEdit from "@/pages/GroupEdit"
 import GroupDiscover from "@/pages/GroupDiscover"
 import Home from "@/pages/Home"
 import Profile from "@/pages/Profile"
@@ -19,6 +20,7 @@ function App() {
                     <Route path="/my-groups" element={<GroupView />} />
                     <Route path="/groups" element={<GroupDiscover />} />
                     <Route path="/groups/new" element={<GroupCreation />} />
+                    <Route path="/groups/edit/:id" element={<GroupEdit />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />

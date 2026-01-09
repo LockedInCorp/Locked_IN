@@ -1,9 +1,10 @@
 "use client"
 
+import { useNavigate } from "react-router-dom"
 import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useGroupViewStore } from "@/stores/groupViewStore"
 
 const members = [
     { id: 1, name: "Friend Name", avatar: "/diverse-user-avatars.png" },
@@ -18,11 +19,17 @@ const requests = [
 ]
 
 export function GroupInfo() {
-    const [membersExpanded, setMembersExpanded] = useState(true)
-    const [requestsExpanded, setRequestsExpanded] = useState(true)
+    const navigate = useNavigate()
+    const { selectedGroupId, membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useGroupViewStore()
+
+    const handleEdit = () => {
+        // Use selectedGroupId if available, otherwise use a placeholder ID for testing
+        const groupId = selectedGroupId || "1"
+        navigate(`/groups/edit/${groupId}`)
+    }
 
     return (
-        <div className="flex flex-col h-min bg-background overflow-y-auto">
+        <div className="flex flex-col h-full bg-background overflow-y-auto">
             {/* Group Header */}
             <div className="px-6 py-6 border-b border-border">
                 <div className="flex items-center gap-3 mb-4">
@@ -67,7 +74,7 @@ export function GroupInfo() {
             {/* Members Section */}
             <div className="px-6 py-4 border-b border-border">
                 <button
-                    onClick={() => setMembersExpanded(!membersExpanded)}
+                    onClick={toggleMembersExpanded}
                     className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
                 >
                     <div className="flex items-center gap-2">
@@ -111,7 +118,7 @@ export function GroupInfo() {
             {/* Requests Section */}
             <div className="px-6 py-4 flex-1">
                 <button
-                    onClick={() => setRequestsExpanded(!requestsExpanded)}
+                    onClick={toggleRequestsExpanded}
                     className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
                 >
                     <div className="flex items-center gap-2">
@@ -154,7 +161,12 @@ export function GroupInfo() {
                 >
                     Leave
                 </Button>
-                <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">Edit</Button>
+                <Button 
+                    onClick={handleEdit}
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                    Edit
+                </Button>
             </div>
         </div>
     )

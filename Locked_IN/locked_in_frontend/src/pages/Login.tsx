@@ -1,25 +1,20 @@
 "use client"
 
-import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useAuthStore } from "@/stores/authStore"
 
 export default function Login() {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+    const { loginEmail, loginPassword, setLoginEmail, setLoginPassword, login } = useAuthStore()
 
-    const handleLogin = () => {
-        // TODO: Implement login API call
-        console.log("Logging in:", {
-            email,
-            password
-        })
+    const handleLogin = async () => {
+        await login(loginEmail, loginPassword)
         // After successful login, redirect to home or profile
     }
 
-    const canLogin = email.trim() && password.trim()
+    const canLogin = loginEmail.trim() && loginPassword.trim()
 
     return (
         <div className="relative w-full min-h-full overflow-y-auto bg-background">
@@ -38,8 +33,8 @@ export default function Login() {
                                 <Input
                                     id="email"
                                     type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={loginEmail}
+                                    onChange={(e) => setLoginEmail(e.target.value)}
                                     placeholder="example@abc.com"
                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                 />
@@ -51,8 +46,8 @@ export default function Login() {
                                 <Input
                                     id="password"
                                     type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    value={loginPassword}
+                                    onChange={(e) => setLoginPassword(e.target.value)}
                                     placeholder="Enter your password"
                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                 />

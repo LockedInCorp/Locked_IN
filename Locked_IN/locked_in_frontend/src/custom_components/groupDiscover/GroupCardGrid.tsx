@@ -1,6 +1,7 @@
 import type { GroupCard } from "./types"
 import { GroupCard as GroupCardComponent } from "./GroupCard"
 import { Button } from "@/components/ui/button"
+import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 
 interface GroupCardGridProps {
     groups: GroupCard[]
@@ -9,7 +10,10 @@ interface GroupCardGridProps {
     onPageChange: (page: number) => void
 }
 
-export function GroupCardGrid({ groups, currentPage, totalPages, onPageChange }: GroupCardGridProps) {
+export function GroupCardGrid({ groups }: GroupCardGridProps) {
+    const { currentPage, setCurrentPage } = useGroupDiscoveryStore()
+    const totalPages = 20
+
     const getPageNumbers = () => {
         const pages: (number | string)[] = []
         

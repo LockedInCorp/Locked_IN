@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuthStore } from "@/stores/authStore"
 
 export function Header() {
     const navigate = useNavigate();
-
-    const isLoggedIn = false;
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
     return (
         <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4 flex-shrink-0">
