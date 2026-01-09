@@ -73,7 +73,6 @@ export default function RegisterPart2({
 
     const handleRemoveGame = (gameToRemove: string) => {
         onGameProfilesChange(gameProfiles.filter(profile => profile.gameName !== gameToRemove))
-        // Remove from expandedGames if it exists there
         if (expandedGames.has(gameToRemove)) {
             const newExpanded = new Set(expandedGames)
             newExpanded.delete(gameToRemove)

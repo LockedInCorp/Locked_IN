@@ -11,7 +11,6 @@ export default function Login() {
 
     const handleLogin = async () => {
         await login(loginEmail, loginPassword)
-        // After successful login, redirect to home or profile
     }
 
     const canLogin = loginEmail.trim() && loginPassword.trim()

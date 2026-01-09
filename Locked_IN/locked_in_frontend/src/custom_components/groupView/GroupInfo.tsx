@@ -23,7 +23,6 @@ export function GroupInfo() {
     const { selectedGroupId, membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useGroupViewStore()
 
     const handleEdit = () => {
-        // Use selectedGroupId if available, otherwise use a placeholder ID for testing
         const groupId = selectedGroupId || "1"
         navigate(`/groups/edit/${groupId}`)
     }

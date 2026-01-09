@@ -47,31 +47,7 @@ export default function Register() {
 
     const handleNextPart2 = async () => {
         // TODO: Implement registration API call
-        // Example:
-        // try {
-        //     const response = await fetch('/api/register', {
-        //         method: 'POST',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify({
-        //             email: registerEmail,
-        //             nickname: registerNickname,
-        //             password: registerPassword,
-        //             avatarFile: registerAvatarFile,
-        //             gameProfiles: registerGameProfiles
-        //         })
-        //     })
-        //     if (response.ok) {
-        //         // Redirect after successful registration
-        //         navigate("/groups")
-        //     } else {
-        //         // Handle registration error
-        //         console.error("Registration failed")
-        //     }
-        // } catch (error) {
-        //     console.error("Registration error:", error)
-        // }
         
-        // For now, just redirect to groups/discover page
         console.log("Registering user:", {
             email: registerEmail,
             nickname: registerNickname,
@@ -80,7 +56,6 @@ export default function Register() {
             gameProfiles: registerGameProfiles
         })
         
-        // Redirect to groups/discover page after registration
         navigate("/groups")
     }
 

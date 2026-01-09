@@ -25,7 +25,6 @@ export default function GroupEdit() {
         description,
         setGroupName,
         setGame,
-        setGroupSize,
         setBlitzRoom,
         setAutoAccept,
         setPreviewImage,
@@ -39,24 +38,10 @@ export default function GroupEdit() {
     } = useGroupEditStore()
 
     useEffect(() => {
-        // Load team data when component mounts
         if (id) {
             // TODO: Fetch team data from API
-            // For now, we'll simulate loading data
-            // In a real implementation, you would fetch from the API:
-            // const fetchTeamData = async () => {
-            //     try {
-            //         const response = await fetch(`/api/team/${id}`)
-            //         const data = await response.json()
-            //         loadTeamData(data)
-            //     } catch (error) {
-            //         console.error("Failed to load team data:", error)
-            //     }
-            // }
-            // fetchTeamData()
         }
 
-        // Cleanup on unmount
         return () => {
             resetForm()
         }
@@ -64,33 +49,6 @@ export default function GroupEdit() {
 
     const handleSave = async () => {
         // TODO: Implement API call to update team
-        // const updateTeam = async () => {
-        //     try {
-        //         const response = await fetch(`/api/team/${id}`, {
-        //             method: "PUT",
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //             },
-        //             body: JSON.stringify({
-        //                 name: groupName,
-        //                 gameName: game,
-        //                 maxPlayerCount: parseInt(groupSize),
-        //                 isBlitz: blitzRoom,
-        //                 minCompScore: competitiveScore ? parseInt(competitiveScore) : null,
-        //                 experienceLevel: experience,
-        //                 preferenceTags: selectedTags,
-        //                 description: description,
-        //                 // Add other fields as needed
-        //             }),
-        //         })
-        //         if (response.ok) {
-        //             navigate("/my-groups")
-        //         }
-        //     } catch (error) {
-        //         console.error("Failed to update team:", error)
-        //     }
-        // }
-        // updateTeam()
         
         console.log("Saving team:", {
             groupName,
@@ -105,7 +63,6 @@ export default function GroupEdit() {
             description
         })
         
-        // For now, just navigate back
         navigate("/my-groups")
     }
 

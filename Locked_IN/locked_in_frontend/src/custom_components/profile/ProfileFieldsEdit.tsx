@@ -88,7 +88,6 @@ export default function ProfileFieldsEdit({
 
     const handleRemoveGame = (gameToRemove: string) => {
         onGameProfilesChange(gameProfiles.filter(profile => profile.gameName !== gameToRemove))
-        // Remove from expandedGames if it exists there
         if (expandedGames.has(gameToRemove)) {
             const newExpanded = new Set(expandedGames)
             newExpanded.delete(gameToRemove)
@@ -122,7 +121,6 @@ export default function ProfileFieldsEdit({
         }
     }
 
-    // Filter out already selected games from available games
     const availableGamesFiltered = availableGames.filter(game => !gameProfiles.some(p => p.gameName === game))
 
     return (

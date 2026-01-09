@@ -97,11 +97,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         registerGameProfiles: []
     }),
     
-    // Session actions
     login: async (email, password) => {
         // TODO: Implement actual login API call
         console.log("Logging in:", { email, password })
-        // After successful login:
         set({
             isLoggedIn: true,
             user: {

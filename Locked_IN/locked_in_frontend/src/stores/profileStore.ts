@@ -123,7 +123,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
             avatarUrl: finalAvatarUrl
         })
         
-        // Update profile data with avatar if preview exists
         if (state.avatarPreview) {
             set((prev) => ({
                 profileData: { ...prev.profileData, avatarUrl: finalAvatarUrl },

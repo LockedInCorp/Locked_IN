@@ -1,7 +1,6 @@
 import { create } from "zustand"
 
 interface GroupDiscoveryState {
-    // Search and filters
     groupSearch: string
     showPending: boolean
     gameSearch: string

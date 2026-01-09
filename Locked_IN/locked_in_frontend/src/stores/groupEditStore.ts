@@ -86,11 +86,11 @@ export const useGroupEditStore = create<GroupEditState>((set, get) => ({
             game: teamData.gameName || "",
             groupSize: teamData.maxPlayerCount?.toString() || "",
             blitzRoom: teamData.isBlitz || false,
-            autoAccept: false, // This might need to come from API
+            autoAccept: false,
             selectedTags: teamData.preferenceTags || [],
             experience: teamData.experienceLevel?.toLowerCase() || "beginner",
             competitiveScore: teamData.minCompScore?.toString() || "0",
-            communicationService: "discord", // This might need to come from API
+            communicationService: "discord",
             description: teamData.description || "",
             teamId: teamData.id || null
         })

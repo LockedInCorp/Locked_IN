@@ -1,11 +1,92 @@
-import { X, Check } from "lucide-react"
+"use client"
+
+import { useState, useEffect } from "react"
+import { X, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Button } from "@/components/ui/button"
-import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
+import type { DiscoverSidebarProps } from "./types"
 
-export function DiscoverSidebar() {
-    const { gameSearch, selectedFilters, setGameSearch, toggleFilter } = useGroupDiscoveryStore()
+interface Tag {
+    id: string
+    name: string
+}
+
+export function DiscoverSidebar({
+    gameSearch,
+    onGameSearchChange,
+    visibleGames,
+    selectedGames,
+    onToggleGameFilter,
+    onAddGameFilter,
+    selectedTagIds,
+    onToggleTagFilter,
+}: DiscoverSidebarProps) {
+    const [tags, setTags] = useState<Tag[]>([])
+    const [tagsLoading, setTagsLoading] = useState(true)
+    const [tagsError, setTagsError] = useState<string | null>(null)
+    const [gameSuggestions, setGameSuggestions] = useState<Array<{ id: string; label: string }>>([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                setTagsLoading(true)
+                const response = await fetch("https://localhost:7252/api/Tag")
+                if (!response.ok) throw new Error("Failed to fetch tags")
+                const data = await response.json()
+                
+                if (data.data?.preferenceTags) {
+                    const mappedTags: Tag[] = data.data.preferenceTags.map((tag: any) => ({
+                        id: tag.id?.toString() || "",
+                        name: tag.preferencename || tag.name || ""
+                    })).filter((tag: Tag) => tag.id && tag.name)
+                    setTags(mappedTags)
+                }
+            } catch (err) {
+                setTagsError(err instanceof Error ? err.message : "Failed to load tags")
+            } finally {
+                setTagsLoading(false)
+            }
+        }
+
+        fetchTags()
+    }, [])
+
+    useEffect(() => {
+        if (!gameSearch || gameSearch.length < 2) {
+            setGameSuggestions([])
+            return
+        }
+
+        const searchGames = async () => {
+            try {
+                setLoading(true)
+                setError(null)
+                const response = await fetch(`https://localhost:7252/api/Game/search?searchTerm=${encodeURIComponent(gameSearch)}`)
+                if (!response.ok) throw new Error("Failed to search games")
+                const data = await response.json()
+                
+                const suggestions = Array.isArray(data) 
+                    ? data.map((game: any) => ({
+                        id: game.id?.toString() || "",
+                        label: game.name || ""
+                    }))
+                    : []
+                setGameSuggestions(suggestions)
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to search games")
+                setGameSuggestions([])
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        const debounceTimer = setTimeout(searchGames, 300)
+        return () => clearTimeout(debounceTimer)
+    }, [gameSearch])
+
+    const selectedGameTags = visibleGames.filter(game => selectedGames.has(game.id))
 
     return (
         <div className="w-[380px] flex-shrink-0 p-6 space-y-6 overflow-y-auto">
@@ -28,7 +109,7 @@ export function DiscoverSidebar() {
                             <X className="h-4 w-4" />
                         </button>
                     ) : (
-                         <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     )}
 
                     {/* Search Results Dropdown */}
@@ -40,17 +121,17 @@ export function DiscoverSidebar() {
                             {!loading && error && (
                                 <div className="px-4 py-2 text-sm text-destructive">{error}</div>
                             )}
-                            {!loading && !error && suggestions.length === 0 && (
+                            {!loading && !error && gameSuggestions.length === 0 && (
                                 <div className="px-4 py-2 text-sm text-muted-foreground">No results</div>
                             )}
-                            {!loading && !error && suggestions.map((game) => (
+                            {!loading && !error && gameSuggestions.map((game) => (
                                 <button
                                     key={game.id}
                                     className="w-full text-left px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                                     onClick={() => {
                                         onAddGameFilter(game)
                                         onGameSearchChange("")
-                                        setSuggestions([])
+                                        setGameSuggestions([])
                                     }}
                                 >
                                     {game.label}
@@ -112,4 +193,3 @@ export function DiscoverSidebar() {
         </div>
     )
 }
-

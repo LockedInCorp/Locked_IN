@@ -21,7 +21,6 @@ export default function Profile() {
 
     const handleAvatarChange = (file: File | null) => {
         if (file) {
-            // Create a preview URL for the selected image
             const reader = new FileReader()
             reader.onloadend = () => {
                 setAvatarPreview(reader.result as string)
@@ -29,7 +28,6 @@ export default function Profile() {
             reader.readAsDataURL(file)
             
             // TODO: Upload file to server and get URL
-            // For now, we'll use the preview URL
         } else {
             setAvatarPreview(null)
         }

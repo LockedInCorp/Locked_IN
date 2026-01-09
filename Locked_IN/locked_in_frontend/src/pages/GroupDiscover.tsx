@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSidebar"
 import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
+import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
+import type { GroupCard, GameOption, PagedResult, TeamSearchResult } from "@/custom_components/groupDiscover/types"
 
 export default function DiscoverPage() {
     const { groupSearch, showPending, setGroupSearch, setShowPending } = useGroupDiscoveryStore()
@@ -40,7 +42,7 @@ export default function DiscoverPage() {
                 if (!response.ok) throw new Error("Failed to fetch")
                 const data: PagedResult<TeamSearchResult> = await response.json()
                 
-                const mappedGroups: GroupCard[] = data.items.map((team) => ({
+                const mappedGroups: GroupCard[] = data.items.map((team: TeamSearchResult) => ({
                     id: team.id.toString(),
                     title: team.name,
                     game: team.gameName || "Unknown Game",
