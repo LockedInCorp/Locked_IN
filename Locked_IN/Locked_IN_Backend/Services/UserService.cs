@@ -81,6 +81,25 @@ namespace Locked_IN_Backend.Services
             return await GetUserProfileAsync(user.Id);
         }
 
+        public async Task<UserResult> LoginAsync(LoginDto dto)
+        {
+            var user = await _userRepository.FindByNameAsync(dto.Username);
+
+            if (user == null)
+            {
+                return new UserResult(false, "Invalid username or password.");
+            }
+
+            var result = await _userRepository.PasswordSignInAsync(user, dto.Password, false, false);
+
+            if (!result.Succeeded)
+            {
+                return new UserResult(false, "Invalid username or password.");
+            }
+
+            return await GetUserProfileAsync(user.Id);
+        }
+
         public async Task<UserResult> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto)
         {
             var user = await _userRepository.FindByIdAsync(userId.ToString());
@@ -120,6 +139,12 @@ namespace Locked_IN_Backend.Services
             await _userRepository.UpdateUser(user);
 
             return await GetUserProfileAsync(userId);
+        }
+
+        public async Task<UserResult> LogoutAsync()
+        {
+            await _userRepository.SignOutAsync();
+            return new UserResult(true, "Logged out successfully.");
         }
     }
 }

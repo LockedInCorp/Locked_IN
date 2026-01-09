@@ -8,7 +8,9 @@ namespace Locked_IN_Backend.Services
     {
         Task<UserResult> GetUserProfileAsync(int userId);
         Task<UserResult> RegisterAsync(RegisterDto dto);
+        Task<UserResult> LoginAsync(LoginDto dto);
         Task<UserResult> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto);
         Task<UserResult> UpdateAvailabilityAsync(int userId, UpdateAvailabilityDto dto);
+        Task<UserResult> LogoutAsync();
     }
 }

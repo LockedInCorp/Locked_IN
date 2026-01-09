@@ -10,11 +10,13 @@ public class UserRepository : IUserRepository
 {
     private readonly AppDbContext _context;
     private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
 
-    public UserRepository(AppDbContext context, UserManager<User> userManager)
+    public UserRepository(AppDbContext context, UserManager<User> userManager, SignInManager<User> signInManager)
     {
         _context = context;
         _userManager = userManager;
+        _signInManager = signInManager;
     }
 
     public async Task<IEnumerable<User>> GetUsers()
@@ -55,8 +57,28 @@ public class UserRepository : IUserRepository
         return await _userManager.FindByIdAsync(userId);
     }
 
+    public async Task<User?> FindByNameAsync(string userName)
+    {
+        return await _userManager.FindByNameAsync(userName);
+    }
+
+    public async Task<bool> CheckPasswordAsync(User user, string password)
+    {
+        return await _userManager.CheckPasswordAsync(user, password);
+    }
+
     public async Task<IdentityResult> UpdateUserAsync(User user)
     {
         return await _userManager.UpdateAsync(user);
+    }
+
+    public async Task<SignInResult> PasswordSignInAsync(User user, string password, bool isPersistent, bool lockoutOnFailure)
+    {
+        return await _signInManager.PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+    }
+
+    public async Task SignOutAsync()
+    {
+        await _signInManager.SignOutAsync();
     }
 }

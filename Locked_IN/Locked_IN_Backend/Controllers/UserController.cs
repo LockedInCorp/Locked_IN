@@ -28,6 +28,29 @@ namespace Locked_IN_Backend.Controllers
         }
 
         /// <summary>
+        /// Login a user
+        /// </summary>
+        /// <param name="dto">User login credentials</param>
+        /// <returns>Logged in user profile</returns>
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        {
+            var result = await _userService.LoginAsync(dto);
+            return result.Success ? Ok(result) : Unauthorized(result);
+        }
+
+        /// <summary>
+        /// Logout the current user
+        /// </summary>
+        /// <returns>Logout status message</returns>
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var result = await _userService.LogoutAsync();
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Get user profile details by ID
         /// </summary>
         /// <param name="userId">The ID of the user</param>
