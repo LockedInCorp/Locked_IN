@@ -6,9 +6,16 @@ import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilte
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
 import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 import type { GroupCard, GameOption, PagedResult, TeamSearchResult } from "@/custom_components/groupDiscover/types"
-
+//#TODO when current page=maxpage and changeView to lower value displays empty page
 export default function DiscoverPage() {
-    const { groupSearch, showPending, setGroupSearch, setShowPending } = useGroupDiscoveryStore()
+    const { 
+        groupSearch, 
+        showPending, 
+        currentPage,
+        setGroupSearch, 
+        setShowPending,
+        setCurrentPage 
+    } = useGroupDiscoveryStore()
 
     const [gameSearch, setGameSearch] = useState("")
     const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set())
@@ -16,7 +23,6 @@ export default function DiscoverPage() {
     const [customGames, setCustomGames] = useState<Array<{ id: string; label: string }>>([])
 
     const [groups, setGroups] = useState<GroupCard[]>([])
-    const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [pageSize, setPageSize] = useState(12)
     const [sortBy, setSortBy] = useState("relevance")

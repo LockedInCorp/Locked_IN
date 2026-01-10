@@ -372,12 +372,120 @@ private void SeedTestData(ModelBuilder modelBuilder)
                 Id = 6, 
                 Email = "test.user6@example.com", 
                 UserName = "TestUser6", 
-                NormalizedUserName = "TESTUSER6",
+                NormalizedUserName = "TESTUSER6", 
                 NormalizedEmail = "TEST.USER6@EXAMPLE.COM",
                 PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
                 AvatarUrl = null,
                 Availability = "{}",
                 ConcurrencyStamp = "cfdd42d5-0600-4945-a36f-17b0f22459f4"
+            },
+            new User 
+            { 
+                Id = 7, 
+                Email = "test.user7@example.com", 
+                UserName = "TestUser7", 
+                NormalizedUserName = "TESTUSER7", 
+                NormalizedEmail = "TEST.USER7@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "f4b7a2d5-0600-4945-a36f-17b0f22459f4"
+            },
+            new User 
+            { 
+                Id = 8, 
+                Email = "test.user8@example.com", 
+                UserName = "TestUser8", 
+                NormalizedUserName = "TESTUSER8", 
+                NormalizedEmail = "TEST.USER8@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "a1b2c3d4-e5f6-4789-8012-34567890abcd"
+            },
+            new User 
+            { 
+                Id = 9, 
+                Email = "test.user9@example.com", 
+                UserName = "TestUser9", 
+                NormalizedUserName = "TESTUSER9", 
+                NormalizedEmail = "TEST.USER9@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "b2c3d4e5-f6a7-4890-9123-4567890abcde"
+            },
+            new User 
+            { 
+                Id = 10, 
+                Email = "test.user10@example.com", 
+                UserName = "TestUser10", 
+                NormalizedUserName = "TESTUSER10", 
+                NormalizedEmail = "TEST.USER10@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "c3d4e5f6-a7b8-4901-a234-567890abcdef"
+            },
+            new User 
+            { 
+                Id = 11, 
+                Email = "test.user11@example.com", 
+                UserName = "TestUser11", 
+                NormalizedUserName = "TESTUSER11", 
+                NormalizedEmail = "TEST.USER11@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "d4e5f6a7-b8c9-4012-b345-67890abcde01"
+            },
+            new User 
+            { 
+                Id = 12, 
+                Email = "test.user12@example.com", 
+                UserName = "TestUser12", 
+                NormalizedUserName = "TESTUSER12", 
+                NormalizedEmail = "TEST.USER12@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "e5f6a7b8-c9d0-4123-c456-7890abcde012"
+            },
+            new User 
+            { 
+                Id = 13, 
+                Email = "test.user13@example.com", 
+                UserName = "TestUser13", 
+                NormalizedUserName = "TESTUSER13", 
+                NormalizedEmail = "TEST.USER13@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "f6a7b8c9-d0e1-4234-d567-890abcde0123"
+            },
+            new User 
+            { 
+                Id = 14, 
+                Email = "test.user14@example.com", 
+                UserName = "TestUser14", 
+                NormalizedUserName = "TESTUSER14", 
+                NormalizedEmail = "TEST.USER14@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "0b1c2d3e-4f5a-4345-e678-90abcde01234"
+            },
+            new User 
+            { 
+                Id = 15, 
+                Email = "test.user15@example.com", 
+                UserName = "TestUser15", 
+                NormalizedUserName = "TESTUSER15", 
+                NormalizedEmail = "TEST.USER15@EXAMPLE.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                AvatarUrl = null,
+                Availability = "{}",
+                ConcurrencyStamp = "1c2d3e4f-5a6b-4456-f789-0abcde012345"
             }
         );
 
@@ -521,6 +629,48 @@ private void SeedTestData(ModelBuilder modelBuilder)
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 8, 20, 17, 25, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 11,
+            Name = "Lol true gamers",
+            MinCompScore = 1000,
+            MaxPlayerCount = 5,
+            Description = "TestDescription11",
+            GameId = 2,
+            Isprivate = false,
+            Isblitz = false,
+            ExperienceTagId = 2,
+            CreationTimestamp = new DateTime(2024, 11, 10, 10, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 12,
+            Name = "Lol true hardcore",
+            MinCompScore = 2500,
+            MaxPlayerCount = 5,
+            Description = "TestDescription12",
+            GameId = 2,
+            Isprivate = false,
+            Isblitz = false,
+            ExperienceTagId = 4,
+            CreationTimestamp = new DateTime(2024, 11, 15, 12, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
+        },
+        new Team
+        {
+            Id = 13,
+            Name = "True Hardcore",
+            MinCompScore = 3000,
+            MaxPlayerCount = 5,
+            Description = "TestDescription13",
+            GameId = 2,
+            Isprivate = false,
+            Isblitz = false,
+            ExperienceTagId = 4,
+            CreationTimestamp = new DateTime(2024, 11, 20, 15, 0, 0, DateTimeKind.Utc),
+            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
         }
     );
 
@@ -631,6 +781,87 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Jointimestamp = new DateTime(2024, 8, 21, 18, 0, 0, DateTimeKind.Utc),
             TeamId = 10,
             UserId = 2,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 13,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 11, 10, 10, 0, 0, DateTimeKind.Utc),
+            TeamId = 11,
+            UserId = 7,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 14,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 11, 11, 10, 0, 0, DateTimeKind.Utc),
+            TeamId = 11,
+            UserId = 8,
+            MemberStatusId = 2
+        },
+        new TeamMember
+        {
+            Id = 15,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 11, 12, 10, 0, 0, DateTimeKind.Utc),
+            TeamId = 11,
+            UserId = 9,
+            MemberStatusId = 2
+        },
+        new TeamMember
+        {
+            Id = 16,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 11, 15, 12, 0, 0, DateTimeKind.Utc),
+            TeamId = 12,
+            UserId = 10,
+            MemberStatusId = 1
+        },
+        new TeamMember
+        {
+            Id = 17,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 11, 16, 12, 0, 0, DateTimeKind.Utc),
+            TeamId = 12,
+            UserId = 11,
+            MemberStatusId = 2
+        },
+        new TeamMember
+        {
+            Id = 18,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 11, 17, 12, 0, 0, DateTimeKind.Utc),
+            TeamId = 12,
+            UserId = 12,
+            MemberStatusId = 2
+        },
+        new TeamMember
+        {
+            Id = 19,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 11, 18, 12, 0, 0, DateTimeKind.Utc),
+            TeamId = 12,
+            UserId = 13,
+            MemberStatusId = 2
+        },
+        new TeamMember
+        {
+            Id = 20,
+            Isleader = false,
+            Jointimestamp = new DateTime(2024, 11, 19, 12, 0, 0, DateTimeKind.Utc),
+            TeamId = 12,
+            UserId = 14,
+            MemberStatusId = 2
+        },
+        new TeamMember
+        {
+            Id = 21,
+            Isleader = true,
+            Jointimestamp = new DateTime(2024, 11, 20, 15, 0, 0, DateTimeKind.Utc),
+            TeamId = 13,
+            UserId = 15,
             MemberStatusId = 1
         }
     );

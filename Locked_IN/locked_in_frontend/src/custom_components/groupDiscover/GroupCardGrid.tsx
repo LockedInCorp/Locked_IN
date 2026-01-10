@@ -1,7 +1,7 @@
 import type { GroupCard } from "./types"
 import { GroupCard as GroupCardComponent } from "./GroupCard"
 import { Button } from "@/components/ui/button"
-import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface GroupCardGridProps {
     groups: GroupCard[]
@@ -10,9 +10,18 @@ interface GroupCardGridProps {
     onPageChange: (page: number) => void
 }
 
-export function GroupCardGrid({ groups }: GroupCardGridProps) {
-    const { currentPage, setCurrentPage } = useGroupDiscoveryStore()
-    const totalPages = 20
+export function GroupCardGrid({ groups, currentPage, totalPages, onPageChange }: GroupCardGridProps) {
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            onPageChange(currentPage - 1)
+        }
+    }
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            onPageChange(currentPage + 1)
+        }
+    }
 
     const getPageNumbers = () => {
         const pages: (number | string)[] = []
@@ -46,6 +55,16 @@ export function GroupCardGrid({ groups }: GroupCardGridProps) {
             
             {/* Pagination */}
             <div className="flex justify-center items-center gap-2 mt-6 pb-4">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    className="h-9 w-9 border-border text-foreground hover:bg-muted"
+                >
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+
                 {getPageNumbers().map((page, index) => (
                     page === "..." ? (
                         <span key={`ellipsis-${index}`} className="px-2 text-foreground">
@@ -65,6 +84,16 @@ export function GroupCardGrid({ groups }: GroupCardGridProps) {
                         </Button>
                     )
                 ))}
+
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className="h-9 w-9 border-border text-foreground hover:bg-muted"
+                >
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
             </div>
         </div>
     )

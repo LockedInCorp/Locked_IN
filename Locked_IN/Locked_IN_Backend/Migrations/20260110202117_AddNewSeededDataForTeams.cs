@@ -562,7 +562,16 @@ namespace Locked_IN_Backend.Migrations
                     { 3, 0, "{\"wednesday\": [\"20:00\", \"24:00\"], \"sunday\": [\"16:00\", \"20:00\"]}", null, "7215511a-a6f6-4c13-9150-4adcd0386aa2", "mike.wilson@example.com", false, false, null, "MIKE.WILSON@EXAMPLE.COM", "MIKEWILSON", "AQAAAAIAAYagAAAAEAsIsmk+dryXt4PmmKJh4JI13MUapXDSV2TV86uN9H8BQ4z8tLZidkz9EO4JNegVbg==", null, false, null, false, "MikeWilson" },
                     { 4, 0, "{\"thursday\": [\"19:00\", \"23:00\"], \"saturday\": [\"15:00\", \"19:00\"]}", null, "d88cb586-3c32-4568-8926-bc13615faee5", "sarah.johnson@example.com", false, false, null, "SARAH.JOHNSON@EXAMPLE.COM", "SARAHJ", "AQAAAAIAAYagAAAAEATi+RUXol0s9TAlaVgkeLeVDGWd6MqPLy9snA6HouQ1lF97Df8cgQTP/ZZHxZocwg==", null, false, null, false, "SarahJ" },
                     { 5, 0, "{}", null, "72731087-823f-47c7-914a-c94b877b812b", "test.user5@example.com", false, false, null, "TEST.USER5@EXAMPLE.COM", "TESTUSER5", "AQAAAAIAAYagAAAAEGpBx2tVsCNrIpRMczTrAb94PYTWtFcBuqBSX28V0hKe/calB1dZ76OTiLv/FklJ9A==", null, false, null, false, "TestUser5" },
-                    { 6, 0, "{}", null, "cfdd42d5-0600-4945-a36f-17b0f22459f4", "test.user6@example.com", false, false, null, "TEST.USER6@EXAMPLE.COM", "TESTUSER6", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser6" }
+                    { 6, 0, "{}", null, "cfdd42d5-0600-4945-a36f-17b0f22459f4", "test.user6@example.com", false, false, null, "TEST.USER6@EXAMPLE.COM", "TESTUSER6", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser6" },
+                    { 7, 0, "{}", null, "f4b7a2d5-0600-4945-a36f-17b0f22459f4", "test.user7@example.com", false, false, null, "TEST.USER7@EXAMPLE.COM", "TESTUSER7", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser7" },
+                    { 8, 0, "{}", null, "a1b2c3d4-e5f6-4789-8012-34567890abcd", "test.user8@example.com", false, false, null, "TEST.USER8@EXAMPLE.COM", "TESTUSER8", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser8" },
+                    { 9, 0, "{}", null, "b2c3d4e5-f6a7-4890-9123-4567890abcde", "test.user9@example.com", false, false, null, "TEST.USER9@EXAMPLE.COM", "TESTUSER9", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser9" },
+                    { 10, 0, "{}", null, "c3d4e5f6-a7b8-4901-a234-567890abcdef", "test.user10@example.com", false, false, null, "TEST.USER10@EXAMPLE.COM", "TESTUSER10", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser10" },
+                    { 11, 0, "{}", null, "d4e5f6a7-b8c9-4012-b345-67890abcde01", "test.user11@example.com", false, false, null, "TEST.USER11@EXAMPLE.COM", "TESTUSER11", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser11" },
+                    { 12, 0, "{}", null, "e5f6a7b8-c9d0-4123-c456-7890abcde012", "test.user12@example.com", false, false, null, "TEST.USER12@EXAMPLE.COM", "TESTUSER12", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser12" },
+                    { 13, 0, "{}", null, "f6a7b8c9-d0e1-4234-d567-890abcde0123", "test.user13@example.com", false, false, null, "TEST.USER13@EXAMPLE.COM", "TESTUSER13", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser13" },
+                    { 14, 0, "{}", null, "0b1c2d3e-4f5a-4345-e678-90abcde01234", "test.user14@example.com", false, false, null, "TEST.USER14@EXAMPLE.COM", "TESTUSER14", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser14" },
+                    { 15, 0, "{}", null, "1c2d3e4f-5a6b-4456-f789-0abcde012345", "test.user15@example.com", false, false, null, "TEST.USER15@EXAMPLE.COM", "TESTUSER15", "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==", null, false, null, false, "TestUser15" }
                 });
 
             migrationBuilder.InsertData(
@@ -674,7 +683,10 @@ namespace Locked_IN_Backend.Migrations
                     { 7, new DateTime(2024, 10, 2, 21, 10, 0, 0, DateTimeKind.Utc), "TestDescription7", 3, 3, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", false, false, 5, 1800, "VLR Strike" },
                     { 8, new DateTime(2024, 9, 5, 13, 5, 0, 0, DateTimeKind.Utc), "TestDescription8", 1, 2, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", false, false, 5, null, "Chill Queue" },
                     { 9, new DateTime(2024, 11, 1, 9, 0, 0, 0, DateTimeKind.Utc), "TestDescription9", 4, 1, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", true, true, 5, 1600, "Peak Hold" },
-                    { 10, new DateTime(2024, 8, 20, 17, 25, 0, 0, DateTimeKind.Utc), "TestDescription10", 2, 3, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", true, false, 5, 1100, "Spike Rush" }
+                    { 10, new DateTime(2024, 8, 20, 17, 25, 0, 0, DateTimeKind.Utc), "TestDescription10", 2, 3, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", true, false, 5, 1100, "Spike Rush" },
+                    { 11, new DateTime(2024, 11, 10, 10, 0, 0, 0, DateTimeKind.Utc), "TestDescription11", 2, 2, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", false, false, 5, 1000, "Lol true gamers" },
+                    { 12, new DateTime(2024, 11, 15, 12, 0, 0, 0, DateTimeKind.Utc), "TestDescription12", 4, 2, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", false, false, 5, 2500, "Lol true hardcore" },
+                    { 13, new DateTime(2024, 11, 20, 15, 0, 0, 0, DateTimeKind.Utc), "TestDescription13", 4, 2, "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg", false, false, 5, 3000, "True Hardcore" }
                 });
 
             migrationBuilder.InsertData(
@@ -693,7 +705,16 @@ namespace Locked_IN_Backend.Migrations
                     { 9, true, new DateTime(2024, 10, 3, 20, 15, 0, 0, DateTimeKind.Utc), 1, 7, 5 },
                     { 10, true, new DateTime(2024, 9, 6, 9, 5, 0, 0, DateTimeKind.Utc), 1, 8, 6 },
                     { 11, true, new DateTime(2024, 11, 2, 10, 0, 0, 0, DateTimeKind.Utc), 1, 9, 1 },
-                    { 12, true, new DateTime(2024, 8, 21, 18, 0, 0, 0, DateTimeKind.Utc), 1, 10, 2 }
+                    { 12, true, new DateTime(2024, 8, 21, 18, 0, 0, 0, DateTimeKind.Utc), 1, 10, 2 },
+                    { 13, true, new DateTime(2024, 11, 10, 10, 0, 0, 0, DateTimeKind.Utc), 1, 11, 7 },
+                    { 14, false, new DateTime(2024, 11, 11, 10, 0, 0, 0, DateTimeKind.Utc), 2, 11, 8 },
+                    { 15, false, new DateTime(2024, 11, 12, 10, 0, 0, 0, DateTimeKind.Utc), 2, 11, 9 },
+                    { 16, true, new DateTime(2024, 11, 15, 12, 0, 0, 0, DateTimeKind.Utc), 1, 12, 10 },
+                    { 17, false, new DateTime(2024, 11, 16, 12, 0, 0, 0, DateTimeKind.Utc), 2, 12, 11 },
+                    { 18, false, new DateTime(2024, 11, 17, 12, 0, 0, 0, DateTimeKind.Utc), 2, 12, 12 },
+                    { 19, false, new DateTime(2024, 11, 18, 12, 0, 0, 0, DateTimeKind.Utc), 2, 12, 13 },
+                    { 20, false, new DateTime(2024, 11, 19, 12, 0, 0, 0, DateTimeKind.Utc), 2, 12, 14 },
+                    { 21, true, new DateTime(2024, 11, 20, 15, 0, 0, 0, DateTimeKind.Utc), 1, 13, 15 }
                 });
 
             migrationBuilder.InsertData(

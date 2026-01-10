@@ -162,7 +162,8 @@ public class TeamRepository : ITeamRepository
                 .Where(tm => tm.Isleader)
                 .Select(tm => tm.User.UserName)
                 .FirstOrDefault(),
-            CreationTimestamp = t.CreationTimestamp
+            CreationTimestamp = t.CreationTimestamp,
+            Team = t
         });
 
         var sort = (sortBy ?? string.Empty).Trim().ToLower();
@@ -175,7 +176,7 @@ public class TeamRepository : ITeamRepository
         else if (sort == "popular")
         {
             intermediate = intermediate
-                .OrderByDescending(x => x.LatestMemberJoin)
+                .OrderByDescending(x => x.Team.TeamMembers.Count/x.Team.MaxPlayerCount)
                 .ThenByDescending(x => x.CreationTimestamp);
         }
         else if (sort == "newest")

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Locked_IN_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260106153050_AddNewSeededDataForTeams")]
+    [Migration("20260110202117_AddNewSeededDataForTeams")]
     partial class AddNewSeededDataForTeams
     {
         /// <inheritdoc />
@@ -843,6 +843,48 @@ namespace Locked_IN_Backend.Migrations
                             MaxPlayerCount = 5,
                             MinCompScore = 1100,
                             Name = "Spike Rush"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreationTimestamp = new DateTime(2024, 11, 10, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription11",
+                            ExperienceTagId = 2,
+                            GameId = 2,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = false,
+                            Isprivate = false,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 1000,
+                            Name = "Lol true gamers"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreationTimestamp = new DateTime(2024, 11, 15, 12, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription12",
+                            ExperienceTagId = 4,
+                            GameId = 2,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = false,
+                            Isprivate = false,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 2500,
+                            Name = "Lol true hardcore"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreationTimestamp = new DateTime(2024, 11, 20, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "TestDescription13",
+                            ExperienceTagId = 4,
+                            GameId = 2,
+                            IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg",
+                            Isblitz = false,
+                            Isprivate = false,
+                            MaxPlayerCount = 5,
+                            MinCompScore = 3000,
+                            Name = "True Hardcore"
                         });
                 });
 
@@ -994,6 +1036,87 @@ namespace Locked_IN_Backend.Migrations
                             MemberStatusId = 1,
                             TeamId = 10,
                             UserId = 2
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 11, 10, 10, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 11,
+                            UserId = 7
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Isleader = false,
+                            Jointimestamp = new DateTime(2024, 11, 11, 10, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 2,
+                            TeamId = 11,
+                            UserId = 8
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Isleader = false,
+                            Jointimestamp = new DateTime(2024, 11, 12, 10, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 2,
+                            TeamId = 11,
+                            UserId = 9
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 11, 15, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 12,
+                            UserId = 10
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Isleader = false,
+                            Jointimestamp = new DateTime(2024, 11, 16, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 2,
+                            TeamId = 12,
+                            UserId = 11
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Isleader = false,
+                            Jointimestamp = new DateTime(2024, 11, 17, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 2,
+                            TeamId = 12,
+                            UserId = 12
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Isleader = false,
+                            Jointimestamp = new DateTime(2024, 11, 18, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 2,
+                            TeamId = 12,
+                            UserId = 13
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Isleader = false,
+                            Jointimestamp = new DateTime(2024, 11, 19, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 2,
+                            TeamId = 12,
+                            UserId = 14
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Isleader = true,
+                            Jointimestamp = new DateTime(2024, 11, 20, 15, 0, 0, 0, DateTimeKind.Utc),
+                            MemberStatusId = 1,
+                            TeamId = 13,
+                            UserId = 15
                         });
                 });
 
@@ -1320,6 +1443,150 @@ namespace Locked_IN_Backend.Migrations
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "TestUser6"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "f4b7a2d5-0600-4945-a36f-17b0f22459f4",
+                            Email = "test.user7@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER7@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER7",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser7"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "a1b2c3d4-e5f6-4789-8012-34567890abcd",
+                            Email = "test.user8@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER8@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER8",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser8"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "b2c3d4e5-f6a7-4890-9123-4567890abcde",
+                            Email = "test.user9@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER9@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER9",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser9"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "c3d4e5f6-a7b8-4901-a234-567890abcdef",
+                            Email = "test.user10@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER10@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER10",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser10"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "d4e5f6a7-b8c9-4012-b345-67890abcde01",
+                            Email = "test.user11@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER11@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER11",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser11"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "e5f6a7b8-c9d0-4123-c456-7890abcde012",
+                            Email = "test.user12@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER12@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER12",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser12"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "f6a7b8c9-d0e1-4234-d567-890abcde0123",
+                            Email = "test.user13@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER13@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER13",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser13"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "0b1c2d3e-4f5a-4345-e678-90abcde01234",
+                            Email = "test.user14@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER14@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER14",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser14"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AccessFailedCount = 0,
+                            Availability = "{}",
+                            ConcurrencyStamp = "1c2d3e4f-5a6b-4456-f789-0abcde012345",
+                            Email = "test.user15@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST.USER15@EXAMPLE.COM",
+                            NormalizedUserName = "TESTUSER15",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEmEzQ6be69sAH0ebnRfg0/K4v40XfQAJB+o7K2HhHhxyKJgmsMnHma6j66stC3Cyg==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestUser15"
                         });
                 });
 
