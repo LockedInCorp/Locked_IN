@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { GameProfile } from "../profile/ProfileFields"
+import { useRegisterStore } from "@/stores/registerStore"
 
 // Sample list of games - replace with actual API call later
 const availableGames = [
@@ -42,19 +42,15 @@ export default function RegisterPart2({
     onGameProfilesChange,
     onNext
 }: RegisterPart2Props) {
-    const [expandedGames, setExpandedGames] = useState<Set<string>>(new Set())
-    const [selectedGame, setSelectedGame] = useState<string>("")
-    const [customGame, setCustomGame] = useState<string>("")
-
-    const toggleGame = (gameName: string) => {
-        const newExpanded = new Set(expandedGames)
-        if (newExpanded.has(gameName)) {
-            newExpanded.delete(gameName)
-        } else {
-            newExpanded.add(gameName)
-        }
-        setExpandedGames(newExpanded)
-    }
+    const {
+        expandedGames,
+        selectedGame,
+        customGame,
+        toggleExpandedGame,
+        setExpandedGames,
+        setSelectedGame,
+        setCustomGame
+    } = useRegisterStore()
 
     const handleAddGame = (game: string) => {
         const trimmedGame = game.trim()
@@ -71,15 +67,17 @@ export default function RegisterPart2({
             setCustomGame("")
             setSelectedGame("")
             // Auto-expand the newly added game
-            setExpandedGames(new Set([...expandedGames, trimmedGame]))
+            toggleExpandedGame(trimmedGame)
         }
     }
 
     const handleRemoveGame = (gameToRemove: string) => {
         onGameProfilesChange(gameProfiles.filter(profile => profile.gameName !== gameToRemove))
-        const newExpanded = new Set(expandedGames)
-        newExpanded.delete(gameToRemove)
-        setExpandedGames(newExpanded)
+        if (expandedGames.has(gameToRemove)) {
+            const newExpanded = new Set(expandedGames)
+            newExpanded.delete(gameToRemove)
+            setExpandedGames(newExpanded)
+        }
     }
 
     const handleUpdateGameProfile = (gameName: string, updates: Partial<GameProfile>) => {
@@ -190,7 +188,7 @@ export default function RegisterPart2({
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => toggleGame(profile.gameName)}
+                                            onClick={() => toggleExpandedGame(profile.gameName)}
                                             className="p-1.5 hover:bg-muted rounded transition-colors cursor-pointer"
                                             aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${profile.gameName}`}
                                         >

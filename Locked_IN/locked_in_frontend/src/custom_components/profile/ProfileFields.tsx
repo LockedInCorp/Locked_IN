@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Check } from "lucide-react"
+import { useProfileStore } from "@/stores/profileStore"
 
 export type GameProfile = {
     gameName: string
@@ -29,17 +29,7 @@ export default function ProfileFields({
     gameProfiles,
     aboutMe
 }: ProfileFieldsProps) {
-    const [expandedGames, setExpandedGames] = useState<Set<string>>(new Set())
-
-    const toggleGame = (gameName: string) => {
-        const newExpanded = new Set(expandedGames)
-        if (newExpanded.has(gameName)) {
-            newExpanded.delete(gameName)
-        } else {
-            newExpanded.add(gameName)
-        }
-        setExpandedGames(newExpanded)
-    }
+    const { expandedGames, toggleExpandedGame } = useProfileStore()
 
     return (
         <div className="space-y-6">
@@ -77,7 +67,7 @@ export default function ProfileFields({
                                 >
                                     {/* Collapsed Header */}
                                     <button
-                                        onClick={() => toggleGame(profile.gameName)}
+                                        onClick={() => toggleExpandedGame(profile.gameName)}
                                         className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                                     >
                                         <span className="text-sm font-semibold text-foreground">{profile.gameName}</span>

@@ -1,81 +1,61 @@
 "use client"
 
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import RegisterPart1 from "@/custom_components/register/RegisterPart1"
 import RegisterPart2 from "@/custom_components/register/RegisterPart2"
-import type { GameProfile } from "@/custom_components/profile/ProfileFields"
+import { useAuthStore } from "@/stores/authStore"
 
 export default function Register() {
     const navigate = useNavigate()
-    const [step, setStep] = useState<1 | 2>(1)
-    
-    // Part 1 data
-    const [email, setEmail] = useState("")
-    const [nickname, setNickname] = useState("")
-    const [password, setPassword] = useState("")
-    const [repeatPassword, setRepeatPassword] = useState("")
-    const [avatarFile, setAvatarFile] = useState<File | null>(null)
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-
-    // Part 2 data
-    const [gameProfiles, setGameProfiles] = useState<GameProfile[]>([])
+    const {
+        registerStep,
+        registerEmail,
+        registerNickname,
+        registerPassword,
+        registerRepeatPassword,
+        registerAvatarFile,
+        registerAvatarPreview,
+        registerGameProfiles,
+        setRegisterStep,
+        setRegisterEmail,
+        setRegisterNickname,
+        setRegisterPassword,
+        setRegisterRepeatPassword,
+        setRegisterAvatarFile,
+        setRegisterAvatarPreview,
+        setRegisterGameProfiles
+    } = useAuthStore()
 
     const handleAvatarChange = (file: File | null) => {
-        setAvatarFile(file)
+        setRegisterAvatarFile(file)
         if (file) {
             const reader = new FileReader()
             reader.onloadend = () => {
-                setAvatarPreview(reader.result as string)
+                setRegisterAvatarPreview(reader.result as string)
             }
             reader.readAsDataURL(file)
         } else {
-            setAvatarPreview(null)
+            setRegisterAvatarPreview(null)
         }
     }
 
     const handleNextPart1 = () => {
-        if (email.trim() && nickname.trim() && password.trim() && repeatPassword.trim() && password === repeatPassword) {
-            setStep(2)
+        if (registerEmail.trim() && registerNickname.trim() && registerPassword.trim() && registerRepeatPassword.trim() && registerPassword === registerRepeatPassword) {
+            setRegisterStep(2)
         }
     }
 
     const handleNextPart2 = async () => {
         // TODO: Implement registration API call
-        // Example:
-        // try {
-        //     const response = await fetch('/api/register', {
-        //         method: 'POST',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify({
-        //             email,
-        //             nickname,
-        //             password,
-        //             avatarFile,
-        //             gameProfiles
-        //         })
-        //     })
-        //     if (response.ok) {
-        //         // Redirect after successful registration
-        //         navigate("/groups")
-        //     } else {
-        //         // Handle registration error
-        //         console.error("Registration failed")
-        //     }
-        // } catch (error) {
-        //     console.error("Registration error:", error)
-        // }
         
-        // For now, just redirect to groups/discover page
         console.log("Registering user:", {
-            email,
-            nickname,
-            password,
-            avatarFile,
-            gameProfiles
+            email: registerEmail,
+            nickname: registerNickname,
+            password: registerPassword,
+            avatarFile: registerAvatarFile,
+            gameProfiles: registerGameProfiles
         })
         
-        // Redirect to groups/discover page after registration
         navigate("/groups")
     }
 
@@ -89,25 +69,25 @@ export default function Register() {
                         {/* Title */}
                         <h1 className="text-3xl font-bold text-primary mb-2">Register</h1>
                         
-                        {step === 1 ? (
+                        {registerStep === 1 ? (
                             <RegisterPart1
-                                email={email}
-                                nickname={nickname}
-                                password={password}
-                                repeatPassword={repeatPassword}
-                                avatarUrl={avatarPreview || undefined}
-                                avatarFallback={nickname.charAt(0).toUpperCase() || "U"}
-                                onEmailChange={setEmail}
-                                onNicknameChange={setNickname}
-                                onPasswordChange={setPassword}
-                                onRepeatPasswordChange={setRepeatPassword}
+                                email={registerEmail}
+                                nickname={registerNickname}
+                                password={registerPassword}
+                                repeatPassword={registerRepeatPassword}
+                                avatarUrl={registerAvatarPreview || undefined}
+                                avatarFallback={registerNickname.charAt(0).toUpperCase() || "U"}
+                                onEmailChange={setRegisterEmail}
+                                onNicknameChange={setRegisterNickname}
+                                onPasswordChange={setRegisterPassword}
+                                onRepeatPasswordChange={setRegisterRepeatPassword}
                                 onAvatarChange={handleAvatarChange}
                                 onNext={handleNextPart1}
                             />
                         ) : (
                             <RegisterPart2
-                                gameProfiles={gameProfiles}
-                                onGameProfilesChange={setGameProfiles}
+                                gameProfiles={registerGameProfiles}
+                                onGameProfilesChange={setRegisterGameProfiles}
                                 onNext={handleNextPart2}
                             />
                         )}

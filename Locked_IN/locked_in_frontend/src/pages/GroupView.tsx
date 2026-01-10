@@ -17,7 +17,7 @@ export function GroupView() {
             </div>
 
             {/* Right Panel - Group Info */}
-            <div className="w-[320px] border-l border-border flex-shrink-0">
+            <div className="w-[320px] border-l border-border flex-shrink-0 h-full flex flex-col">
                 <GroupInfo/>
             </div>
         </>

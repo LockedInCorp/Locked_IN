@@ -1,20 +1,23 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import GeneralSection from "@/custom_components/groupCreation/GeneralSection"
 import FinderSettingsSection from "@/custom_components/groupCreation/FinderSettingsSection"
+import { useGroupCreationStore } from "@/stores/groupCreationStore"
 
 export default function GroupCreation() {
-    const [selectedTags, setSelectedTags] = useState<string[]>([])
-    const [blitzRoom, setBlitzRoom] = useState(false)
-    const [autoAccept, setAutoAccept] = useState(false)
-    const [experience, setExperience] = useState("beginner")
-    const [groupSize, setGroupSize] = useState<string>("")
-
-    const toggleTag = (tag: string) => {
-        setSelectedTags(prev => (prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]))
-    }
+    const {
+        selectedTags,
+        blitzRoom,
+        autoAccept,
+        experience,
+        groupSize,
+        toggleTag,
+        setBlitzRoom,
+        setAutoAccept,
+        setExperience,
+        setGroupSize
+    } = useGroupCreationStore()
 
     return (
         <main className="flex flex-col h-full w-full overflow-hidden">

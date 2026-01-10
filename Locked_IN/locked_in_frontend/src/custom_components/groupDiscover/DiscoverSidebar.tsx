@@ -1,8 +1,15 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { X, Search } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { DiscoverSidebarProps } from "./types"
+
+interface Tag {
+    id: string
+    name: string
+}
 
 export function DiscoverSidebar({
     gameSearch,
@@ -14,81 +21,72 @@ export function DiscoverSidebar({
     selectedTagIds,
     onToggleTagFilter,
 }: DiscoverSidebarProps) {
-
-    const [suggestions, setSuggestions] = useState<Array<{ id: string; label: string }>>([])
+    const [tags, setTags] = useState<Tag[]>([])
+    const [tagsLoading, setTagsLoading] = useState(true)
+    const [tagsError, setTagsError] = useState<string | null>(null)
+    const [gameSuggestions, setGameSuggestions] = useState<Array<{ id: string; label: string }>>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [tags, setTags] = useState<Array<{ id: string; name: string }>>([])
-    const [tagsLoading, setTagsLoading] = useState(false)
-    const [tagsError, setTagsError] = useState<string | null>(null)
-
-    const selectedGameTags = useMemo(() => {
-        const byId = new Map(visibleGames.map((g) => [g.id, g.label]))
-        return Array.from(selectedGames).map((id) => ({ id, label: byId.get(id) ?? id }))
-    }, [selectedGames, visibleGames])
-
 
     useEffect(() => {
-        const q = gameSearch.trim()
-        if (!q) {
-            setSuggestions([])
-            setError(null)
-            setLoading(false)
+        const fetchTags = async () => {
+            try {
+                setTagsLoading(true)
+                const response = await fetch("https://localhost:7252/api/Tag")
+                if (!response.ok) throw new Error("Failed to fetch tags")
+                const data = await response.json()
+                
+                if (data.data?.preferenceTags) {
+                    const mappedTags: Tag[] = data.data.preferenceTags.map((tag: any) => ({
+                        id: tag.id?.toString() || "",
+                        name: tag.preferencename || tag.name || ""
+                    })).filter((tag: Tag) => tag.id && tag.name)
+                    setTags(mappedTags)
+                }
+            } catch (err) {
+                setTagsError(err instanceof Error ? err.message : "Failed to load tags")
+            } finally {
+                setTagsLoading(false)
+            }
+        }
+
+        fetchTags()
+    }, [])
+
+    useEffect(() => {
+        if (!gameSearch || gameSearch.length < 2) {
+            setGameSuggestions([])
             return
         }
 
-        let active = true
-        const timer = setTimeout(async () => {
+        const searchGames = async () => {
             try {
                 setLoading(true)
                 setError(null)
-                const res = await fetch(
-                    `https://localhost:7252/api/Game/search?searchTerm=${encodeURIComponent(q)}`
-                )
-                if (!res.ok) throw new Error(`Search failed: ${res.status}`)
-                const data: Array<{ id: number | string; name: string }> = await res.json()
-                if (!active) return
-                const mapped = data
-                    .map((g) => ({ id: String(g.id), label: g.name }))
-                    .filter((g) => !selectedGames.has(g.id) && !visibleGames.some((v) => v.id === g.id))
-                setSuggestions(mapped)
-            } catch {
-                setError('Failed to load suggestions')
-                setSuggestions([])
+                const response = await fetch(`https://localhost:7252/api/Game/search?searchTerm=${encodeURIComponent(gameSearch)}`)
+                if (!response.ok) throw new Error("Failed to search games")
+                const data = await response.json()
+                
+                const suggestions = Array.isArray(data) 
+                    ? data.map((game: any) => ({
+                        id: game.id?.toString() || "",
+                        label: game.name || ""
+                    }))
+                    : []
+                setGameSuggestions(suggestions)
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to search games")
+                setGameSuggestions([])
             } finally {
-                if (active) setLoading(false)
-            }
-        }, 300)
-
-        return () => {
-            active = false
-            clearTimeout(timer)
-        }
-    }, [gameSearch, selectedGames, visibleGames])
-
-
-    useEffect(() => {
-        let cancelled = false
-        const load = async () => {
-            try {
-                setTagsLoading(true)
-                setTagsError(null)
-                const res = await fetch('https://localhost:7252/api/PreferanceTag')
-                if (!res.ok) throw new Error(`Tags fetch failed: ${res.status}`)
-                const data: Array<{ id: number | string; name: string }> = await res.json()
-                if (cancelled) return
-                setTags(data.map(t => ({ id: String(t.id), name: t.name })))
-            } catch {
-                if (cancelled) return
-                setTagsError('Failed to load tags')
-                setTags([])
-            } finally {
-                if (!cancelled) setTagsLoading(false)
+                setLoading(false)
             }
         }
-        load()
-        return () => { cancelled = true }
-    }, [])
+
+        const debounceTimer = setTimeout(searchGames, 300)
+        return () => clearTimeout(debounceTimer)
+    }, [gameSearch])
+
+    const selectedGameTags = visibleGames.filter(game => selectedGames.has(game.id))
 
     return (
         <div className="w-[380px] flex-shrink-0 p-6 space-y-6 overflow-y-auto">
@@ -111,7 +109,7 @@ export function DiscoverSidebar({
                             <X className="h-4 w-4" />
                         </button>
                     ) : (
-                         <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     )}
 
                     {/* Search Results Dropdown */}
@@ -123,17 +121,17 @@ export function DiscoverSidebar({
                             {!loading && error && (
                                 <div className="px-4 py-2 text-sm text-destructive">{error}</div>
                             )}
-                            {!loading && !error && suggestions.length === 0 && (
+                            {!loading && !error && gameSuggestions.length === 0 && (
                                 <div className="px-4 py-2 text-sm text-muted-foreground">No results</div>
                             )}
-                            {!loading && !error && suggestions.map((game) => (
+                            {!loading && !error && gameSuggestions.map((game) => (
                                 <button
                                     key={game.id}
                                     className="w-full text-left px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                                     onClick={() => {
                                         onAddGameFilter(game)
                                         onGameSearchChange("")
-                                        setSuggestions([])
+                                        setGameSuggestions([])
                                     }}
                                 >
                                     {game.label}
@@ -195,4 +193,3 @@ export function DiscoverSidebar({
         </div>
     )
 }
-
