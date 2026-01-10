@@ -3,6 +3,7 @@ using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Misc;
+using Locked_IN_Backend.Misc.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Repositories;
@@ -118,6 +119,10 @@ public class TeamRepository : ITeamRepository
     public async Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy)
     {
         var query = _context.Teams.AsQueryable();
+
+        query = query.Where(t => t.TeamMembers.Count(tm => 
+            tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || 
+            tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER) < t.MaxPlayerCount);
 
         if (gameIds != null && gameIds.Count > 0)
         {
