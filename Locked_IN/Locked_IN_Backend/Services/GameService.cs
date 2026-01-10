@@ -20,7 +20,11 @@ public class GameService : IGameService
     
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name).Matches(EF.Functions.WebSearchToTsQuery(searchTerm)));
+            var trimmedSearch = searchTerm.Trim();
+            var searchArray = trimmedSearch.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var searchWithStar = string.Join(" & ", searchArray) + ":*";
+            
+            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name).Matches(EF.Functions.ToTsQuery("english", searchWithStar)));
         }
     
         var games = await query

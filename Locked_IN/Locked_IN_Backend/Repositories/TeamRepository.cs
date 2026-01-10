@@ -76,7 +76,11 @@ public class TeamRepository : ITeamRepository
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name).Matches(EF.Functions.WebSearchToTsQuery(searchTerm)));
+            var trimmedSearch = searchTerm.Trim();
+            var searchArray = trimmedSearch.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var searchWithStar = string.Join(" & ", searchArray) + ":*";
+            
+            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name).Matches(EF.Functions.ToTsQuery("english", searchWithStar)));
         }
 
         var results = await query
@@ -84,7 +88,7 @@ public class TeamRepository : ITeamRepository
             {
                 Id = t.Id,
                 Rank = !string.IsNullOrWhiteSpace(searchTerm)
-                    ? EF.Functions.ToTsVector("english", t.Name).Rank(EF.Functions.WebSearchToTsQuery(searchTerm))
+                    ? EF.Functions.ToTsVector("english", t.Name).Rank(EF.Functions.ToTsQuery("english", string.Join(" & ", searchTerm.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)) + ":*"))
                     : 0
             })
             .OrderByDescending(x => x.Rank)
@@ -127,10 +131,15 @@ public class TeamRepository : ITeamRepository
         }
 
         var hasSearch = !string.IsNullOrWhiteSpace(searchTerm);
+        string searchWithStar = "";
         if (hasSearch)
         {
+            var trimmedSearch = searchTerm.Trim();
+            var searchArray = trimmedSearch.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            searchWithStar = string.Join(" & ", searchArray) + ":*";
+            
             query = query.Where(t => EF.Functions.ToTsVector("english", t.Name)
-                .Matches(EF.Functions.WebSearchToTsQuery(searchTerm)));
+                .Matches(EF.Functions.ToTsQuery("english", searchWithStar)));
         }
 
         if (page < 1) page = 1;
@@ -143,7 +152,7 @@ public class TeamRepository : ITeamRepository
             TeamId = t.Id,
             SearchRank = hasSearch
                 ? EF.Functions.ToTsVector("english", t.Name)
-                    .Rank(EF.Functions.WebSearchToTsQuery(searchTerm))
+                    .Rank(EF.Functions.ToTsQuery("english", searchWithStar))
                 : 0,
             LatestMemberJoin = t.TeamMembers
                 .OrderByDescending(tm => tm.Jointimestamp)
