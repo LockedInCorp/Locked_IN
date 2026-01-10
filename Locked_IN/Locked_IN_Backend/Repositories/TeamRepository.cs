@@ -176,7 +176,7 @@ public class TeamRepository : ITeamRepository
         else if (sort == "popular")
         {
             intermediate = intermediate
-                .OrderByDescending(x => x.Team.TeamMembers.Count/x.Team.MaxPlayerCount)
+                .OrderByDescending(x => x.Team.TeamMembers.Count)
                 .ThenByDescending(x => x.CreationTimestamp);
         }
         else if (sort == "newest")
