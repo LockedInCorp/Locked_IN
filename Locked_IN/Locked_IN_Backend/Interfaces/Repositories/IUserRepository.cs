@@ -15,6 +15,7 @@ public interface IUserRepository
     Task<IdentityResult> CreateUserAsync(User user, string password);
     Task<User?> FindByIdAsync(string userId);
     Task<User?> FindByNameAsync(string userName);
+    Task<User?> FindByEmailAsync(string email);
     Task<bool> CheckPasswordAsync(User user, string password);
     Task<IdentityResult> UpdateUserAsync(User user);
     Task<SignInResult> PasswordSignInAsync(User user, string password, bool isPersistent, bool lockoutOnFailure);

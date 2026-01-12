@@ -83,7 +83,7 @@ namespace Locked_IN_Backend.Services
 
         public async Task<UserResult> LoginAsync(LoginDto dto)
         {
-            var user = await _userRepository.FindByNameAsync(dto.Username);
+            var user = await _userRepository.FindByNameAsync(dto.Username) ?? await _userRepository.FindByEmailAsync(dto.Username);
 
             if (user == null)
             {
