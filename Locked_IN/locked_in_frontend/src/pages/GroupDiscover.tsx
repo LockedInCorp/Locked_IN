@@ -131,7 +131,7 @@ export default function DiscoverPage() {
                 onToggleTagFilter={handleToggleTagFilter}
             />
 
-            <div className="flex-1 flex flex-col p-6 overflow-hidden">
+            <div className="flex-1 flex flex-col p-6 overflow-hidden min-w-0 w-full">
                 <DiscoverFilters
                     groupSearch={groupSearch}
                     onGroupSearchChange={setGroupSearch}

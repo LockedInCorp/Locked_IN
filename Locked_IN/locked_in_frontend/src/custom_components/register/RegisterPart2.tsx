@@ -35,12 +35,14 @@ type RegisterPart2Props = {
     gameProfiles: GameProfile[]
     onGameProfilesChange: (profiles: GameProfile[]) => void
     onNext: () => void
+    isLoading?: boolean
 }
 
 export default function RegisterPart2({
     gameProfiles,
     onGameProfilesChange,
-    onNext
+    onNext,
+    isLoading = false
 }: RegisterPart2Props) {
     const {
         expandedGames,
@@ -298,9 +300,10 @@ export default function RegisterPart2({
                 <Button
                     type="button"
                     onClick={onNext}
-                    className="bg-primary px-8 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                    disabled={isLoading}
+                    className="bg-primary px-8 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Next
+                    {isLoading ? "Registering..." : "Next"}
                 </Button>
             </div>
         </div>

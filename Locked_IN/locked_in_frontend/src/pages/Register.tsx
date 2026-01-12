@@ -1,12 +1,13 @@
 "use client"
 
-import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 import RegisterPart1 from "@/custom_components/register/RegisterPart1"
 import RegisterPart2 from "@/custom_components/register/RegisterPart2"
 import { useAuthStore } from "@/stores/authStore"
+import { useRegister } from "@/hooks/useRegister"
 
 export default function Register() {
-    const navigate = useNavigate()
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const {
         registerStep,
         registerEmail,
@@ -26,6 +27,8 @@ export default function Register() {
         setRegisterGameProfiles
     } = useAuthStore()
 
+    const registerMutation = useRegister()
+
     const handleAvatarChange = (file: File | null) => {
         setRegisterAvatarFile(file)
         if (file) {
@@ -40,23 +43,40 @@ export default function Register() {
     }
 
     const handleNextPart1 = () => {
+        setErrorMessage(null)
         if (registerEmail.trim() && registerNickname.trim() && registerPassword.trim() && registerRepeatPassword.trim() && registerPassword === registerRepeatPassword) {
             setRegisterStep(2)
         }
     }
 
     const handleNextPart2 = async () => {
-        // TODO: Implement registration API call
+        setErrorMessage(null)
         
-        console.log("Registering user:", {
-            email: registerEmail,
-            nickname: registerNickname,
-            password: registerPassword,
-            avatarFile: registerAvatarFile,
-            gameProfiles: registerGameProfiles
-        })
-        
-        navigate("/groups")
+        // Validate required fields
+        if (!registerEmail.trim() || !registerNickname.trim() || !registerPassword.trim()) {
+            setErrorMessage("Please fill in all required fields")
+            return
+        }
+
+        if (registerPassword !== registerRepeatPassword) {
+            setErrorMessage("Passwords do not match")
+            return
+        }
+
+        // Call the registration mutation
+        registerMutation.mutate(
+            {
+                username: registerNickname,
+                email: registerEmail,
+                password: registerPassword,
+                avatar: registerAvatarFile,
+            },
+            {
+                onError: (error) => {
+                    setErrorMessage(error.message || "Registration failed. Please try again.")
+                },
+            }
+        )
     }
 
     return (
@@ -66,10 +86,17 @@ export default function Register() {
                 <div className="w-full max-w-3xl">
                     {/* Register Card */}
                     <div className="rounded-lg border border-border bg-card p-8 shadow-lg">
-                        {/* Title */}
-                        <h1 className="text-3xl font-bold text-primary mb-2">Register</h1>
-                        
-                        {registerStep === 1 ? (
+                    {/* Title */}
+                    <h1 className="text-3xl font-bold text-primary mb-2">Register</h1>
+                    
+                    {/* Error message */}
+                    {errorMessage && (
+                        <div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive text-destructive text-sm">
+                            {errorMessage}
+                        </div>
+                    )}
+                    
+                    {registerStep === 1 ? (
                             <RegisterPart1
                                 email={registerEmail}
                                 nickname={registerNickname}
@@ -89,6 +116,7 @@ export default function Register() {
                                 gameProfiles={registerGameProfiles}
                                 onGameProfilesChange={setRegisterGameProfiles}
                                 onNext={handleNextPart2}
+                                isLoading={registerMutation.isPending}
                             />
                         )}
                     </div>
