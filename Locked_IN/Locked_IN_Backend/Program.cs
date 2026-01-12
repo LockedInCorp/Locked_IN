@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.Interfaces;
+using FluentValidation;
+using Locked_IN_Backend.DTOs.Friendship;
+using Locked_IN_Backend.DTOs.Team;
+using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.Services;
 using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces.Repositories;
@@ -26,10 +31,10 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.Configure<TeamSettings>(
-    builder.Configuration.GetSection(TeamSettings.SectionName));
-
 builder.Services.AddControllers();
+
+RegisterValidationServices();
+
 builder.Services.AddAutoMapper(cfg => {}, typeof(Program));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -66,18 +71,10 @@ builder.Services.AddCors(options =>
         }
     });
 });
-builder.Services.AddScoped<ITeamRepository, TeamRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ITeamService, TeamService>();
-builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
-builder.Services.AddScoped<IGameService, GameService>();
-builder.Services.AddScoped<IFriendshipService, FriendshipService>();
-builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ITagService, TagService>();
-builder.Services.AddScoped<IGameProfileService, GameProfileService>();
-builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
+
+
+RegisterServices();
+
 builder.Services.AddMinio(configureSource => configureSource
     .WithEndpoint(builder.Configuration["Minio:Endpoint"])
     .WithCredentials(builder.Configuration["Minio:AccessKey"], builder.Configuration["Minio:SecretKey"])
@@ -128,3 +125,34 @@ app.UseCors("AllowFrontend");
 app.MapHub<ChatHub>("/chathub");
 
 app.Run();
+
+
+void RegisterValidationServices()
+{
+    builder.Services.AddScoped<IValidator<SendFriendRequestDto>, SendFriendRequestValidator>();
+    builder.Services.AddScoped<IValidator<FriendshipActionDto>, FriendshipActionValidator>();
+    builder.Services.AddScoped<IValidator<BlockUserDto>, BlockUserValidator>();
+    builder.Services.AddScoped<IValidator<UnblockUserDto>, UnblockUserValidator>();
+    builder.Services.AddScoped<IValidator<AdvancedSearchDto>, AdvancedSearchDtoValidator>();
+    builder.Services.AddScoped<IValidator<JoinRequestDto>, JoinRequestDtoValidator>();
+    builder.Services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
+    builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
+    builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileDtoValidator>();
+    builder.Services.AddScoped<IValidator<UpdateAvailabilityDto>, UpdateAvailabilityDtoValidator>();
+}
+
+void RegisterServices()
+{
+    builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<ITeamService, TeamService>();
+    builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
+    builder.Services.AddScoped<IGameService, GameService>();
+    builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+    builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
+    builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddScoped<ITagService, TagService>();
+    builder.Services.AddScoped<IGameProfileService, GameProfileService>();
+    builder.Services.AddScoped<IChatService, ChatService>();
+    builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
+}

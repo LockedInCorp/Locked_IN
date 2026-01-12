@@ -1,3 +1,4 @@
+using FluentValidation;
 using Locked_IN_Backend.DTOs.Friendship;
 using Locked_IN_Backend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,23 @@ namespace Locked_IN_Backend.Controllers
     public class FriendshipController : ControllerBase
     {
         private readonly IFriendshipService _friendshipService;
+        private readonly IValidator<SendFriendRequestDto> _sendFriendRequestValidator;
+        private readonly IValidator<FriendshipActionDto> _friendshipActionValidator;
+        private readonly IValidator<BlockUserDto> _blockUserValidator;
+        private readonly IValidator<UnblockUserDto> _unblockUserValidator;
 
-        public FriendshipController(IFriendshipService friendshipService)
+        public FriendshipController(
+            IFriendshipService friendshipService,
+            IValidator<SendFriendRequestDto> sendFriendRequestValidator,
+            IValidator<FriendshipActionDto> friendshipActionValidator,
+            IValidator<BlockUserDto> blockUserValidator,
+            IValidator<UnblockUserDto> unblockUserValidator)
         {
             _friendshipService = friendshipService;
+            _sendFriendRequestValidator = sendFriendRequestValidator;
+            _friendshipActionValidator = friendshipActionValidator;
+            _blockUserValidator = blockUserValidator;
+            _unblockUserValidator = unblockUserValidator;
         }
 
         /// <summary>
@@ -24,7 +38,14 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("send/{requesterId}")]
         public async Task<IActionResult> SendRequest(int requesterId, [FromBody] SendFriendRequestDto dto)
         {
-            var result = await _friendshipService.SendFriendRequestAsync(requesterId, dto.ReceiverId);
+            dto.RequesterId = requesterId;
+            var validationResult = await _sendFriendRequestValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+            }
+
+            var result = await _friendshipService.SendFriendRequestAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
@@ -37,7 +58,14 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("{friendshipId}/accept/{currentUserId}")]
         public async Task<IActionResult> AcceptRequest(int friendshipId, int currentUserId)
         {
-            var result = await _friendshipService.AcceptFriendRequestAsync(friendshipId, currentUserId);
+            var dto = new FriendshipActionDto { FriendshipId = friendshipId, CurrentUserId = currentUserId };
+            var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+            }
+
+            var result = await _friendshipService.AcceptFriendRequestAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
@@ -50,7 +78,14 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("{friendshipId}/decline/{currentUserId}")]
         public async Task<IActionResult> DeclineRequest(int friendshipId, int currentUserId)
         {
-            var result = await _friendshipService.DeclineFriendRequestAsync(friendshipId, currentUserId);
+            var dto = new FriendshipActionDto { FriendshipId = friendshipId, CurrentUserId = currentUserId };
+            var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+            }
+
+            var result = await _friendshipService.DeclineFriendRequestAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
@@ -63,7 +98,14 @@ namespace Locked_IN_Backend.Controllers
         [HttpDelete("{friendshipId}/cancel/{currentUserId}")]
         public async Task<IActionResult> CancelRequest(int friendshipId, int currentUserId)
         {
-            var result = await _friendshipService.CancelFriendRequestAsync(friendshipId, currentUserId);
+            var dto = new FriendshipActionDto { FriendshipId = friendshipId, CurrentUserId = currentUserId };
+            var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+            }
+
+            var result = await _friendshipService.CancelFriendRequestAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
@@ -113,7 +155,14 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("block/{blockerId}/{userToBlockId}")]
         public async Task<IActionResult> BlockUser(int blockerId, int userToBlockId)
         {
-            var result = await _friendshipService.BlockUserAsync(blockerId, userToBlockId);
+            var dto = new BlockUserDto { BlockerId = blockerId, UserToBlockId = userToBlockId };
+            var validationResult = await _blockUserValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+            }
+
+            var result = await _friendshipService.BlockUserAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
         
@@ -126,7 +175,14 @@ namespace Locked_IN_Backend.Controllers
         [HttpDelete("unblock/{blockerId}/{userToUnblockId}")]
         public async Task<IActionResult> UnblockUser(int blockerId, int userToUnblockId)
         {
-            var result = await _friendshipService.UnblockUserAsync(blockerId, userToUnblockId);
+            var dto = new UnblockUserDto { BlockerId = blockerId, UserToUnblockId = userToUnblockId };
+            var validationResult = await _unblockUserValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+            }
+
+            var result = await _friendshipService.UnblockUserAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
     }

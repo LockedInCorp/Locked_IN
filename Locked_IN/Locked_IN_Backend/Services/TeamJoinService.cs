@@ -1,22 +1,19 @@
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.Misc;
 using Locked_IN_Backend.Misc.Enum;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Locked_IN_Backend.Controllers;
 
 namespace Locked_IN_Backend.Services
 {
     public class TeamJoinService : ITeamJoinService
     {
         private readonly AppDbContext _context;
-        private readonly TeamSettings _teamSettings;
 
-        public TeamJoinService(AppDbContext context, IOptions<TeamSettings> teamSettings)
+        public TeamJoinService(AppDbContext context)
         {
             _context = context;
-            _teamSettings = teamSettings.Value;
         }
 
         public async Task<TeamJoinResult> RequestToJoinTeamAsync(int teamId, int userId)
@@ -66,7 +63,7 @@ namespace Locked_IN_Backend.Services
             var pendingRequestsCount = await _context.TeamMembers
                 .CountAsync(tm => tm.UserId == userId && tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING);
 
-            if (pendingRequestsCount >= _teamSettings.MaxActiveJoinRequestsPerUser)
+            if (pendingRequestsCount >= ValidationConstants.MaxActiveJoinRequestsPerUser)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.BadRequest, "User has reached the maximum number of active join requests");
             }

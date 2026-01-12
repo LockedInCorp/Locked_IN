@@ -31,12 +31,12 @@ namespace Locked_IN_Backend.Controllers
         /// Add a game to the user's favorites list
         /// </summary>
         /// <param name="userId">The ID of the user</param>
-        /// <param name="dto">DTO containing the Game ID</param>
+        /// <param name="gameId">The ID of the game</param>
         /// <returns>Updated game profile</returns>
-        [HttpPost("favorite/{userId}")]
-        public async Task<IActionResult> AddToFavorite(int userId, [FromBody] AddFavoriteGameDto dto)
+        [HttpPost("unfavorite/{userId}/{gameId}")]
+        public async Task<IActionResult> AddToFavorite(int userId, int gameId)
         {
-            var result = await _gameProfileService.AddGameToFavoritesAsync(userId, dto.GameId);
+            var result = await _gameProfileService.AddGameToFavoritesAsync(userId, gameId);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 

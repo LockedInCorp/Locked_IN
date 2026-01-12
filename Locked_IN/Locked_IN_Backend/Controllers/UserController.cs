@@ -1,3 +1,4 @@
+using FluentValidation;
 using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,23 @@ namespace Locked_IN_Backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IValidator<RegisterDto> _registerValidator;
+        private readonly IValidator<LoginDto> _loginValidator;
+        private readonly IValidator<UpdateUserProfileDto> _updateProfileValidator;
+        private readonly IValidator<UpdateAvailabilityDto> _updateAvailabilityValidator;
 
-        public UserController(IUserService userService)
+        public UserController(
+            IUserService userService,
+            IValidator<RegisterDto> registerValidator,
+            IValidator<LoginDto> loginValidator,
+            IValidator<UpdateUserProfileDto> updateProfileValidator,
+            IValidator<UpdateAvailabilityDto> updateAvailabilityValidator)
         {
             _userService = userService;
+            _registerValidator = registerValidator;
+            _loginValidator = loginValidator;
+            _updateProfileValidator = updateProfileValidator;
+            _updateAvailabilityValidator = updateAvailabilityValidator;
         }
 
         /// <summary>
@@ -23,6 +37,12 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] RegisterDto dto)
         {
+            var validationResult = await _registerValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
+            }
+
             var result = await _userService.RegisterAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
@@ -35,6 +55,12 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
+            var validationResult = await _loginValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
+            }
+
             var result = await _userService.LoginAsync(dto);
             return result.Success ? Ok(result) : Unauthorized(result);
         }
@@ -71,6 +97,12 @@ namespace Locked_IN_Backend.Controllers
         [HttpPut("profile/{userId}")]
         public async Task<IActionResult> UpdateProfile(int userId, [FromBody] UpdateUserProfileDto dto)
         {
+            var validationResult = await _updateProfileValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
+            }
+
             var result = await _userService.UpdateUserProfileAsync(userId, dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
@@ -84,6 +116,12 @@ namespace Locked_IN_Backend.Controllers
         [HttpPut("availability/{userId}")]
         public async Task<IActionResult> UpdateAvailability(int userId, [FromBody] UpdateAvailabilityDto dto)
         {
+            var validationResult = await _updateAvailabilityValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
+            }
+
             var result = await _userService.UpdateAvailabilityAsync(userId, dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }

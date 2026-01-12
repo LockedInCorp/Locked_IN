@@ -1,6 +1,7 @@
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 
 namespace Locked_IN_Backend.Controllers
 {
@@ -9,10 +10,12 @@ namespace Locked_IN_Backend.Controllers
     public class TeamJoinController : ControllerBase
     {
         private readonly ITeamJoinService _teamJoinService;
+        private readonly IValidator<JoinRequestDto> _joinRequestValidator;
 
-        public TeamJoinController(ITeamJoinService teamJoinService)
+        public TeamJoinController(ITeamJoinService teamJoinService, IValidator<JoinRequestDto> joinRequestValidator)
         {
             _teamJoinService = teamJoinService;
+            _joinRequestValidator = joinRequestValidator;
         }
 
         /// <summary>
@@ -24,6 +27,12 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("teams/{teamId}/join")]
         public async Task<IActionResult> RequestToJoinTeam(int teamId, [FromBody] JoinRequestDto joinRequest)
         {
+            var validationResult = await _joinRequestValidator.ValidateAsync(joinRequest);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
+            }
+
             var result = await _teamJoinService.RequestToJoinTeamAsync(teamId, joinRequest.UserId);
             
             return result.Status switch
@@ -94,6 +103,12 @@ namespace Locked_IN_Backend.Controllers
         [HttpDelete("teams/{teamId}/cancel-join")]
         public async Task<IActionResult> CancelJoinRequest(int teamId, [FromBody] JoinRequestDto cancelRequest)
         {
+            var validationResult = await _joinRequestValidator.ValidateAsync(cancelRequest);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
+            }
+
             var result = await _teamJoinService.CancelJoinRequestAsync(teamId, cancelRequest.UserId);
 
             return result.Status switch
