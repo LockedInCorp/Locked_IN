@@ -1,4 +1,4 @@
-﻿using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -243,7 +243,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("user_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            // Use PostgreSQL identity column for proper auto-increment
+            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         SeedTestData(modelBuilder);

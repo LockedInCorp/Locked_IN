@@ -1,19 +1,40 @@
 "use client"
 
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuthStore } from "@/stores/authStore"
+import { useLogin } from "@/hooks/useLogin"
 
 export default function Login() {
-    const { loginEmail, loginPassword, setLoginEmail, setLoginPassword, login } = useAuthStore()
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const { loginEmail, loginPassword, setLoginEmail, setLoginPassword } = useAuthStore()
+    const loginMutation = useLogin()
 
     const handleLogin = async () => {
-        await login(loginEmail, loginPassword)
+        setErrorMessage(null)
+        
+        if (!loginEmail.trim() || !loginPassword.trim()) {
+            setErrorMessage("Please enter both email and password")
+            return
+        }
+
+        loginMutation.mutate(
+            {
+                username: loginEmail.trim(),
+                password: loginPassword,
+            },
+            {
+                onError: (error) => {
+                    setErrorMessage(error.message || "Login failed. Please check your credentials.")
+                },
+            }
+        )
     }
 
-    const canLogin = loginEmail.trim() && loginPassword.trim()
+    const canLogin = loginEmail.trim() && loginPassword.trim() && !loginMutation.isPending
 
     return (
         <div className="relative w-full min-h-full overflow-y-auto bg-background">
@@ -24,6 +45,13 @@ export default function Login() {
                     <div className="rounded-lg border border-border bg-card p-8 shadow-lg">
                         {/* Title */}
                         <h1 className="text-3xl font-bold text-primary mb-6">Log In</h1>
+                        
+                        {/* Error message */}
+                        {errorMessage && (
+                            <div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive text-destructive text-sm">
+                                {errorMessage}
+                            </div>
+                        )}
                         
                         <div className="space-y-6">
                             {/* Email */}
@@ -60,7 +88,7 @@ export default function Login() {
                                     disabled={!canLogin}
                                     className="bg-primary px-8 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Log In
+                                    {loginMutation.isPending ? "Logging in..." : "Log In"}
                                 </Button>
                             </div>
 
