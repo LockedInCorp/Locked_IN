@@ -86,3 +86,24 @@ export async function loginUser(data: LoginRequest): Promise<ApiResponse<UserPro
 
   return response.json();
 }
+
+/**
+ * Makes a POST request to the logout endpoint
+ * @returns Promise with API response containing logout status
+ */
+export async function logoutUser(): Promise<ApiResponse<null>> {
+  const response = await fetch(`${API_BASE_URL}/user/logout`, {
+    method: 'POST',
+    credentials: 'include', // Include cookies for authentication
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ 
+      success: false, 
+      message: 'Logout failed. Please try again.' 
+    }));
+    throw new Error(errorData.message || 'Logout failed');
+  }
+
+  return response.json();
+}

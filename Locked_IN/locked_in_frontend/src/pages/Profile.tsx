@@ -5,6 +5,7 @@ import ProfileHeader from "@/custom_components/profile/ProfileHeader"
 import ProfileFields from "@/custom_components/profile/ProfileFields"
 import ProfileFieldsEdit from "@/custom_components/profile/ProfileFieldsEdit"
 import { useProfileStore } from "@/stores/profileStore"
+import { useLogout } from "@/hooks/useLogout"
 
 export default function Profile() {
     const {
@@ -18,6 +19,8 @@ export default function Profile() {
         saveProfile,
         updateProfileData
     } = useProfileStore()
+    
+    const logoutMutation = useLogout()
 
     const handleAvatarChange = (file: File | null) => {
         if (file) {
@@ -39,6 +42,10 @@ export default function Profile() {
 
     const handleCancel = () => {
         cancelEditing()
+    }
+
+    const handleLogout = () => {
+        logoutMutation.mutate()
     }
 
     return (
@@ -79,31 +86,42 @@ export default function Profile() {
                         )}
 
                         {/* Action Buttons */}
-                        <div className="mt-8 flex justify-end gap-3">
-                            {isEditing ? (
-                                <>
-                                    <Button 
-                                        variant="outline"
-                                        onClick={handleCancel}
-                                        className="px-6 py-2 text-base font-semibold border-border hover:bg-muted cursor-pointer"
-                                    >
-                                        Cancel
-                                    </Button>
+                        <div className="mt-8 flex justify-between items-center">
+                            <Button 
+                                variant="outline"
+                                onClick={handleLogout}
+                                disabled={logoutMutation.isPending}
+                                className="px-6 py-2 text-base font-semibold border-destructive text-destructive hover:bg-destructive/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                            </Button>
+                            
+                            <div className="flex gap-3">
+                                {isEditing ? (
+                                    <>
+                                        <Button 
+                                            variant="outline"
+                                            onClick={handleCancel}
+                                            className="px-6 py-2 text-base font-semibold border-border hover:bg-muted cursor-pointer"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button 
+                                            className="bg-primary px-6 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                                            onClick={handleSave}
+                                        >
+                                            Save changes
+                                        </Button>
+                                    </>
+                                ) : (
                                     <Button 
                                         className="bg-primary px-6 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                                        onClick={handleSave}
+                                        onClick={startEditing}
                                     >
-                                        Save changes
+                                        Edit profile
                                     </Button>
-                                </>
-                            ) : (
-                                <Button 
-                                    className="bg-primary px-6 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                                    onClick={startEditing}
-                                >
-                                    Edit profile
-                                </Button>
-                            )}
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
