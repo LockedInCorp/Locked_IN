@@ -6,14 +6,14 @@ namespace Locked_IN_Backend.Services
 
     public interface IFriendshipService
     {
-        Task<FriendshipResult> SendFriendRequestAsync(int requesterId, int receiverId);
-        Task<FriendshipResult> AcceptFriendRequestAsync(int friendshipId, int currentUserId);
-        Task<FriendshipResult> DeclineFriendRequestAsync(int friendshipId, int currentUserId);
-        Task<FriendshipResult> CancelFriendRequestAsync(int friendshipId, int currentUserId);
+        Task<FriendshipResult> SendFriendRequestAsync(SendFriendRequestDto dto);
+        Task<FriendshipResult> AcceptFriendRequestAsync(FriendshipActionDto dto);
+        Task<FriendshipResult> DeclineFriendRequestAsync(FriendshipActionDto dto);
+        Task<FriendshipResult> CancelFriendRequestAsync(FriendshipActionDto dto);
         Task<FriendshipResult> GetFriendsListAsync(int userId);
         Task<FriendshipResult> GetPendingRequestsAsync(int userId);
         Task<FriendshipResult> GetFriendshipStatusAsync(int userId1, int userId2);
-        Task<FriendshipResult> BlockUserAsync(int blockerId, int userToBlockId);
-        Task<FriendshipResult> UnblockUserAsync(int blockerId, int userToUnblockId);
+        Task<FriendshipResult> BlockUserAsync(BlockUserDto dto);
+        Task<FriendshipResult> UnblockUserAsync(UnblockUserDto dto);
     }
 }

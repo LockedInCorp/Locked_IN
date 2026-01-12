@@ -22,19 +22,9 @@ namespace Locked_IN_Backend.Services
                                           (f.UserId == user2Id && f.User2Id == user1Id));
         }
 
-        public async Task<FriendshipResult> SendFriendRequestAsync(int requesterId, int receiverId)
+        public async Task<FriendshipResult> SendFriendRequestAsync(SendFriendRequestDto dto)
         {
-            if (requesterId == receiverId)
-            {
-                return new FriendshipResult(false, "Cannot send friend request to yourself.");
-            }
-
-            if (await _context.Users.FindAsync(receiverId) == null)
-            {
-                return new FriendshipResult(false, "Receiver user not found.");
-            }
-
-            var existingFriendship = await GetExistingFriendship(requesterId, receiverId);
+            var existingFriendship = await GetExistingFriendship(dto.RequesterId, dto.ReceiverId);
 
             if (existingFriendship != null)
             {
@@ -48,7 +38,7 @@ namespace Locked_IN_Backend.Services
                 }
                 if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Blocked)
                 {
-                    string blockedMessage = existingFriendship.UserId == requesterId 
+                    string blockedMessage = existingFriendship.UserId == dto.RequesterId 
                         ? "You have blocked this user." 
                         : "This user has blocked you.";
                     return new FriendshipResult(false, $"Cannot send request. {blockedMessage}");
@@ -57,8 +47,8 @@ namespace Locked_IN_Backend.Services
 
             var newFriendship = new Friendship
             {
-                UserId = requesterId,
-                User2Id = receiverId,
+                UserId = dto.RequesterId,
+                User2Id = dto.ReceiverId,
                 StatusId = (int)FriendshipStatusEnum.Pending,
                 RequestTimestamp = DateTime.UtcNow
             };
@@ -69,16 +59,16 @@ namespace Locked_IN_Backend.Services
             return new FriendshipResult(true, "Friend request sent successfully.");
         }
 
-        public async Task<FriendshipResult> AcceptFriendRequestAsync(int friendshipId, int currentUserId)
+        public async Task<FriendshipResult> AcceptFriendRequestAsync(FriendshipActionDto dto)
         {
-            var friendship = await _context.Friendships.FindAsync(friendshipId);
+            var friendship = await _context.Friendships.FindAsync(dto.FriendshipId);
 
             if (friendship == null)
             {
                 return new FriendshipResult(false, "Friend request not found.");
             }
 
-            if (friendship.User2Id != currentUserId)
+            if (friendship.User2Id != dto.CurrentUserId)
             {
                 return new FriendshipResult(false, "Unauthorized to accept this request.");
             }
@@ -97,16 +87,16 @@ namespace Locked_IN_Backend.Services
             return new FriendshipResult(true, "Friend request accepted.");
         }
 
-        public async Task<FriendshipResult> DeclineFriendRequestAsync(int friendshipId, int currentUserId)
+        public async Task<FriendshipResult> DeclineFriendRequestAsync(FriendshipActionDto dto)
         {
-            var friendship = await _context.Friendships.FindAsync(friendshipId);
+            var friendship = await _context.Friendships.FindAsync(dto.FriendshipId);
 
             if (friendship == null)
             {
                 return new FriendshipResult(false, "Friend request not found.");
             }
 
-            if (friendship.User2Id != currentUserId)
+            if (friendship.User2Id != dto.CurrentUserId)
             {
                 return new FriendshipResult(false, "Unauthorized to decline this request.");
             }
@@ -122,16 +112,16 @@ namespace Locked_IN_Backend.Services
             return new FriendshipResult(true, "Friend request declined and removed.");
         }
 
-        public async Task<FriendshipResult> CancelFriendRequestAsync(int friendshipId, int currentUserId)
+        public async Task<FriendshipResult> CancelFriendRequestAsync(FriendshipActionDto dto)
         {
-            var friendship = await _context.Friendships.FindAsync(friendshipId);
+            var friendship = await _context.Friendships.FindAsync(dto.FriendshipId);
 
             if (friendship == null)
             {
                 return new FriendshipResult(false, "Friend request not found.");
             }
 
-            if (friendship.UserId != currentUserId)
+            if (friendship.UserId != dto.CurrentUserId)
             {
                 return new FriendshipResult(false, "Unauthorized to cancel this request.");
             }
@@ -195,19 +185,9 @@ namespace Locked_IN_Backend.Services
             return new FriendshipResult(true, "Status retrieved.", new { status = status });
         }
 
-        public async Task<FriendshipResult> BlockUserAsync(int blockerId, int userToBlockId)
+        public async Task<FriendshipResult> BlockUserAsync(BlockUserDto dto)
         {
-            if (blockerId == userToBlockId)
-            {
-                return new FriendshipResult(false, "Cannot block yourself.");
-            }
-
-            if (await _context.Users.FindAsync(userToBlockId) == null)
-            {
-                return new FriendshipResult(false, "User to block not found.");
-            }
-
-            var existingFriendship = await GetExistingFriendship(blockerId, userToBlockId);
+            var existingFriendship = await GetExistingFriendship(dto.BlockerId, dto.UserToBlockId);
 
             if (existingFriendship != null)
             {
@@ -217,8 +197,8 @@ namespace Locked_IN_Backend.Services
                 }
 
                 existingFriendship.StatusId = (int)FriendshipStatusEnum.Blocked;
-                existingFriendship.UserId = blockerId;
-                existingFriendship.User2Id = userToBlockId;
+                existingFriendship.UserId = dto.BlockerId;
+                existingFriendship.User2Id = dto.UserToBlockId;
                 existingFriendship.RequestTimestamp = DateTime.UtcNow;
                 _context.Friendships.Update(existingFriendship);
             }
@@ -226,8 +206,8 @@ namespace Locked_IN_Backend.Services
             {
                 var newBlock = new Friendship
                 {
-                    UserId = blockerId,
-                    User2Id = userToBlockId,
+                    UserId = dto.BlockerId,
+                    User2Id = dto.UserToBlockId,
                     StatusId = (int)FriendshipStatusEnum.Blocked,
                     RequestTimestamp = DateTime.UtcNow
                 };
@@ -238,11 +218,11 @@ namespace Locked_IN_Backend.Services
             return new FriendshipResult(true, "User successfully blocked.");
         }
 
-        public async Task<FriendshipResult> UnblockUserAsync(int blockerId, int userToUnblockId)
+        public async Task<FriendshipResult> UnblockUserAsync(UnblockUserDto dto)
         {
             var friendship = await _context.Friendships
-                .FirstOrDefaultAsync(f => f.UserId == blockerId && 
-                                          f.User2Id == userToUnblockId && 
+                .FirstOrDefaultAsync(f => f.UserId == dto.BlockerId && 
+                                          f.User2Id == dto.UserToUnblockId && 
                                           f.StatusId == (int)FriendshipStatusEnum.Blocked);
 
             if (friendship == null)
