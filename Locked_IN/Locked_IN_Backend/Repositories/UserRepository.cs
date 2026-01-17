@@ -79,7 +79,9 @@ public class UserRepository : IUserRepository
 
     public async Task<SignInResult> PasswordSignInAsync(User user, string password, bool isPersistent, bool lockoutOnFailure)
     {
-        return await _signInManager.PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+        var loginResult =  await _signInManager.PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+        await _context.SaveChangesAsync();
+        return loginResult;
     }
 
     public async Task SignOutAsync()

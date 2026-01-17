@@ -32,19 +32,23 @@ export default function DiscoverPage() {
     useEffect(() => {
         const fetchGroups = async () => {
             try {
-                const gameIds = Array.from(selectedGames).map(id => `gameIds=${id}`).join("&")
-                const tagIds = Array.from(selectedTagIds).map(id => `preferenceTagIds=${id}`).join("&")
-                const queryParams = [
-                    `searchTerm=${encodeURIComponent(groupSearch)}`,
-                    `page=${currentPage}`,
-                    `pageSize=${pageSize}`,
-                    `sortBy=${sortBy}`,
-                    gameIds,
-                    tagIds
-                ].filter(Boolean).join("&")
+                const dto = {
+                    gameIds: Array.from(selectedGames).map(id => parseInt(id)),
+                    preferenceTagIds: Array.from(selectedTagIds).map(id => parseInt(id)),
+                    searchTerm: groupSearch,
+                    page: currentPage,
+                    pageSize: pageSize,
+                    sortBy: sortBy
+                }
                 
-                const url = `https://localhost:7252/api/Team/search/advanced?${queryParams}`
-                const response = await fetch(url)
+                const url = `https://localhost:7252/api/Team/search/advanced`
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dto)
+                })
                 if (!response.ok) throw new Error("Failed to fetch")
                 const data: PagedResult<TeamSearchResult> = await response.json()
                 
