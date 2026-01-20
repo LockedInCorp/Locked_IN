@@ -148,7 +148,7 @@ public class TeamRepository : ITeamRepository
         }
 
         if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = ValidationConstants.DefaultPageSize;
+        if (pageSize < 1) pageSize = ValidationConstraints.DefaultPageSize;
 
         var totalCount = await query.CountAsync();
 
