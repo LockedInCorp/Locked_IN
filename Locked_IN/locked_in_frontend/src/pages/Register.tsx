@@ -1,83 +1,49 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect } from "react"
+import { useSearchParams, useNavigate } from "react-router-dom"
 import RegisterPart1 from "@/custom_components/register/RegisterPart1"
 import RegisterPart2 from "@/custom_components/register/RegisterPart2"
 import { useAuthStore } from "@/stores/authStore"
-import { useRegister } from "@/hooks/useRegister"
+import { useRegistrationForm } from "@/hooks/useRegistrationForm"
 
 export default function Register() {
-    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
+    const stepFromUrl = searchParams.get("step") === "2" ? 2 : 1
+    
+    const { registerStep, setRegisterStep } = useAuthStore()
+    
     const {
-        registerStep,
+        errorMessage,
+        part1Errors,
+        part2Errors,
+        isSubmittingPart2,
         registerEmail,
         registerNickname,
         registerPassword,
         registerRepeatPassword,
-        registerAvatarFile,
         registerAvatarPreview,
         registerGameProfiles,
-        setRegisterStep,
-        setRegisterEmail,
-        setRegisterNickname,
-        setRegisterPassword,
-        setRegisterRepeatPassword,
-        setRegisterAvatarFile,
-        setRegisterAvatarPreview,
-        setRegisterGameProfiles
-    } = useAuthStore()
+        handleAvatarChange,
+        handleEmailChange,
+        handleNicknameChange,
+        handlePasswordChange,
+        handleRepeatPasswordChange,
+        handleNextPart1,
+        handleBack,
+        handleGameProfilesChange,
+        handleNextPart2,
+    } = useRegistrationForm()
 
-    const registerMutation = useRegister()
-
-    const handleAvatarChange = (file: File | null) => {
-        setRegisterAvatarFile(file)
-        if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setRegisterAvatarPreview(reader.result as string)
-            }
-            reader.readAsDataURL(file)
-        } else {
-            setRegisterAvatarPreview(null)
+    useEffect(() => {
+        const urlStep = searchParams.get("step")
+        if (!urlStep) {
+            navigate("/register?step=1", { replace: true })
+        } else if (stepFromUrl !== registerStep) {
+            setRegisterStep(stepFromUrl)
         }
-    }
-
-    const handleNextPart1 = () => {
-        setErrorMessage(null)
-        if (registerEmail.trim() && registerNickname.trim() && registerPassword.trim() && registerRepeatPassword.trim() && registerPassword === registerRepeatPassword) {
-            setRegisterStep(2)
-        }
-    }
-
-    const handleNextPart2 = async () => {
-        setErrorMessage(null)
-        
-        // Validate required fields
-        if (!registerEmail.trim() || !registerNickname.trim() || !registerPassword.trim()) {
-            setErrorMessage("Please fill in all required fields")
-            return
-        }
-
-        if (registerPassword !== registerRepeatPassword) {
-            setErrorMessage("Passwords do not match")
-            return
-        }
-
-        // Call the registration mutation
-        registerMutation.mutate(
-            {
-                username: registerNickname,
-                email: registerEmail,
-                password: registerPassword,
-                avatar: registerAvatarFile,
-            },
-            {
-                onError: (error) => {
-                    setErrorMessage(error.message || "Registration failed. Please try again.")
-                },
-            }
-        )
-    }
+    }, [searchParams, stepFromUrl, registerStep, setRegisterStep, navigate])
 
     return (
         <div className="relative w-full min-h-full overflow-y-auto bg-background">
@@ -104,19 +70,23 @@ export default function Register() {
                                 repeatPassword={registerRepeatPassword}
                                 avatarUrl={registerAvatarPreview || undefined}
                                 avatarFallback={registerNickname.charAt(0).toUpperCase() || "U"}
-                                onEmailChange={setRegisterEmail}
-                                onNicknameChange={setRegisterNickname}
-                                onPasswordChange={setRegisterPassword}
-                                onRepeatPasswordChange={setRegisterRepeatPassword}
+                                onEmailChange={handleEmailChange}
+                                onNicknameChange={handleNicknameChange}
+                                onPasswordChange={handlePasswordChange}
+                                onRepeatPasswordChange={handleRepeatPasswordChange}
                                 onAvatarChange={handleAvatarChange}
                                 onNext={handleNextPart1}
+                                errors={part1Errors}
+                                isLoading={false}
                             />
                         ) : (
                             <RegisterPart2
                                 gameProfiles={registerGameProfiles}
-                                onGameProfilesChange={setRegisterGameProfiles}
+                                onGameProfilesChange={handleGameProfilesChange}
                                 onNext={handleNextPart2}
-                                isLoading={registerMutation.isPending}
+                                onBack={handleBack}
+                                isLoading={isSubmittingPart2}
+                                errors={part2Errors}
                             />
                         )}
                     </div>
