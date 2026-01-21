@@ -63,7 +63,7 @@ namespace Locked_IN_Backend.Services
             var pendingRequestsCount = await _context.TeamMembers
                 .CountAsync(tm => tm.UserId == userId && tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING);
 
-            if (pendingRequestsCount >= ValidationConstants.MaxActiveJoinRequestsPerUser)
+            if (pendingRequestsCount >= ValidationConstraints.MaxActiveJoinRequestsPerUser)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.BadRequest, "User has reached the maximum number of active join requests");
             }
