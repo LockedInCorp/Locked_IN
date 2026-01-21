@@ -21,7 +21,6 @@ export default function GroupCreation() {
 
     return (
         <main className="flex flex-col h-full w-full overflow-hidden">
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto min-h-0">
                 <div className="px-6 pt-12 pb-12">
                     <h2 className="mb-8 text-center text-3xl font-bold text-foreground">Group Creation</h2>
