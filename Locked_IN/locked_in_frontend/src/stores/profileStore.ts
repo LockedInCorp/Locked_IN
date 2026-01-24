@@ -3,10 +3,7 @@ import type { GameProfile } from "./authStore"
 
 interface ProfileData {
     nickname: string
-    location: string
-    dateOfBirth: string
     gameProfiles: GameProfile[]
-    aboutMe: string
     avatarUrl?: string
     avatarFallback: string
 }
@@ -38,13 +35,10 @@ interface ProfileState {
     // Profile actions
     startEditing: () => void
     cancelEditing: () => void
-    saveProfile: () => Promise<void>
 }
 
 const initialProfileData: ProfileData = {
     nickname: "Jan Kowalski",
-    location: "Warsaw, Poland",
-    dateOfBirth: "01.01.2001",
     gameProfiles: [
         {
             gameName: "Dota 2",
@@ -55,7 +49,6 @@ const initialProfileData: ProfileData = {
             role: "Support"
         }
     ],
-    aboutMe: "I like pilaying Dota 2!",
     avatarUrl: "/assets/diverse-user-avatars.png",
     avatarFallback: "JK"
 }
@@ -111,27 +104,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
             profileData: { ...beforeEdit },
             avatarPreview: null
         })
-    },
-    
-    saveProfile: async () => {
-        const state = get()
-        const finalAvatarUrl = state.avatarPreview || state.profileData.avatarUrl
-        
-        // TODO: Implement actual save API call
-        console.log("Saving profile:", {
-            ...state.profileData,
-            avatarUrl: finalAvatarUrl
-        })
-        
-        if (state.avatarPreview) {
-            set((prev) => ({
-                profileData: { ...prev.profileData, avatarUrl: finalAvatarUrl },
-                avatarPreview: null,
-                isEditing: false
-            }))
-        } else {
-            set({ avatarPreview: null, isEditing: false })
-        }
     }
 }))
 

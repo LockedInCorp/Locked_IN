@@ -3,7 +3,6 @@
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -34,28 +33,16 @@ const experienceLevels = ["Beginner", "Experienced", "Professional"]
 
 type ProfileFieldsEditProps = {
     nickname: string
-    location: string
-    dateOfBirth: string
     gameProfiles: GameProfile[]
-    aboutMe: string
     onNicknameChange: (value: string) => void
-    onLocationChange: (value: string) => void
-    onDateOfBirthChange: (value: string) => void
     onGameProfilesChange: (profiles: GameProfile[]) => void
-    onAboutMeChange: (value: string) => void
 }
 
 export default function ProfileFieldsEdit({
     nickname,
-    location,
-    dateOfBirth,
     gameProfiles,
-    aboutMe,
     onNicknameChange,
-    onLocationChange,
-    onDateOfBirthChange,
-    onGameProfilesChange,
-    onAboutMeChange
+    onGameProfilesChange
 }: ProfileFieldsEditProps) {
     const {
         expandedGames,
@@ -132,31 +119,6 @@ export default function ProfileFieldsEdit({
                     id="nickname"
                     value={nickname}
                     onChange={(e) => onNicknameChange(e.target.value)}
-                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
-                />
-            </div>
-
-            {/* Location */}
-            <div className="space-y-2">
-                <Label htmlFor="location" className="text-sm text-muted-foreground">Location (optional)</Label>
-                <Input
-                    id="location"
-                    value={location}
-                    onChange={(e) => onLocationChange(e.target.value)}
-                    placeholder="Enter your location"
-                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
-                />
-            </div>
-
-            {/* Date of birth */}
-            <div className="space-y-2">
-                <Label htmlFor="date-of-birth" className="text-sm text-muted-foreground">Date of birth (optional)</Label>
-                <Input
-                    id="date-of-birth"
-                    type="text"
-                    value={dateOfBirth}
-                    onChange={(e) => onDateOfBirthChange(e.target.value)}
-                    placeholder="DD.MM.YYYY"
                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                 />
             </div>
@@ -336,18 +298,6 @@ export default function ProfileFieldsEdit({
                         })}
                     </div>
                 )}
-            </div>
-
-            {/* About me */}
-            <div className="space-y-2">
-                <Label htmlFor="about-me" className="text-sm text-muted-foreground">About me (optional)</Label>
-                <Textarea
-                    id="about-me"
-                    value={aboutMe}
-                    onChange={(e) => onAboutMeChange(e.target.value)}
-                    placeholder="Tell us about yourself"
-                    className="min-h-32 resize-none border-border bg-card text-foreground placeholder:text-muted-foreground"
-                />
             </div>
         </div>
     )

@@ -35,14 +35,23 @@ type RegisterPart2Props = {
     gameProfiles: GameProfile[]
     onGameProfilesChange: (profiles: GameProfile[]) => void
     onNext: () => void
+    onBack: () => void
     isLoading?: boolean
+    errors?: {
+        [gameName: string]: {
+            inGameNickname?: string
+            experience?: string
+        }
+    }
 }
 
 export default function RegisterPart2({
     gameProfiles,
     onGameProfilesChange,
     onNext,
-    isLoading = false
+    onBack,
+    isLoading = false,
+    errors = {}
 }: RegisterPart2Props) {
     const {
         expandedGames,
@@ -83,11 +92,10 @@ export default function RegisterPart2({
     }
 
     const handleUpdateGameProfile = (gameName: string, updates: Partial<GameProfile>) => {
-        onGameProfilesChange(
-            gameProfiles.map(profile =>
-                profile.gameName === gameName ? { ...profile, ...updates } : profile
-            )
+        const updatedProfiles = gameProfiles.map(profile =>
+            profile.gameName === gameName ? { ...profile, ...updates } : profile
         )
+        onGameProfilesChange(updatedProfiles)
     }
 
     const togglePreference = (gameName: string, preference: string) => {
@@ -247,6 +255,9 @@ export default function RegisterPart2({
                                                     </div>
                                                 ))}
                                             </RadioGroup>
+                                            {errors[profile.gameName]?.experience && (
+                                                <p className="text-sm text-destructive">{errors[profile.gameName].experience}</p>
+                                            )}
                                         </div>
 
                                         {/* In-game Nickname */}
@@ -258,8 +269,11 @@ export default function RegisterPart2({
                                                 value={profile.inGameNickname}
                                                 onChange={(e) => handleUpdateGameProfile(profile.gameName, { inGameNickname: e.target.value })}
                                                 placeholder="Enter your in-game nickname"
-                                                className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                                                className={`border-border bg-card text-foreground placeholder:text-muted-foreground ${errors[profile.gameName]?.inGameNickname ? 'border-destructive' : ''}`}
                                             />
+                                            {errors[profile.gameName]?.inGameNickname && (
+                                                <p className="text-sm text-destructive">{errors[profile.gameName].inGameNickname}</p>
+                                            )}
                                         </div>
 
                                         {/* Ranking */}
@@ -295,15 +309,24 @@ export default function RegisterPart2({
                 </div>
             )}
 
-            {/* Next Button */}
-            <div className="flex justify-end pt-4">
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-4">
+                <Button
+                    type="button"
+                    onClick={onBack}
+                    disabled={isLoading}
+                    variant="outline"
+                    className="border-border bg-card text-foreground hover:bg-muted cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Back
+                </Button>
                 <Button
                     type="button"
                     onClick={onNext}
                     disabled={isLoading}
                     className="bg-primary px-8 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isLoading ? "Registering..." : "Next"}
+                    {isLoading ? "Registering..." : "Finish"}
                 </Button>
             </div>
         </div>

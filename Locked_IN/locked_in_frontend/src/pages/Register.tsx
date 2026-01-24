@@ -1,86 +1,80 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect } from "react"
+import { useSearchParams, useNavigate } from "react-router-dom"
 import RegisterPart1 from "@/custom_components/register/RegisterPart1"
 import RegisterPart2 from "@/custom_components/register/RegisterPart2"
 import { useAuthStore } from "@/stores/authStore"
-import { useRegister } from "@/hooks/useRegister"
+import { useRegistrationForm } from "@/hooks/useRegistrationForm"
+import { Button } from "@/components/ui/button"
+import { CheckCircle2 } from "lucide-react"
 
 export default function Register() {
-    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
+    const stepFromUrl = searchParams.get("step") === "2" ? 2 : 1
+    
+    const { registerStep, setRegisterStep } = useAuthStore()
+    
     const {
-        registerStep,
+        errorMessage,
+        part1Errors,
+        part2Errors,
+        isSubmittingPart1,
+        isSubmittingPart2,
+        showSuccessModal,
+        handleCloseSuccessModal,
         registerEmail,
         registerNickname,
         registerPassword,
         registerRepeatPassword,
-        registerAvatarFile,
         registerAvatarPreview,
         registerGameProfiles,
-        setRegisterStep,
-        setRegisterEmail,
-        setRegisterNickname,
-        setRegisterPassword,
-        setRegisterRepeatPassword,
-        setRegisterAvatarFile,
-        setRegisterAvatarPreview,
-        setRegisterGameProfiles
-    } = useAuthStore()
+        handleAvatarChange,
+        handleEmailChange,
+        handleNicknameChange,
+        handlePasswordChange,
+        handleRepeatPasswordChange,
+        handleNextPart1,
+        handleBack,
+        handleGameProfilesChange,
+        handleNextPart2,
+    } = useRegistrationForm()
 
-    const registerMutation = useRegister()
-
-    const handleAvatarChange = (file: File | null) => {
-        setRegisterAvatarFile(file)
-        if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setRegisterAvatarPreview(reader.result as string)
-            }
-            reader.readAsDataURL(file)
-        } else {
-            setRegisterAvatarPreview(null)
+    useEffect(() => {
+        const urlStep = searchParams.get("step")
+        if (!urlStep) {
+            navigate("/register?step=1", { replace: true })
+        } else if (stepFromUrl !== registerStep) {
+            setRegisterStep(stepFromUrl)
         }
-    }
-
-    const handleNextPart1 = () => {
-        setErrorMessage(null)
-        if (registerEmail.trim() && registerNickname.trim() && registerPassword.trim() && registerRepeatPassword.trim() && registerPassword === registerRepeatPassword) {
-            setRegisterStep(2)
-        }
-    }
-
-    const handleNextPart2 = async () => {
-        setErrorMessage(null)
-        
-        // Validate required fields
-        if (!registerEmail.trim() || !registerNickname.trim() || !registerPassword.trim()) {
-            setErrorMessage("Please fill in all required fields")
-            return
-        }
-
-        if (registerPassword !== registerRepeatPassword) {
-            setErrorMessage("Passwords do not match")
-            return
-        }
-
-        // Call the registration mutation
-        registerMutation.mutate(
-            {
-                username: registerNickname,
-                email: registerEmail,
-                password: registerPassword,
-                avatar: registerAvatarFile,
-            },
-            {
-                onError: (error) => {
-                    setErrorMessage(error.message || "Registration failed. Please try again.")
-                },
-            }
-        )
-    }
+    }, [searchParams, stepFromUrl, registerStep, setRegisterStep, navigate])
 
     return (
         <div className="relative w-full min-h-full overflow-y-auto bg-background">
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-card border border-border rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="rounded-full bg-green-500/10 p-3">
+                                <CheckCircle2 className="h-12 w-12 text-green-500" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-bold text-foreground mb-2">Registration Successful!</h2>
+                                <p className="text-muted-foreground">You've been registered successfully. Please log in to continue.</p>
+                            </div>
+                            <Button
+                                onClick={handleCloseSuccessModal}
+                                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                            >
+                                Go to Login
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Main content */}
             <div className="relative z-10 min-h-full flex items-center justify-center px-6 py-12">
                 <div className="w-full max-w-3xl">
@@ -104,19 +98,23 @@ export default function Register() {
                                 repeatPassword={registerRepeatPassword}
                                 avatarUrl={registerAvatarPreview || undefined}
                                 avatarFallback={registerNickname.charAt(0).toUpperCase() || "U"}
-                                onEmailChange={setRegisterEmail}
-                                onNicknameChange={setRegisterNickname}
-                                onPasswordChange={setRegisterPassword}
-                                onRepeatPasswordChange={setRegisterRepeatPassword}
+                                onEmailChange={handleEmailChange}
+                                onNicknameChange={handleNicknameChange}
+                                onPasswordChange={handlePasswordChange}
+                                onRepeatPasswordChange={handleRepeatPasswordChange}
                                 onAvatarChange={handleAvatarChange}
                                 onNext={handleNextPart1}
+                                errors={part1Errors}
+                                isLoading={isSubmittingPart1}
                             />
                         ) : (
                             <RegisterPart2
                                 gameProfiles={registerGameProfiles}
-                                onGameProfilesChange={setRegisterGameProfiles}
+                                onGameProfilesChange={handleGameProfilesChange}
                                 onNext={handleNextPart2}
-                                isLoading={registerMutation.isPending}
+                                onBack={handleBack}
+                                isLoading={isSubmittingPart2}
+                                errors={part2Errors}
                             />
                         )}
                     </div>
