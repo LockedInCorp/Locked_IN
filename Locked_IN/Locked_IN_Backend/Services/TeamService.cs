@@ -45,12 +45,13 @@ public class TeamService : ITeamService
 
     public async Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, int ShowPendingRequestsUserId)
     {
-        var teamIds = new List<int>();
+        List<int>? teamIds = null;
         if (ShowPendingRequestsUserId >= 0)
         {
-           teamIds = _teamMemberRepository.GetPendingRequestsAsync(ShowPendingRequestsUserId).Result.Select(tm => tm.TeamId).ToList();
+            var pendingRequests = await _teamMemberRepository.GetPendingRequestsAsync(ShowPendingRequestsUserId);
+            teamIds = pendingRequests.Select(tm => tm.TeamId).ToList(); 
         }
-        var pagedResults = await _teamRepository.GetTeamsAdvancedAsync(gameIds, preferenceTagIds, searchTerm, page, pageSize, sortBy,teamIds);
+        var pagedResults = await _teamRepository.GetTeamsAdvancedAsync(gameIds, preferenceTagIds, searchTerm, page, pageSize, sortBy, teamIds);
         
         return new PagedResult<GetTeamsCardDto>
         {

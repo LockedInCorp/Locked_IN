@@ -116,13 +116,18 @@ public class TeamRepository : ITeamRepository
         }).ToList();
     }
     
-    public async Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, List<int> teamIds)
+    public async Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, List<int>? teamIds)
     {
         var query = _context.Teams.AsQueryable();
 
         query = query.Where(t => t.TeamMembers.Count(tm => 
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || 
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER) < t.MaxPlayerCount);
+
+        if (teamIds != null)
+        {
+            query = query.Where(t => teamIds.Contains(t.Id));
+        }
 
         if (gameIds != null && gameIds.Count > 0)
         {
@@ -210,10 +215,6 @@ public class TeamRepository : ITeamRepository
             .ToListAsync();
         
         var teamIntermediateIds = pagedResults.Select(r => r.TeamId).ToList();
-        if (teamIds.Count > 0)
-        {
-            teamIntermediateIds = teamIntermediateIds.Intersect(teamIds).ToList();
-        }
 
         var teams = await _context.Teams
             .Include(t => t.Game)
