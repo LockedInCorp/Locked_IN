@@ -20,7 +20,7 @@ public class MappingProfile : Profile
 
         CreateMap<User, UserProfileDto>()
             .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.UserName))
-            .ForMember(dest => dest.Avatar, opt => opt.Ignore())
+            .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.AvatarUrl))
             .ForMember(dest => dest.Availability, opt => opt.MapFrom(src =>
                 string.IsNullOrEmpty(src.Availability) 
                     ? new Dictionary<string, List<string>>() 
