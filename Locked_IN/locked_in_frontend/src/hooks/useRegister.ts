@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { registerUser, type RegisterRequest, type ApiResponse, type UserProfileDto } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
+import { tokenStorage } from '@/utils/tokenStorage';
 
 /**
  * Custom hook for user registration
@@ -15,6 +16,9 @@ export function useRegister() {
     mutationFn: registerUser,
     onSuccess: (data) => {
       if (data.success && data.data) {
+        if (data.data.token) {
+          tokenStorage.setToken(data.data.token);
+        }
 
         setUser({
           id: data.data.id.toString(),

@@ -3,6 +3,7 @@ import { loginUser, type LoginRequest, type ApiResponse, type UserProfileDto, AP
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import { extractAvatarFromResponse } from '@/utils/avatarUtils';
+import { tokenStorage } from '@/utils/tokenStorage';
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -12,6 +13,10 @@ export function useLogin() {
     mutationFn: loginUser,
     onSuccess: async (data) => {
       if (data.success && data.data) {
+        if (data.data.token) {
+          tokenStorage.setToken(data.data.token);
+        }
+        
         const avatarUrl = await extractAvatarFromResponse(data.data as any, API_BASE_URL)
         
         setUser({

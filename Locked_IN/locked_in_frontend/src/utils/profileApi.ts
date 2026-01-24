@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5122/api'
+import { apiClient } from '@/lib/apiClient';
 
 export interface UserProfileResponse {
     success: boolean
@@ -64,102 +64,72 @@ export interface TagsResponse {
 }
 
 export const getUserProfile = async (userId: number): Promise<UserProfileResponse> => {
-    const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
-        method: 'GET',
-        credentials: 'include',
-    })
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
+    try {
+        const response = await apiClient.get<UserProfileResponse>(`/user/${userId}`)
+        return response.data
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
             success: false, 
             message: 'Failed to fetch profile' 
-        }))
+        }
         throw new Error(errorData.message || 'Failed to fetch profile')
     }
-
-    const data = await response.json()
-    
-    return data
 }
 
 export const updateUserProfile = async (
     userId: number, 
     data: UpdateProfileRequest
 ): Promise<UserProfileResponse> => {
-    const response = await fetch(`${API_BASE_URL}/user/profile/${userId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-        credentials: 'include',
-    })
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
+    try {
+        const response = await apiClient.put<UserProfileResponse>(`/user/profile/${userId}`, data)
+        return response.data
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
             success: false, 
             message: 'Failed to update profile' 
-        }))
+        }
         throw new Error(errorData.message || 'Failed to update profile')
     }
-
-    return response.json()
 }
 
 export const updateUserAvailability = async (
     userId: number,
     availability: Record<string, string[]>
 ): Promise<UserProfileResponse> => {
-    const response = await fetch(`${API_BASE_URL}/user/availability/${userId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ availability }),
-        credentials: 'include',
-    })
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
+    try {
+        const response = await apiClient.put<UserProfileResponse>(`/user/availability/${userId}`, { availability })
+        return response.data
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
             success: false, 
             message: 'Failed to update availability' 
-        }))
+        }
         throw new Error(errorData.message || 'Failed to update availability')
     }
-
-    return response.json()
 }
 
 export const getUserGameProfiles = async (userId: number): Promise<GameProfileResponse> => {
-    const response = await fetch(`${API_BASE_URL}/game-profile/favorites/${userId}`, {
-        method: 'GET',
-        credentials: 'include',
-    })
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
+    try {
+        const response = await apiClient.get<GameProfileResponse>(`/game-profile/favorites/${userId}`)
+        return response.data
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
             success: false, 
             message: 'Failed to fetch game profiles' 
-        }))
+        }
         throw new Error(errorData.message || 'Failed to fetch game profiles')
     }
-
-    return response.json()
 }
 
 export const getAllTags = async (): Promise<TagsResponse> => {
-    const response = await fetch(`${API_BASE_URL}/tag`, {
-        method: 'GET',
-        credentials: 'include',
-    })
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
+    try {
+        const response = await apiClient.get<TagsResponse>('/tag')
+        return response.data
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
             success: false, 
             message: 'Failed to fetch tags' 
-        }))
+        }
         throw new Error(errorData.message || 'Failed to fetch tags')
     }
-
-    return response.json()
 }

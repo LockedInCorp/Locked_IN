@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { logoutUser, type ApiResponse } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
+import { tokenStorage } from '@/utils/tokenStorage';
 
 /**
  * Custom hook for user logout
@@ -15,12 +16,14 @@ export function useLogout() {
     mutationFn: () => logoutUser(),
     onSuccess: () => {
       console.log('Logout successful');
+      tokenStorage.removeToken();
       logout();
       navigate('/');
     },
     onError: (error) => {
       console.error('Logout error:', error);
       // Even if logout fails on server, clear local state
+      tokenStorage.removeToken();
       logout();
       navigate('/');
     },

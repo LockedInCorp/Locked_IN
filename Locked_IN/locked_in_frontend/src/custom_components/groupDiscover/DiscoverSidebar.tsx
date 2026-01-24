@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { X, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { apiClientHttps } from "@/lib/apiClient"
 import type { DiscoverSidebarProps } from "./types"
 
 interface Tag {
@@ -32,9 +33,8 @@ export function DiscoverSidebar({
         const fetchTags = async () => {
             try {
                 setTagsLoading(true)
-                const response = await fetch("https://localhost:7252/api/Tag")
-                if (!response.ok) throw new Error("Failed to fetch tags")
-                const data = await response.json()
+                const response = await apiClientHttps.get("/Tag")
+                const data = response.data
                 
                 if (data.data?.preferenceTags) {
                     const mappedTags: Tag[] = data.data.preferenceTags.map((tag: any) => ({
@@ -63,9 +63,8 @@ export function DiscoverSidebar({
             try {
                 setLoading(true)
                 setError(null)
-                const response = await fetch(`https://localhost:7252/api/Game/search?searchTerm=${encodeURIComponent(gameSearch)}`)
-                if (!response.ok) throw new Error("Failed to search games")
-                const data = await response.json()
+                const response = await apiClientHttps.get(`/Game/search?searchTerm=${encodeURIComponent(gameSearch)}`)
+                const data = response.data
                 
                 const suggestions = Array.isArray(data) 
                     ? data.map((game: any) => ({

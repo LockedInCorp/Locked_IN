@@ -53,6 +53,8 @@ export const convertAvatarToUrl = async (
     return undefined
 }
 
+import { apiClient } from '@/lib/apiClient';
+
 export const extractAvatarFromResponse = async (
     response: any,
     apiBaseUrl: string = 'http://localhost:5122/api'
@@ -92,14 +94,17 @@ export const fetchAvatarFile = async (
         return avatarUrl
     }
 
-    const encodedFilename = encodeURIComponent(avatarUrl)
-    const response = await fetch(`${apiBaseUrl}/file/avatar/${encodedFilename}`, {
-        credentials: 'include',
-    })
+    try {
+        const encodedFilename = encodeURIComponent(avatarUrl)
+        const response = await apiClient.get(`/file/avatar/${encodedFilename}`, {
+            responseType: 'blob',
+        })
 
-    if (response.ok) {
-        const blob = await response.blob()
-        return URL.createObjectURL(blob)
+        if (response.data) {
+            return URL.createObjectURL(response.data)
+        }
+    } catch (error) {
+        // Return undefined if fetch fails
     }
 
     return undefined

@@ -5,6 +5,7 @@ import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSideb
 import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
 import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
+import { apiClientHttps } from "@/lib/apiClient"
 import type { GroupCard, GameOption, PagedResult, TeamSearchResult } from "@/custom_components/groupDiscover/types"
 //#TODO when current page=maxpage and changeView to lower value displays empty page
 export default function DiscoverPage() {
@@ -42,17 +43,8 @@ export default function DiscoverPage() {
                     showPendingRequests: showPending
                 }
                 
-                const url = `https://localhost:7252/api/Team/search/advanced`
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    credentials: "include",
-                    body: JSON.stringify(dto)
-                })
-                if (!response.ok) throw new Error("Failed to fetch")
-                const data: PagedResult<TeamSearchResult> = await response.json()
+                const response = await apiClientHttps.post<PagedResult<TeamSearchResult>>('/Team/search/advanced', dto)
+                const data = response.data
                 
                 const mappedGroups: GroupCard[] = data.items.map((team: TeamSearchResult) => ({
                     id: team.id.toString(),

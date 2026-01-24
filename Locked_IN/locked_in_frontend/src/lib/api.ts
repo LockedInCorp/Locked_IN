@@ -1,4 +1,5 @@
-export const API_BASE_URL = 'http://localhost:5122/api';
+export { API_BASE_URL } from './apiClient';
+import { apiClient } from './apiClient';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -12,6 +13,7 @@ export interface UserProfileDto {
   username: string;
   avatar?: File | string;
   avatarURL?: string;
+  token?: string;
   availability?: Record<string, string[]>;
 }
 
@@ -37,60 +39,47 @@ export async function registerUser(data: RegisterRequest): Promise<ApiResponse<U
     formData.append('avatar', data.avatar);
   }
 
-  const response = await fetch(`${API_BASE_URL}/user/register`, {
-    method: 'POST',
-    body: formData,
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ 
+  try {
+    const response = await apiClient.post<ApiResponse<UserProfileDto>>('/user/register', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    const errorData = error.response?.data || { 
       success: false, 
       message: 'Registration failed. Please try again.' 
-    }));
+    };
     throw new Error(errorData.message || 'Registration failed');
   }
-
-  return response.json();
 }
 
 export async function loginUser(data: LoginRequest): Promise<ApiResponse<UserProfileDto>> {
-  const response = await fetch(`${API_BASE_URL}/user/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  try {
+    const response = await apiClient.post<ApiResponse<UserProfileDto>>('/user/login', {
       username: data.username,
       password: data.password,
-    }),
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ 
+    });
+    return response.data;
+  } catch (error: any) {
+    const errorData = error.response?.data || { 
       success: false, 
       message: 'Login failed. Please check your credentials.' 
-    }));
+    };
     throw new Error(errorData.message || 'Login failed');
   }
-
-  return response.json()
 }
 
 export async function logoutUser(): Promise<ApiResponse<null>> {
-  const response = await fetch(`${API_BASE_URL}/user/logout`, {
-    method: 'POST',
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ 
+  try {
+    const response = await apiClient.post<ApiResponse<null>>('/user/logout');
+    return response.data;
+  } catch (error: any) {
+    const errorData = error.response?.data || { 
       success: false, 
       message: 'Logout failed. Please try again.' 
-    }));
+    };
     throw new Error(errorData.message || 'Logout failed');
   }
-
-  return response.json();
 }
