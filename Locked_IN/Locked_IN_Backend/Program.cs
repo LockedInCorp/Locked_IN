@@ -1,4 +1,4 @@
-using Locked_IN_Backend.Controllers;
+
 using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
@@ -11,8 +11,12 @@ using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.Services;
 using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Locked_IN_Backend.Interfaces.Services;
 using Locked_IN_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.Data.SqlClient;
 using Minio;
 
@@ -20,6 +24,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("secret.json", optional: true, reloadOnChange: true);
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
@@ -27,17 +35,36 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     {
         options.Password.RequireDigit = true;
         options.User.RequireUniqueEmail = true;
+        options.SignIn.RequireConfirmedAccount = false;
     })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
+        };
+    });
+
 
 builder.Services.AddControllers();
 
 RegisterValidationServices();
 
 builder.Services.AddAutoMapper(cfg => {}, typeof(Program));
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddSignalR(options =>
 {
@@ -95,7 +122,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:5173")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -107,18 +135,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowFrontend");
 app.UseCors("AllowSignalR");
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
-app.UseCors("AllowFrontend");
 
 
 app.MapHub<ChatHub>("/chathub");
@@ -144,8 +172,9 @@ void RegisterServices()
 {
     builder.Services.AddScoped<ITeamRepository, TeamRepository>();
     builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
     builder.Services.AddScoped<ITeamService, TeamService>();
-    builder.Services.AddScoped<ITeamJoinService, TeamJoinService>();
+    builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
     builder.Services.AddScoped<IGameService, GameService>();
     builder.Services.AddScoped<IFriendshipService, FriendshipService>();
     builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
@@ -154,4 +183,5 @@ void RegisterServices()
     builder.Services.AddScoped<IGameProfileService, GameProfileService>();
     builder.Services.AddScoped<IChatService, ChatService>();
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
+    builder.Services.AddScoped<IJwtService, JwtService>();
 }

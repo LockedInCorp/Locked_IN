@@ -9,12 +9,12 @@ namespace Locked_IN_Backend.Controllers
     [Route("api")]
     public class TeamJoinController : ControllerBase
     {
-        private readonly ITeamJoinService _teamJoinService;
+        private readonly ITeamMemberService _teamMemberService;
         private readonly IValidator<JoinRequestDto> _joinRequestValidator;
 
-        public TeamJoinController(ITeamJoinService teamJoinService, IValidator<JoinRequestDto> joinRequestValidator)
+        public TeamJoinController(ITeamMemberService teamMemberService, IValidator<JoinRequestDto> joinRequestValidator)
         {
-            _teamJoinService = teamJoinService;
+            _teamMemberService = teamMemberService;
             _joinRequestValidator = joinRequestValidator;
         }
 
@@ -33,7 +33,7 @@ namespace Locked_IN_Backend.Controllers
                 return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _teamJoinService.RequestToJoinTeamAsync(teamId, joinRequest.UserId);
+            var result = await _teamMemberService.RequestToJoinTeamAsync(teamId, joinRequest.UserId);
             
             return result.Status switch
             {
@@ -53,19 +53,20 @@ namespace Locked_IN_Backend.Controllers
         [HttpGet("teams/{teamId}/join-requests")]
         public async Task<IActionResult> GetJoinRequests(int teamId)
         {
-            var requests = await _teamJoinService.GetJoinRequestsAsync(teamId);
+            var requests = await _teamMemberService.GetJoinRequestsAsync(teamId);
             return Ok(requests);
         }
 
         /// <summary>
         /// Accept a pending join request
         /// </summary>
-        /// <param name="teamMemberId">The ID of the TeamMember record (join request)</param>
+        /// <param name="teamId">The ID of the team</param>
+        /// <param name="userId">The ID of the user</param>
         /// <returns>Confirmation or error message</returns>
-        [HttpPost("join-requests/{teamMemberId}/accept")]
-        public async Task<IActionResult> AcceptJoinRequest(int teamMemberId)
+        [HttpPost("teams/{teamId}/users/{userId}/accept")]
+        public async Task<IActionResult> AcceptJoinRequest(int teamId, int userId)
         {
-            var result = await _teamJoinService.AcceptJoinRequestAsync(teamMemberId);
+            var result = await _teamMemberService.AcceptJoinRequestAsync(teamId, userId);
 
             return result.Status switch
             {
@@ -79,12 +80,13 @@ namespace Locked_IN_Backend.Controllers
         /// <summary>
         /// Decline a pending join request
         /// </summary>
-        /// <param name="teamMemberId">The ID of the TeamMember record (join request)</param>
+        /// <param name="teamId">The ID of the team</param>
+        /// <param name="userId">The ID of the user</param>
         /// <returns>Confirmation or error message</returns>
-        [HttpPost("join-requests/{teamMemberId}/decline")]
-        public async Task<IActionResult> DeclineJoinRequest(int teamMemberId)
+        [HttpPost("teams/{teamId}/users/{userId}/decline")]
+        public async Task<IActionResult> DeclineJoinRequest(int teamId, int userId)
         {
-            var result = await _teamJoinService.DeclineJoinRequestAsync(teamMemberId);
+            var result = await _teamMemberService.DeclineJoinRequestAsync(teamId, userId);
 
             return result.Status switch
             {
@@ -109,7 +111,7 @@ namespace Locked_IN_Backend.Controllers
                 return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _teamJoinService.CancelJoinRequestAsync(teamId, cancelRequest.UserId);
+            var result = await _teamMemberService.CancelJoinRequestAsync(teamId, cancelRequest.UserId);
 
             return result.Status switch
             {

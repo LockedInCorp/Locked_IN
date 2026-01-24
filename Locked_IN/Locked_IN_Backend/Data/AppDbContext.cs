@@ -209,9 +209,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 
         modelBuilder.Entity<TeamMember>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("team_member_pk");
-            entity.Property(e => e.Id).UseIdentityColumn();
-
+            entity.HasKey(e => new { e.TeamId, e.UserId });
 
             entity.HasOne(d => d.MemberStatus).WithMany(p => p.TeamMembers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -678,7 +676,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
     modelBuilder.Entity<TeamMember>().HasData(
         new TeamMember
         {
-            Id = 1,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc),
             TeamId = 1,
@@ -687,7 +684,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 2,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 10, 3, 14, 30, 0, DateTimeKind.Utc),
             TeamId = 1,
@@ -696,7 +692,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 3,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 10, 8, 16, 15, 0, DateTimeKind.Utc),
             TeamId = 2,
@@ -705,7 +700,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 4,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 10, 13, 11, 45, 0, DateTimeKind.Utc),
             TeamId = 2,
@@ -714,7 +708,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 5,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 10, 18, 9, 20, 0, DateTimeKind.Utc),
             TeamId = 3,
@@ -723,7 +716,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 6,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 10, 23, 18, 0, 0, DateTimeKind.Utc),
             TeamId = 4,
@@ -732,7 +724,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 7,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 9, 16, 10, 0, 0, DateTimeKind.Utc),
             TeamId = 5,
@@ -741,7 +732,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 8,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 9, 1, 12, 30, 0, DateTimeKind.Utc),
             TeamId = 6,
@@ -750,7 +740,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 9,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 10, 3, 20, 15, 0, DateTimeKind.Utc),
             TeamId = 7,
@@ -759,7 +748,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 10,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 9, 6, 9, 5, 0, DateTimeKind.Utc),
             TeamId = 8,
@@ -768,7 +756,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 11,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 11, 2, 10, 0, 0, DateTimeKind.Utc),
             TeamId = 9,
@@ -777,7 +764,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 12,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 8, 21, 18, 0, 0, DateTimeKind.Utc),
             TeamId = 10,
@@ -786,7 +772,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 13,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 11, 10, 10, 0, 0, DateTimeKind.Utc),
             TeamId = 11,
@@ -795,7 +780,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 14,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 11, 11, 10, 0, 0, DateTimeKind.Utc),
             TeamId = 11,
@@ -804,7 +788,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 15,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 11, 12, 10, 0, 0, DateTimeKind.Utc),
             TeamId = 11,
@@ -813,7 +796,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 16,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 11, 15, 12, 0, 0, DateTimeKind.Utc),
             TeamId = 12,
@@ -822,7 +804,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 17,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 11, 16, 12, 0, 0, DateTimeKind.Utc),
             TeamId = 12,
@@ -831,7 +812,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 18,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 11, 17, 12, 0, 0, DateTimeKind.Utc),
             TeamId = 12,
@@ -840,7 +820,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 19,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 11, 18, 12, 0, 0, DateTimeKind.Utc),
             TeamId = 12,
@@ -849,7 +828,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 20,
             Isleader = false,
             Jointimestamp = new DateTime(2024, 11, 19, 12, 0, 0, DateTimeKind.Utc),
             TeamId = 12,
@@ -858,7 +836,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         },
         new TeamMember
         {
-            Id = 21,
             Isleader = true,
             Jointimestamp = new DateTime(2024, 11, 20, 15, 0, 0, DateTimeKind.Utc),
             TeamId = 13,

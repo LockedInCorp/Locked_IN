@@ -11,6 +11,7 @@ public class AdvancedSearchDto
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = ValidationConstraints.DefaultPageSize;
     public string SortBy { get; set; } = string.Empty;
+    public bool ShowPendingRequests { get; set; } = false;
 }
 
 public class AdvancedSearchDtoValidator : AbstractValidator<AdvancedSearchDto>

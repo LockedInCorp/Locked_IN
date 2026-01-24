@@ -14,5 +14,5 @@ public interface ITeamRepository
     
     Task<List<Team>> GetTeamsByGameIdAsync(int gameId);
     Task<List<TeamSearchResult>> GetTeamsByNameSearchAsync(string searchTerm);
-    Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy);
+    Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, List<int> teamIds);
 }

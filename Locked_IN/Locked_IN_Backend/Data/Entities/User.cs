@@ -12,7 +12,7 @@ public partial class User : IdentityUser<int>
     public string? AvatarUrl { get; set; }
 
     [Column("availability", TypeName = "json")]
-    public string Availability { get; set; } = null!;
+    public string? Availability { get; set; } = null!;
 
     [InverseProperty("User")]
     public virtual ICollection<Chatparticipant> Chatparticipants { get; set; } = new List<Chatparticipant>();

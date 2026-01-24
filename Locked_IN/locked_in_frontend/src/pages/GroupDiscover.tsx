@@ -38,7 +38,8 @@ export default function DiscoverPage() {
                     searchTerm: groupSearch,
                     page: currentPage,
                     pageSize: pageSize,
-                    sortBy: sortBy
+                    sortBy: sortBy,
+                    showPendingRequests: showPending
                 }
                 
                 const url = `https://localhost:7252/api/Team/search/advanced`
@@ -47,6 +48,7 @@ export default function DiscoverPage() {
                     headers: {
                         "Content-Type": "application/json"
                     },
+                    credentials: "include",
                     body: JSON.stringify(dto)
                 })
                 if (!response.ok) throw new Error("Failed to fetch")

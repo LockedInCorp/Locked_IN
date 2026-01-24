@@ -3,17 +3,20 @@ using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Locked_IN_Backend.Services;
 
 public class TeamService : ITeamService
 {
     private readonly ITeamRepository _teamRepository;
+    private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IMapper _mapper;
 
-    public TeamService(ITeamRepository teamRepository, IMapper mapper)
+    public TeamService(ITeamRepository teamRepository, ITeamMemberRepository teamMemberRepository, IMapper mapper)
     {
         _teamRepository = teamRepository;
+        _teamMemberRepository = teamMemberRepository;
         _mapper = mapper;
     }
     
@@ -40,9 +43,14 @@ public class TeamService : ITeamService
         }).ToList();
     }
 
-    public async Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy)
+    public async Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, int ShowPendingRequestsUserId)
     {
-        var pagedResults = await _teamRepository.GetTeamsAdvancedAsync(gameIds, preferenceTagIds, searchTerm, page, pageSize, sortBy);
+        var teamIds = new List<int>();
+        if (ShowPendingRequestsUserId >= 0)
+        {
+           teamIds = _teamMemberRepository.GetPendingRequestsAsync(ShowPendingRequestsUserId).Result.Select(tm => tm.TeamId).ToList();
+        }
+        var pagedResults = await _teamRepository.GetTeamsAdvancedAsync(gameIds, preferenceTagIds, searchTerm, page, pageSize, sortBy,teamIds);
         
         return new PagedResult<GetTeamsCardDto>
         {

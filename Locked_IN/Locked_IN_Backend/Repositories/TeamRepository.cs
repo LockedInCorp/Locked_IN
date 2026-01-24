@@ -116,7 +116,7 @@ public class TeamRepository : ITeamRepository
         }).ToList();
     }
     
-    public async Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy)
+    public async Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, List<int> teamIds)
     {
         var query = _context.Teams.AsQueryable();
 
@@ -208,8 +208,12 @@ public class TeamRepository : ITeamRepository
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-
-        var teamIds = pagedResults.Select(r => r.TeamId).ToList();
+        
+        var teamIntermediateIds = pagedResults.Select(r => r.TeamId).ToList();
+        if (teamIds.Count > 0)
+        {
+            teamIntermediateIds = teamIntermediateIds.Intersect(teamIds).ToList();
+        }
 
         var teams = await _context.Teams
             .Include(t => t.Game)
@@ -218,7 +222,7 @@ public class TeamRepository : ITeamRepository
                 .ThenInclude(tm => tm.User)
             .Include(t => t.TeamPreferencetagRelations)
                 .ThenInclude(r => r.PreferenceTag)
-            .Where(t => teamIds.Contains(t.Id))
+            .Where(t => teamIntermediateIds.Contains(t.Id))
             .ToListAsync();
         
         var teamMap = teams.ToDictionary(t => t.Id);

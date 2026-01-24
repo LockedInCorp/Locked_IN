@@ -1,47 +1,46 @@
-using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Misc;
 using Locked_IN_Backend.Misc.Enum;
-using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Services
 {
-    public class TeamJoinService : ITeamJoinService
+    public class TeamMemberService : ITeamMemberService
     {
-        private readonly AppDbContext _context;
+        private readonly ITeamRepository _teamRepository;
+        private readonly ITeamMemberRepository _teamMemberRepository;
+        private readonly IUserRepository _userRepository;
 
-        public TeamJoinService(AppDbContext context)
+        public TeamMemberService(ITeamRepository teamRepository, ITeamMemberRepository teamMemberRepository, IUserRepository userRepository)
         {
-            _context = context;
+            _teamRepository = teamRepository;
+            _teamMemberRepository = teamMemberRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<TeamJoinResult> RequestToJoinTeamAsync(int teamId, int userId)
         {
-            var team = await _context.Teams.FindAsync(teamId);
+            var team = await _teamRepository.GetTeamById(teamId);
             if (team == null)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.NotFound, "Team not found");
             }
 
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _userRepository.GetUserById(userId);
             if (user == null)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.NotFound, "User not found");
             }
 
-            var activeMemberCount = await _context.TeamMembers
-                .CountAsync(tm => tm.TeamId == teamId &&
-                                 (tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER ||
-                                  tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER));
+            var activeMemberCount = await _teamMemberRepository.GetActiveMemberCountAsync(teamId);
 
             if (activeMemberCount >= team.MaxPlayerCount)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.BadRequest, "Team is already full");
             }
 
-            var preexistentTeamMember = await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.UserId == userId);
+            var preexistentTeamMember = await _teamMemberRepository.GetTeamMemberAsync(teamId, userId);
 
             if (preexistentTeamMember != null)
             {
@@ -60,10 +59,9 @@ namespace Locked_IN_Backend.Services
                 }
             }
 
-            var pendingRequestsCount = await _context.TeamMembers
-                .CountAsync(tm => tm.UserId == userId && tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING);
+            var pendingRequests = await _teamMemberRepository.GetPendingRequestsAsync(userId);
 
-            if (pendingRequestsCount >= ValidationConstraints.MaxActiveJoinRequestsPerUser)
+            if (pendingRequests.Count >= ValidationConstraints.MaxActiveJoinRequestsPerUser)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.BadRequest, "User has reached the maximum number of active join requests");
             }
@@ -79,8 +77,7 @@ namespace Locked_IN_Backend.Services
                 Isleader = false
             };
 
-            _context.TeamMembers.Add(newTeamMember);
-            await _context.SaveChangesAsync();
+            await _teamMemberRepository.AddTeamMemberAsync(newTeamMember);
 
             string message = newMemberStatusId == (int)TeamMemberStatus.STATUS_PENDING
                 ? "Join request sent successfully. Awaiting admin approval."
@@ -91,33 +88,27 @@ namespace Locked_IN_Backend.Services
 
         public async Task<List<TeamJoinResponceDto>> GetJoinRequestsAsync(int teamId)
         {
-            return await _context.TeamMembers
-                .Where(tm => tm.TeamId == teamId && tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING)
-                .Select(tm => new TeamJoinResponceDto
+            var requests = await _teamMemberRepository.GetPendingRequestsByTeamIdAsync(teamId);
+            return requests.Select(tm => new TeamJoinResponceDto
                 {
-                    TeamMemberId = tm.Id,
+                    TeamId = tm.TeamId,
                     UserId = tm.UserId,
                     Username = tm.User.UserName,
                     RequestTimestamp = tm.Jointimestamp
                 })
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<TeamJoinResult> AcceptJoinRequestAsync(int teamMemberId)
+        public async Task<TeamJoinResult> AcceptJoinRequestAsync(int teamId, int userId)
         {
-            var request = await _context.TeamMembers
-                .Include(tm => tm.Team)
-                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING);
+            var request = await _teamMemberRepository.GetTeamMemberWithTeamByIdAsync(teamId, userId);
 
-            if (request == null)
+            if (request == null || request.MemberStatusId != (int)TeamMemberStatus.STATUS_PENDING)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.NotFound, "Join request not found or already handled");
             }
 
-            var activeMemberCount = await _context.TeamMembers
-                .CountAsync(tm => tm.TeamId == request.TeamId &&
-                                 (tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER ||
-                                  tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER));
+            var activeMemberCount = await _teamMemberRepository.GetActiveMemberCountAsync(request.TeamId);
 
             if (activeMemberCount >= request.Team.MaxPlayerCount)
             {
@@ -127,44 +118,37 @@ namespace Locked_IN_Backend.Services
             request.MemberStatusId = (int)TeamMemberStatus.STATUS_MEMBER;
             request.Jointimestamp = DateTime.UtcNow;
 
-            _context.TeamMembers.Update(request);
-            await _context.SaveChangesAsync();
+            await _teamMemberRepository.UpdateTeamMemberAsync(request);
 
             return new TeamJoinResult(TeamJoinResultStatus.Success, "User approved and added to team");
         }
 
-        public async Task<TeamJoinResult> DeclineJoinRequestAsync(int teamMemberId)
+        public async Task<TeamJoinResult> DeclineJoinRequestAsync(int teamId, int userId)
         {
-            var request = await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.Id == teamMemberId && tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING);
+            var request = await _teamMemberRepository.GetTeamMemberByIdAsync(teamId, userId);
 
-            if (request == null)
+            if (request == null || request.MemberStatusId != (int)TeamMemberStatus.STATUS_PENDING)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.NotFound, "Join request not found or already handled");
             }
 
             request.MemberStatusId = (int)TeamMemberStatus.STATUS_REJECTED;
 
-            _context.TeamMembers.Update(request);
-            await _context.SaveChangesAsync();
+            await _teamMemberRepository.UpdateTeamMemberAsync(request);
 
             return new TeamJoinResult(TeamJoinResultStatus.Success, "Join request declined");
         }
 
         public async Task<TeamJoinResult> CancelJoinRequestAsync(int teamId, int userId)
         {
-            var request = await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.TeamId == teamId &&
-                                            tm.UserId == userId &&
-                                            tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING);
+            var request = await _teamMemberRepository.GetTeamMemberAsync(teamId, userId);
 
-            if (request == null)
+            if (request == null || request.MemberStatusId != (int)TeamMemberStatus.STATUS_PENDING)
             {
                 return new TeamJoinResult(TeamJoinResultStatus.NotFound, "Pending join request not found for this user and team");
             }
 
-            _context.TeamMembers.Remove(request);
-            await _context.SaveChangesAsync();
+            await _teamMemberRepository.DeleteTeamMemberAsync(request);
 
             return new TeamJoinResult(TeamJoinResultStatus.Success, "Join request successfully cancelled");
         }

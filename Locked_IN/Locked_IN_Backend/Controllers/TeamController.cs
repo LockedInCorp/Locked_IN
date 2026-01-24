@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc;
 using Locked_IN_Backend.Services;
 using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.Interfaces;
@@ -6,6 +8,8 @@ using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Team;
 using Locked_IN_Backend.Misc;
 using FluentValidation;
+using Locked_IN_Backend.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Locked_IN_Backend.Controllers;
 
@@ -88,9 +92,17 @@ public class TeamController : ControllerBase
     /// </summary>
     /// <param name="searchDto">Search filters and pagination details.</param>
     /// <returns>List of teams that match all provided filters.</returns>
+    [Authorize]
     [HttpPost("search/advanced")]
     public async Task<ActionResult<PagedResult<GetTeamsCardDto>>> AdvancedSearch([FromBody] AdvancedSearchDto searchDto)
     {
+        var userId = -1;
+        if (searchDto.ShowPendingRequests)
+        {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+            userId = int.Parse(userIdClaim);
+        }
         try
         {
             var validationResult = await _advancedSearchValidator.ValidateAsync(searchDto);
@@ -105,7 +117,8 @@ public class TeamController : ControllerBase
                 searchDto.SearchTerm ?? "", 
                 searchDto.Page, 
                 searchDto.PageSize, 
-                searchDto.SortBy ?? "");
+                searchDto.SortBy ?? "",
+                userId);
             return Ok(result);
         }
         catch (Exception ex)

@@ -4,6 +4,7 @@ using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Locked_IN_Backend.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace Locked_IN_Backend.Services
@@ -12,12 +13,14 @@ namespace Locked_IN_Backend.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IFileUploadService _fileUploadService;
+        private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IFileUploadService fileUploadService, IMapper mapper)
+        public UserService(IUserRepository userRepository, IFileUploadService fileUploadService, IJwtService jwtService, IMapper mapper)
         {
             _userRepository = userRepository;
             _fileUploadService = fileUploadService;
+            _jwtService = jwtService;
             _mapper = mapper;
         }
 
@@ -66,7 +69,13 @@ namespace Locked_IN_Backend.Services
                 return new UserResult(false, errors);
             }
 
-            return await GetUserProfileAsync(user.Id);
+            var userResult = await GetUserProfileAsync(user.Id);
+            if (userResult.Success && userResult.Data != null)
+            {
+                userResult.Data.Token = _jwtService.GenerateToken(user);
+            }
+
+            return userResult;
         }
 
         public async Task<UserResult> LoginAsync(LoginDto dto)
@@ -85,7 +94,13 @@ namespace Locked_IN_Backend.Services
                 return new UserResult(false, "Invalid username or password.");
             }
 
-            return await GetUserProfileAsync(user.Id);
+            var userResult = await GetUserProfileAsync(user.Id);
+            if (userResult.Success && userResult.Data != null)
+            {
+                userResult.Data.Token = _jwtService.GenerateToken(user);
+            }
+            
+            return userResult;
         }
 
         public async Task<UserResult> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto)

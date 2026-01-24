@@ -12,12 +12,12 @@ namespace Locked_IN_Backend.Services
 
     public record TeamJoinResult(TeamJoinResultStatus Status, string Message);
 
-    public interface ITeamJoinService
+    public interface ITeamMemberService
     {
         Task<TeamJoinResult> RequestToJoinTeamAsync(int teamId, int userId);
         Task<List<TeamJoinResponceDto>> GetJoinRequestsAsync(int teamId);
-        Task<TeamJoinResult> AcceptJoinRequestAsync(int teamMemberId);
-        Task<TeamJoinResult> DeclineJoinRequestAsync(int teamMemberId);
+        Task<TeamJoinResult> AcceptJoinRequestAsync(int teamId, int userId);
+        Task<TeamJoinResult> DeclineJoinRequestAsync(int teamId, int userId);
         Task<TeamJoinResult> CancelJoinRequestAsync(int teamId, int userId);
     }
 }

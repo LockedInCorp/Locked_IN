@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Locked_IN_Backend.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 public class FileController : ControllerBase
 {
     private readonly IFileUploadService _fileUploadService;

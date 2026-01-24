@@ -9,17 +9,12 @@ namespace Locked_IN_Backend.Data.Entities;
 [Table("team_member")]
 public partial class TeamMember
 {
-    [Key]
-    [Column("id")]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
     [Column("isleader")]
     public bool Isleader { get; set; }
 
     [Column("jointimestamp", TypeName = "timestamptz")]
     public DateTime Jointimestamp { get; set; }
-
+    
     [Column("team_id")]
     public int TeamId { get; set; }
 
