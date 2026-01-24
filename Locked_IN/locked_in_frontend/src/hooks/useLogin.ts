@@ -4,10 +4,6 @@ import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import { extractAvatarFromResponse } from '@/utils/avatarUtils';
 
-/**
- * Custom hook for user login
- * Handles login mutation, error handling, and success callbacks
- */
 export function useLogin() {
   const navigate = useNavigate();
   const { setUser, resetLoginForm } = useAuthStore();
@@ -29,9 +25,6 @@ export function useLogin() {
         
         navigate('/groups');
       }
-    },
-    onError: (error) => {
-      console.error('Login error:', error);
     },
   });
 }

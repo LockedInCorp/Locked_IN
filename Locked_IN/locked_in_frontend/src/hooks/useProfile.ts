@@ -51,10 +51,8 @@ export function useProfile() {
 
             const profile = profileResponse.data
             
-            // Extract and fetch avatar from response using utility function
             let avatarUrl = await extractAvatarFromResponse(profile as any, API_BASE_URL)
             
-            // Fallback to user's avatarUrl from authStore if not found in response
             if (!avatarUrl) {
                 avatarUrl = user?.avatarUrl
             }
@@ -67,10 +65,6 @@ export function useProfile() {
                 ranking: gp.rank || "",
                 role: ""
             }))
-            
-            if (gameProfilesResponse.success === false) {
-                console.warn('Failed to load game profiles:', gameProfilesResponse.message)
-            }
 
             if (tagsResponse.data?.games) {
                 setAvailableGames(tagsResponse.data.games.map(g => g.name))
@@ -94,7 +88,6 @@ export function useProfile() {
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load profile'
             setError(errorMessage)
-            console.error('Error loading profile:', err)
         } finally {
             setIsLoading(false)
         }
@@ -120,12 +113,12 @@ export function useProfile() {
             })
 
             if (updatedProfile.success && updatedProfile.data) {
+                const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile.data as any, API_BASE_URL)
+                
                 setProfileData({
                     ...profileData,
                     nickname: updatedProfile.data.username,
-                    avatarUrl: typeof updatedProfile.data.avatar === 'string' 
-                        ? updatedProfile.data.avatar 
-                        : finalAvatarUrl || profileData.avatarUrl,
+                    avatarUrl: updatedAvatarUrl || finalAvatarUrl || profileData.avatarUrl,
                     avatarFallback: updatedProfile.data.username.charAt(0).toUpperCase() || "U"
                 })
             } else {

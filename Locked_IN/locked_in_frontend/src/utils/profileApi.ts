@@ -8,7 +8,6 @@ export interface UserProfileResponse {
         email: string
         username: string
         avatar?: File | string | null
-        AvatarURL?: string
         avatarURL?: string
         availability?: Record<string, string[]>
     }

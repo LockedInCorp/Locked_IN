@@ -11,7 +11,6 @@ export interface UserProfileDto {
   email: string;
   username: string;
   avatar?: File | string;
-  AvatarURL?: string;
   avatarURL?: string;
   availability?: Record<string, string[]>;
 }
@@ -28,11 +27,6 @@ export interface LoginRequest {
   password: string;
 }
 
-/**
- * Makes a POST request to the registration endpoint with FormData
- * @param data Registration data including optional avatar file
- * @returns Promise with API response containing user profile
- */
 export async function registerUser(data: RegisterRequest): Promise<ApiResponse<UserProfileDto>> {
   const formData = new FormData();
   formData.append('username', data.username);
@@ -46,7 +40,7 @@ export async function registerUser(data: RegisterRequest): Promise<ApiResponse<U
   const response = await fetch(`${API_BASE_URL}/user/register`, {
     method: 'POST',
     body: formData,
-    credentials: 'include', // Include cookies for authentication
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -60,11 +54,6 @@ export async function registerUser(data: RegisterRequest): Promise<ApiResponse<U
   return response.json();
 }
 
-/**
- * Makes a POST request to the login endpoint with JSON
- * @param data Login credentials (username and password)
- * @returns Promise with API response containing user profile
- */
 export async function loginUser(data: LoginRequest): Promise<ApiResponse<UserProfileDto>> {
   const response = await fetch(`${API_BASE_URL}/user/login`, {
     method: 'POST',
@@ -75,7 +64,7 @@ export async function loginUser(data: LoginRequest): Promise<ApiResponse<UserPro
       username: data.username,
       password: data.password,
     }),
-    credentials: 'include', // Include cookies for authentication
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -86,22 +75,13 @@ export async function loginUser(data: LoginRequest): Promise<ApiResponse<UserPro
     throw new Error(errorData.message || 'Login failed');
   }
 
-  const result = await response.json()
-  
-  // Avatar extraction will be handled by extractAvatarFromResponse utility
-  // in the useLogin hook, so we don't need to modify it here
-  
-  return result
+  return response.json()
 }
 
-/**
- * Makes a POST request to the logout endpoint
- * @returns Promise with API response containing logout status
- */
 export async function logoutUser(): Promise<ApiResponse<null>> {
   const response = await fetch(`${API_BASE_URL}/user/logout`, {
     method: 'POST',
-    credentials: 'include', // Include cookies for authentication
+    credentials: 'include',
   });
 
   if (!response.ok) {

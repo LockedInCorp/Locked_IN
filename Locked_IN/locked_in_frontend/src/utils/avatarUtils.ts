@@ -41,7 +41,6 @@ export const convertAvatarToUrl = async (
             if (avatarObj.fileName.startsWith('http://') || avatarObj.fileName.startsWith('https://')) {
                 return avatarObj.fileName
             }
-            console.warn('Avatar object has fileName but no data. File needs to be fetched separately:', avatarObj.fileName)
             return undefined
         }
 
@@ -85,28 +84,22 @@ export const fetchAvatarFile = async (
     avatarUrl: string,
     apiBaseUrl: string = 'http://localhost:5122/api'
 ): Promise<string | undefined> => {
-    try {
-        if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
-            return avatarUrl
-        }
+    if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
+        return avatarUrl
+    }
 
-        if (avatarUrl.startsWith('data:')) {
-            return avatarUrl
-        }
+    if (avatarUrl.startsWith('data:')) {
+        return avatarUrl
+    }
 
-        const encodedFilename = encodeURIComponent(avatarUrl)
-        const response = await fetch(`${apiBaseUrl}/file/avatar/${encodedFilename}`, {
-            credentials: 'include',
-        })
+    const encodedFilename = encodeURIComponent(avatarUrl)
+    const response = await fetch(`${apiBaseUrl}/file/avatar/${encodedFilename}`, {
+        credentials: 'include',
+    })
 
-        if (response.ok) {
-            const blob = await response.blob()
-            return URL.createObjectURL(blob)
-        } else {
-            console.warn(`Failed to fetch avatar: ${response.status} ${response.statusText}`)
-        }
-    } catch (error) {
-        console.error('Failed to fetch avatar file:', error)
+    if (response.ok) {
+        const blob = await response.blob()
+        return URL.createObjectURL(blob)
     }
 
     return undefined
