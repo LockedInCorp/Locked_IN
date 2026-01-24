@@ -16,18 +16,12 @@ export type GameProfile = {
 
 type ProfileFieldsProps = {
     nickname: string
-    location: string
-    dateOfBirth: string
     gameProfiles: GameProfile[]
-    aboutMe: string
 }
 
 export default function ProfileFields({
     nickname,
-    location,
-    dateOfBirth,
-    gameProfiles,
-    aboutMe
+    gameProfiles
 }: ProfileFieldsProps) {
     const { expandedGames, toggleExpandedGame } = useProfileStore()
 
@@ -37,18 +31,6 @@ export default function ProfileFields({
             <div className="space-y-2">
                 <Label className="text-sm text-muted-foreground">Nickname</Label>
                 <p className="text-base font-semibold text-foreground">{nickname}</p>
-            </div>
-
-            {/* Location */}
-            <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">Location</Label>
-                <p className="text-base font-semibold text-foreground">{location}</p>
-            </div>
-
-            {/* Date of birth */}
-            <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">Date of birth</Label>
-                <p className="text-base font-semibold text-foreground">{dateOfBirth}</p>
             </div>
 
             {/* Game Profiles */}
@@ -139,12 +121,6 @@ export default function ProfileFields({
                         })
                     )}
                 </div>
-            </div>
-
-            {/* About me */}
-            <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">About me</Label>
-                <p className="text-base text-foreground whitespace-pre-wrap">{aboutMe}</p>
             </div>
         </div>
     )

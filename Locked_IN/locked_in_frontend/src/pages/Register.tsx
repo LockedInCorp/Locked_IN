@@ -6,6 +6,8 @@ import RegisterPart1 from "@/custom_components/register/RegisterPart1"
 import RegisterPart2 from "@/custom_components/register/RegisterPart2"
 import { useAuthStore } from "@/stores/authStore"
 import { useRegistrationForm } from "@/hooks/useRegistrationForm"
+import { Button } from "@/components/ui/button"
+import { CheckCircle2 } from "lucide-react"
 
 export default function Register() {
     const [searchParams] = useSearchParams()
@@ -18,7 +20,10 @@ export default function Register() {
         errorMessage,
         part1Errors,
         part2Errors,
+        isSubmittingPart1,
         isSubmittingPart2,
+        showSuccessModal,
+        handleCloseSuccessModal,
         registerEmail,
         registerNickname,
         registerPassword,
@@ -47,6 +52,29 @@ export default function Register() {
 
     return (
         <div className="relative w-full min-h-full overflow-y-auto bg-background">
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-card border border-border rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="rounded-full bg-green-500/10 p-3">
+                                <CheckCircle2 className="h-12 w-12 text-green-500" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-bold text-foreground mb-2">Registration Successful!</h2>
+                                <p className="text-muted-foreground">You've been registered successfully. Please log in to continue.</p>
+                            </div>
+                            <Button
+                                onClick={handleCloseSuccessModal}
+                                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                            >
+                                Go to Login
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Main content */}
             <div className="relative z-10 min-h-full flex items-center justify-center px-6 py-12">
                 <div className="w-full max-w-3xl">
@@ -77,7 +105,7 @@ export default function Register() {
                                 onAvatarChange={handleAvatarChange}
                                 onNext={handleNextPart1}
                                 errors={part1Errors}
-                                isLoading={false}
+                                isLoading={isSubmittingPart1}
                             />
                         ) : (
                             <RegisterPart2

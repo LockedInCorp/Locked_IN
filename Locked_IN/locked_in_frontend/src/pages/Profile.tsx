@@ -6,20 +6,20 @@ import ProfileFields from "@/custom_components/profile/ProfileFields"
 import ProfileFieldsEdit from "@/custom_components/profile/ProfileFieldsEdit"
 import { useProfileStore } from "@/stores/profileStore"
 import { useLogout } from "@/hooks/useLogout"
+import { useProfile } from "@/hooks/useProfile"
 
 export default function Profile() {
     const {
         isEditing,
         profileData,
         avatarPreview,
-        setIsEditing,
         setAvatarPreview,
         startEditing,
         cancelEditing,
-        saveProfile,
         updateProfileData
     } = useProfileStore()
     
+    const { isLoading, isSaving, error, saveProfile } = useProfile()
     const logoutMutation = useLogout()
 
     const handleAvatarChange = (file: File | null) => {
@@ -29,15 +29,17 @@ export default function Profile() {
                 setAvatarPreview(reader.result as string)
             }
             reader.readAsDataURL(file)
-            
-            // TODO: Upload file to server and get URL
         } else {
             setAvatarPreview(null)
         }
     }
 
     const handleSave = async () => {
-        await saveProfile()
+        try {
+            await saveProfile()
+        } catch (err) {
+            console.error('Failed to save profile:', err)
+        }
     }
 
     const handleCancel = () => {
@@ -48,6 +50,18 @@ export default function Profile() {
         logoutMutation.mutate()
     }
 
+    if (isLoading) {
+        return (
+            <div className="relative w-full min-h-full overflow-y-auto bg-background">
+                <div className="relative z-10 min-h-full flex items-center justify-center px-6 py-12">
+                    <div className="text-center">
+                        <p className="text-muted-foreground">Loading profile...</p>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="relative w-full min-h-full overflow-y-auto bg-background">
             {/* Main content */}
@@ -55,6 +69,12 @@ export default function Profile() {
                 <div className="w-full max-w-3xl">
                     {/* Profile Card */}
                     <div className="rounded-lg border border-border bg-card p-8 shadow-lg">
+                        {error && (
+                            <div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive text-destructive text-sm">
+                                {error}
+                            </div>
+                        )}
+
                         <ProfileHeader 
                             avatarUrl={avatarPreview || profileData.avatarUrl}
                             avatarFallback={profileData.avatarFallback}
@@ -65,23 +85,14 @@ export default function Profile() {
                         {isEditing ? (
                             <ProfileFieldsEdit
                                 nickname={profileData.nickname}
-                                location={profileData.location}
-                                dateOfBirth={profileData.dateOfBirth}
                                 gameProfiles={profileData.gameProfiles}
-                                aboutMe={profileData.aboutMe}
                                 onNicknameChange={(value) => updateProfileData({ nickname: value })}
-                                onLocationChange={(value) => updateProfileData({ location: value })}
-                                onDateOfBirthChange={(value) => updateProfileData({ dateOfBirth: value })}
                                 onGameProfilesChange={(profiles) => updateProfileData({ gameProfiles: profiles })}
-                                onAboutMeChange={(value) => updateProfileData({ aboutMe: value })}
                             />
                         ) : (
                             <ProfileFields
                                 nickname={profileData.nickname}
-                                location={profileData.location}
-                                dateOfBirth={profileData.dateOfBirth}
                                 gameProfiles={profileData.gameProfiles}
-                                aboutMe={profileData.aboutMe}
                             />
                         )}
 
@@ -102,15 +113,17 @@ export default function Profile() {
                                         <Button 
                                             variant="outline"
                                             onClick={handleCancel}
-                                            className="px-6 py-2 text-base font-semibold border-border hover:bg-muted cursor-pointer"
+                                            disabled={isSaving}
+                                            className="px-6 py-2 text-base font-semibold border-border hover:bg-muted cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Cancel
                                         </Button>
                                         <Button 
-                                            className="bg-primary px-6 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                                            className="bg-primary px-6 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             onClick={handleSave}
+                                            disabled={isSaving}
                                         >
-                                            Save changes
+                                            {isSaving ? "Saving..." : "Save changes"}
                                         </Button>
                                     </>
                                 ) : (

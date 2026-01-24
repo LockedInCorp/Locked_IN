@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { loginUser, type LoginRequest, type ApiResponse, type UserProfileDto } from '@/lib/api';
+import { loginUser, type LoginRequest, type ApiResponse, type UserProfileDto, API_BASE_URL } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
+import { extractAvatarFromResponse } from '@/utils/avatarUtils';
 
 /**
  * Custom hook for user login
@@ -13,13 +14,15 @@ export function useLogin() {
 
   return useMutation<ApiResponse<UserProfileDto>, Error, LoginRequest>({
     mutationFn: loginUser,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.success && data.data) {
+        const avatarUrl = await extractAvatarFromResponse(data.data as any, API_BASE_URL)
+        
         setUser({
           id: data.data.id.toString(),
           email: data.data.email,
           nickname: data.data.username,
-          avatarUrl: typeof data.data.avatar === 'string' ? data.data.avatar : undefined,
+          avatarUrl: avatarUrl,
         });
         
         resetLoginForm();

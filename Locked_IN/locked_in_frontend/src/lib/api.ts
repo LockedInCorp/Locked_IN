@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5122/api';
+export const API_BASE_URL = 'http://localhost:5122/api';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -11,6 +11,8 @@ export interface UserProfileDto {
   email: string;
   username: string;
   avatar?: File | string;
+  AvatarURL?: string;
+  avatarURL?: string;
   availability?: Record<string, string[]>;
 }
 
@@ -84,7 +86,12 @@ export async function loginUser(data: LoginRequest): Promise<ApiResponse<UserPro
     throw new Error(errorData.message || 'Login failed');
   }
 
-  return response.json();
+  const result = await response.json()
+  
+  // Avatar extraction will be handled by extractAvatarFromResponse utility
+  // in the useLogin hook, so we don't need to modify it here
+  
+  return result
 }
 
 /**

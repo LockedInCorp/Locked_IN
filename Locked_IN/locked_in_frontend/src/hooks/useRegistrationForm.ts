@@ -2,6 +2,7 @@ import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { validateEmailFormat, validateNicknameFormat, validatePasswordFormat, parseBackendError, type Part1Errors, type Part2Errors } from "@/utils/validation"
+import { searchGamesByName, addGameProfile } from "@/utils/gameProfileApi"
 import type { GameProfile } from "@/stores/authStore"
 
 export function useRegistrationForm() {
@@ -9,7 +10,10 @@ export function useRegistrationForm() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [part1Errors, setPart1Errors] = useState<Part1Errors>({})
     const [part2Errors, setPart2Errors] = useState<Part2Errors>({})
+    const [isSubmittingPart1, setIsSubmittingPart1] = useState(false)
     const [isSubmittingPart2, setIsSubmittingPart2] = useState(false)
+    const [showSuccessModal, setShowSuccessModal] = useState(false)
+    const [registeredUserId, setRegisteredUserId] = useState<number | null>(null)
 
     const {
         registerStep,
@@ -28,7 +32,6 @@ export function useRegistrationForm() {
         setRegisterAvatarFile,
         setRegisterAvatarPreview,
         setRegisterGameProfiles,
-        setUser,
         resetRegisterForm
     } = useAuthStore()
 
@@ -129,7 +132,7 @@ export function useRegistrationForm() {
         return true
     }
 
-    const handleNextPart1 = () => {
+    const handleNextPart1 = async () => {
         setErrorMessage(null)
         
         if (!validatePart1Format()) {
@@ -144,8 +147,58 @@ export function useRegistrationForm() {
             return
         }
 
-        setRegisterStep(2)
-        navigate("/register?step=2", { replace: true })
+        setIsSubmittingPart1(true)
+        try {
+            const formData = new FormData()
+            formData.append('username', registerNickname)
+            formData.append('email', registerEmail)
+            formData.append('password', registerPassword)
+            
+            if (registerAvatarFile) {
+                formData.append('avatar', registerAvatarFile)
+            }
+
+            const response = await fetch('http://localhost:5122/api/user/register', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ 
+                    message: 'Registration failed' 
+                }))
+                const errorMessage = errorData.message || errorData.Message || 'Registration failed'
+                
+                const fieldErrors = parseBackendError(errorMessage)
+                
+                if (Object.keys(fieldErrors).length > 0) {
+                    setPart1Errors(fieldErrors)
+                } else {
+                    setErrorMessage(errorMessage)
+                }
+                return
+            }
+
+            const responseData = await response.json()
+            if (responseData.success && responseData.data) {
+                const userId = responseData.data.id
+                if (userId) {
+                    setRegisteredUserId(userId)
+                    setRegisterStep(2)
+                    navigate("/register?step=2", { replace: true })
+                } else {
+                    setErrorMessage('Registration succeeded but user ID not found')
+                }
+            } else {
+                setErrorMessage(responseData.message || 'Registration failed')
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Registration failed. Please try again."
+            setErrorMessage(errorMessage)
+        } finally {
+            setIsSubmittingPart1(false)
+        }
     }
 
     const handleBack = () => {
@@ -208,12 +261,9 @@ export function useRegistrationForm() {
 
     const handleNextPart2 = async () => {
         setErrorMessage(null)
-        setPart1Errors({})
 
-        if (registerPassword !== registerRepeatPassword) {
-            setPart1Errors({ repeatPassword: "Passwords do not match" })
-            setRegisterStep(1)
-            navigate("/register?step=1", { replace: true })
+        if (!registeredUserId) {
+            setErrorMessage('User ID not found. Please go back and register again.')
             return
         }
 
@@ -221,67 +271,62 @@ export function useRegistrationForm() {
             return
         }
 
+        if (registerGameProfiles.length === 0) {
+            resetRegisterForm()
+            setShowSuccessModal(true)
+            setTimeout(() => {
+                setShowSuccessModal(false)
+                navigate('/login')
+            }, 5000)
+            return
+        }
+
         setIsSubmittingPart2(true)
         try {
-            const formData = new FormData()
-            formData.append('username', registerNickname)
-            formData.append('email', registerEmail)
-            formData.append('password', registerPassword)
+            const allGames = await searchGamesByName('')
             
-            if (registerAvatarFile) {
-                formData.append('avatar', registerAvatarFile)
-            }
-
-            const response = await fetch('http://localhost:5122/api/user/register', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include',
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ 
-                    message: 'Registration failed' 
-                }))
-                const errorMessage = errorData.message || errorData.Message || 'Registration failed'
+            for (const profile of registerGameProfiles) {
+                const game = allGames.find(g => g.name.toLowerCase() === profile.gameName.toLowerCase())
                 
-                const fieldErrors = parseBackendError(errorMessage)
-                
-                if (Object.keys(fieldErrors).length > 0) {
-                    setPart1Errors(fieldErrors)
-                    setRegisterStep(1)
-                    navigate("/register?step=1", { replace: true })
-                } else {
-                    setErrorMessage(errorMessage)
+                if (!game) {
+                    console.warn(`Game "${profile.gameName}" not found in database, skipping...`)
+                    continue
                 }
-                return
+
+                try {
+                    await addGameProfile(registeredUserId, game.id)
+                } catch (error) {
+                    console.error(`Failed to add game profile for "${profile.gameName}":`, error)
+                }
             }
 
-            const responseData = await response.json()
-            if (responseData.success && responseData.data) {
-                setUser({
-                    id: responseData.data.id.toString(),
-                    email: responseData.data.email,
-                    nickname: responseData.data.username,
-                    avatarUrl: typeof responseData.data.avatar === 'string' ? responseData.data.avatar : undefined,
-                })
-                resetRegisterForm()
-                navigate('/groups')
-            } else {
-                setErrorMessage(responseData.message || 'Registration failed')
-            }
+            resetRegisterForm()
+            setShowSuccessModal(true)
+            setTimeout(() => {
+                setShowSuccessModal(false)
+                navigate('/login')
+            }, 5000)
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Registration failed. Please try again."
+            const errorMessage = error instanceof Error ? error.message : "Failed to add game profiles. Please try again."
             setErrorMessage(errorMessage)
         } finally {
             setIsSubmittingPart2(false)
         }
     }
 
+    const handleCloseSuccessModal = () => {
+        setShowSuccessModal(false)
+        navigate('/login')
+    }
+
     return {
         errorMessage,
         part1Errors,
         part2Errors,
+        isSubmittingPart1,
         isSubmittingPart2,
+        showSuccessModal,
+        handleCloseSuccessModal,
         registerStep,
         registerEmail,
         registerNickname,
