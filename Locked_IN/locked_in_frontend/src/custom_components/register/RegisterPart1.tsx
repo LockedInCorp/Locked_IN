@@ -21,6 +21,13 @@ type RegisterPart1Props = {
     onRepeatPasswordChange: (value: string) => void
     onAvatarChange: (file: File | null) => void
     onNext: () => void
+    errors?: {
+        email?: string
+        nickname?: string
+        password?: string
+        repeatPassword?: string
+    }
+    isLoading?: boolean
 }
 
 export default function RegisterPart1({
@@ -35,7 +42,9 @@ export default function RegisterPart1({
     onPasswordChange,
     onRepeatPasswordChange,
     onAvatarChange,
-    onNext
+    onNext,
+    errors = {},
+    isLoading = false
 }: RegisterPart1Props) {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
@@ -60,8 +69,6 @@ export default function RegisterPart1({
         fileInputRef.current?.click()
     }
 
-    const canProceed = email.trim() && nickname.trim() && password.trim() && repeatPassword.trim() && password === repeatPassword
-
     return (
         <div className="space-y-6">
             {/* Email */}
@@ -73,8 +80,11 @@ export default function RegisterPart1({
                     value={email}
                     onChange={(e) => onEmailChange(e.target.value)}
                     placeholder="example@abc.com"
-                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                    className={`border-border bg-card text-foreground placeholder:text-muted-foreground ${errors.email ? 'border-destructive' : ''}`}
                 />
+                {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                )}
             </div>
 
             {/* Nickname */}
@@ -86,8 +96,11 @@ export default function RegisterPart1({
                     value={nickname}
                     onChange={(e) => onNicknameChange(e.target.value)}
                     placeholder="Enter your nickname"
-                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                    className={`border-border bg-card text-foreground placeholder:text-muted-foreground ${errors.nickname ? 'border-destructive' : ''}`}
                 />
+                {errors.nickname && (
+                    <p className="text-sm text-destructive">{errors.nickname}</p>
+                )}
             </div>
 
             {/* Password */}
@@ -99,8 +112,24 @@ export default function RegisterPart1({
                     value={password}
                     onChange={(e) => onPasswordChange(e.target.value)}
                     placeholder="Enter your password"
-                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                    className={`border-border bg-card text-foreground placeholder:text-muted-foreground ${errors.password ? 'border-destructive' : ''}`}
                 />
+                {errors.password && (
+                    <div className="space-y-1">
+                        {errors.password
+                            .split(/(?=Passwords\s+must\s+have)/i)
+                            .map((msg, idx) => {
+                                let cleaned = msg.trim()
+                                cleaned = cleaned.replace(/\.\s*,\s*$/, '').replace(/\.\s*$/, '').trim()
+                                return cleaned.length > 0 ? (
+                                    <p key={idx} className="text-sm text-destructive">
+                                        {cleaned}
+                                    </p>
+                                ) : null
+                            })
+                            .filter(Boolean)}
+                    </div>
+                )}
             </div>
 
             {/* Repeat Password */}
@@ -112,8 +141,11 @@ export default function RegisterPart1({
                     value={repeatPassword}
                     onChange={(e) => onRepeatPasswordChange(e.target.value)}
                     placeholder="Repeat your password"
-                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                    className={`border-border bg-card text-foreground placeholder:text-muted-foreground ${errors.repeatPassword ? 'border-destructive' : ''}`}
                 />
+                {errors.repeatPassword && (
+                    <p className="text-sm text-destructive">{errors.repeatPassword}</p>
+                )}
             </div>
 
             {/* Profile Picture Upload */}
@@ -147,14 +179,14 @@ export default function RegisterPart1({
             </div>
 
             {/* Next Button */}
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-end pt-4">
                 <Button
                     type="button"
                     onClick={onNext}
-                    disabled={!canProceed}
+                    disabled={isLoading}
                     className="bg-primary px-8 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Next
+                    {isLoading ? "Registering..." : "Next"}
                 </Button>
             </div>
 

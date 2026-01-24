@@ -32,18 +32,6 @@ namespace Locked_IN_Backend.Services
 
             var response = _mapper.Map<UserProfileDto>(user);
 
-            if (!string.IsNullOrEmpty(user.AvatarUrl))
-            {
-                try
-                {
-                    response.Avatar = await _fileUploadService.GetUserAvatarAsync(user.AvatarUrl);
-                }
-                catch
-                {
-                    return new UserResult(false, "Avatar download failed.");
-                }
-            }
-
             return new UserResult(true, "User profile retrieved.", response);
         }
 
