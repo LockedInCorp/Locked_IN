@@ -6,6 +6,8 @@ public record ChatResult(bool Success, string Message, object? Data = null);
 
 public interface IChatService
 {
+    Task<ChatResult> CreateDirectChatAsync(int creatorId, int targetUserId);
+    Task<ChatResult> CreateTeamChatAsync(int creatorId, int teamId);
     Task<ChatResult> CreateChatAsync(int creatorId, CreateChatDto createChatDto);
     Task<ChatResult> SendMessageAsync(int userId, SendMessageDto sendMessageDto);
     Task<ChatResult> GetChatMessagesAsync(int userId, int chatId, int pageNumber = 1, int pageSize = 50);

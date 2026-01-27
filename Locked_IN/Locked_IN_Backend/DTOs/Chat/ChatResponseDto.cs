@@ -1,9 +1,11 @@
+using Locked_IN_Backend.Data.Enums;
+
 namespace Locked_IN_Backend.DTOs.Chat;
 
 public class ChatResponseDto
 {
     public int Id { get; set; }
-    public string Type { get; set; } = null!;
+    public ChatType Type { get; set; }
     public string? Name { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? LastMessageAt { get; set; }

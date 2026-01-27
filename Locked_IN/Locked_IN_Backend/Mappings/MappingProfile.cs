@@ -4,6 +4,8 @@ using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.DTOs;
 
 using Locked_IN_Backend.DTOs.User;
+using Locked_IN_Backend.DTOs.Chat;
+using Locked_IN_Backend.Data.Enums;
 using System.Text.Json;
 
 namespace Locked_IN_Backend.Mappings;
@@ -54,6 +56,19 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 
         CreateMap<User, GetUserForTeamViewDto>();
+
+        CreateMap<Chat, ChatResponseDto>()
+            .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Chatparticipants));
+
+        CreateMap<Chatparticipant, ChatParticipantDto>()
+            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User.UserName))
+            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.User.AvatarUrl));
+
+        CreateMap<Message, MessageResponseDto>()
+            .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.UserId))
+            .ForMember(dest => dest.SenderUsername, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.User.UserName))
+            .ForMember(dest => dest.SenderAvatarUrl, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.User.AvatarUrl))
+            .ForMember(dest => dest.ChatId, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.ChatId));
 
         CreateMap<Team, GetTeamsCardDto>()
             .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game.Name))

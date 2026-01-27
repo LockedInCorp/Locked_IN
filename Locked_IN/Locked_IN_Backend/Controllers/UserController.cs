@@ -1,6 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using FluentValidation;
 using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Locked_IN_Backend.Controllers
@@ -94,9 +97,13 @@ namespace Locked_IN_Backend.Controllers
         /// <param name="userId">The ID of the user to update (should match authenticated user)</param>
         /// <param name="dto">New profile data</param>
         /// <returns>Updated profile</returns>
-        [HttpPut("profile/{userId}")]
-        public async Task<IActionResult> UpdateProfile(int userId, [FromBody] UpdateUserProfileDto dto)
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
         {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+            var userId = int.Parse(userIdClaim);
             var validationResult = await _updateProfileValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
@@ -113,9 +120,13 @@ namespace Locked_IN_Backend.Controllers
         /// <param name="userId">The ID of the user</param>
         /// <param name="dto">Availability dictionary (Day -> Hours)</param>
         /// <returns>Updated profile</returns>
-        [HttpPut("availability/{userId}")]
-        public async Task<IActionResult> UpdateAvailability(int userId, [FromBody] UpdateAvailabilityDto dto)
+        [Authorize]
+        [HttpPut("availability")]
+        public async Task<IActionResult> UpdateAvailability([FromBody] UpdateAvailabilityDto dto)
         {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+            var userId = int.Parse(userIdClaim);
             var validationResult = await _updateAvailabilityValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {

@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Locked_IN_Backend.Data.Enums;
 
 namespace Locked_IN_Backend.DTOs.Chat;
 
 public class CreateChatDto
 {
     [Required]
-    [StringLength(20)]
-    public string Type { get; set; } = null!; // "Direct", "Team", "Group"
+    public ChatType Type { get; set; }
     
     [StringLength(100)]
     public string? Name { get; set; }

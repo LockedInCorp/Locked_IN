@@ -1,6 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Hubs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -20,25 +23,46 @@ public class ChatController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new chat (Direct, Team, or Group)
+    /// Create a new direct chat with a user
     /// </summary>
-    [HttpPost]
-    public async Task<IActionResult> CreateChat([FromBody] CreateChatDto createChatDto, [FromQuery] int userId)
+    [Authorize]
+    [HttpPost("direct/{targetUserId}")]
+    public async Task<IActionResult> CreateDirectChat(int targetUserId)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         try
         {
-            var result = await _chatService.CreateChatAsync(userId, createChatDto);
-            
-            if (!result.Success)
-            {
-                return BadRequest(new { Message = result.Message });
-            }
-
+            var result = await _chatService.CreateDirectChatAsync(userId, targetUserId);
+            if (!result.Success) return BadRequest(new { Message = result.Message });
             return Ok(result.Data);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { Message = "An error occurred while creating the chat.", Error = ex.Message });
+            return StatusCode(500, new { Message = "An error occurred while creating the direct chat.", Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Create a new team chat
+    /// </summary>
+    [Authorize]
+    [HttpPost("team/{teamId}")]
+    public async Task<IActionResult> CreateTeamChat(int teamId)
+    {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+        try
+        {
+            var result = await _chatService.CreateTeamChatAsync(userId, teamId);
+            if (!result.Success) return BadRequest(new { Message = result.Message });
+            return Ok(result.Data);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Message = "An error occurred while creating the team chat.", Error = ex.Message });
         }
     }
 
@@ -46,9 +70,13 @@ public class ChatController : ControllerBase
     /// Send a message to a chat.
     /// Best Practice: Persistence First - saves to DB, then broadcasts via SignalR.
     /// </summary>
+    [Authorize]
     [HttpPost("messages")]
-    public async Task<IActionResult> SendMessage([FromBody] SendMessageDto sendMessageDto, [FromQuery] int userId)
+    public async Task<IActionResult> SendMessage([FromBody] SendMessageDto sendMessageDto)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         try
         {
             // Persistence First: Save message to database
@@ -77,9 +105,13 @@ public class ChatController : ControllerBase
     /// <summary>
     /// Get messages for a specific chat with pagination
     /// </summary>
+    [Authorize]
     [HttpGet("{chatId}/messages")]
-    public async Task<IActionResult> GetChatMessages(int chatId, [FromQuery] int userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+    public async Task<IActionResult> GetChatMessages(int chatId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         var result = await _chatService.GetChatMessagesAsync(userId, chatId, pageNumber, pageSize);
         
         if (!result.Success)
@@ -93,9 +125,13 @@ public class ChatController : ControllerBase
     /// <summary>
     /// Get all chats for a user
     /// </summary>
-    [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetUserChats(int userId)
+    [Authorize]
+    [HttpGet("user")]
+    public async Task<IActionResult> GetUserChats()
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         var result = await _chatService.GetUserChatsAsync(userId);
         
         if (!result.Success)
@@ -109,9 +145,13 @@ public class ChatController : ControllerBase
     /// <summary>
     /// Get a specific chat by ID
     /// </summary>
+    [Authorize]
     [HttpGet("{chatId}")]
-    public async Task<IActionResult> GetChat(int chatId, [FromQuery] int userId)
+    public async Task<IActionResult> GetChat(int chatId)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         var result = await _chatService.GetChatByIdAsync(userId, chatId);
         
         if (!result.Success)
@@ -126,9 +166,13 @@ public class ChatController : ControllerBase
     /// Edit a message.
     /// Best Practice: Persistence First - updates DB, then broadcasts via SignalR.
     /// </summary>
+    [Authorize]
     [HttpPut("messages")]
-    public async Task<IActionResult> EditMessage([FromBody] EditMessageDto editMessageDto, [FromQuery] int userId)
+    public async Task<IActionResult> EditMessage([FromBody] EditMessageDto editMessageDto)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         // Persistence First: Update message in database
         var result = await _chatService.EditMessageAsync(userId, editMessageDto);
         
@@ -151,9 +195,13 @@ public class ChatController : ControllerBase
     /// Delete a message (soft delete).
     /// Best Practice: Persistence First - updates DB, then broadcasts via SignalR.
     /// </summary>
+    [Authorize]
     [HttpDelete("messages/{messageId}")]
-    public async Task<IActionResult> DeleteMessage(int messageId, [FromQuery] int userId)
+    public async Task<IActionResult> DeleteMessage(int messageId)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         // Persistence First: Soft delete in database
         var result = await _chatService.DeleteMessageAsync(userId, messageId);
         
@@ -173,9 +221,13 @@ public class ChatController : ControllerBase
     /// Mark a chat as read.
     /// Best Practice: Persistence First - updates DB, then broadcasts via SignalR.
     /// </summary>
+    [Authorize]
     [HttpPost("{chatId}/read")]
-    public async Task<IActionResult> MarkChatAsRead(int chatId, [FromQuery] int userId)
+    public async Task<IActionResult> MarkChatAsRead(int chatId)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         // Persistence First: Update read status in database
         var result = await _chatService.MarkChatAsReadAsync(userId, chatId);
         
@@ -194,9 +246,13 @@ public class ChatController : ControllerBase
     /// <summary>
     /// Join a chat group
     /// </summary>
+    [Authorize]
     [HttpPost("{chatId}/join")]
-    public async Task<IActionResult> JoinChat(int chatId, [FromQuery] int userId)
+    public async Task<IActionResult> JoinChat(int chatId)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         var result = await _chatService.JoinChatGroupAsync(userId, chatId);
         
         if (!result.Success)
@@ -210,9 +266,13 @@ public class ChatController : ControllerBase
     /// <summary>
     /// Leave a chat group
     /// </summary>
+    [Authorize]
     [HttpPost("{chatId}/leave")]
-    public async Task<IActionResult> LeaveChat(int chatId, [FromQuery] int userId)
+    public async Task<IActionResult> LeaveChat(int chatId)
     {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
         var result = await _chatService.LeaveChatGroupAsync(userId, chatId);
         
         if (!result.Success)

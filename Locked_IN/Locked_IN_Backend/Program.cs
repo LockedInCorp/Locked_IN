@@ -171,6 +171,9 @@ void RegisterValidationServices()
 void RegisterServices()
 {
     builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+    builder.Services.AddScoped<IChatRepository, ChatRepository>();
+    builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+    builder.Services.AddScoped<IChatParticipantRepository, ChatParticipantRepository>();
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
     builder.Services.AddScoped<ITeamService, TeamService>();
