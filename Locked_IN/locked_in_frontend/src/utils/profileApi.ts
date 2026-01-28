@@ -16,7 +16,7 @@ export interface UserProfileResponse {
 export interface UpdateProfileRequest {
     username: string
     email: string
-    avatarUrl?: string
+    avatar?: File | null;
 }
 
 export interface UpdateAvailabilityRequest {
@@ -77,11 +77,27 @@ export const getUserProfile = async (userId: number): Promise<UserProfileRespons
 }
 
 export const updateUserProfile = async (
-    userId: number, 
     data: UpdateProfileRequest
 ): Promise<UserProfileResponse> => {
     try {
-        const response = await apiClient.put<UserProfileResponse>(`/user/profile/${userId}`, data)
+        const formData = new FormData()
+        formData.append('Username', data.username)
+        formData.append('Email', data.email)
+        
+        if (data.avatar instanceof File) {
+            formData.append('AvatarUrl', data.avatar)
+        } else if (typeof data.avatar === 'string' && data.avatar.startsWith('data:')) {
+            // Handle base64 if necessary, though File is preferred
+            const response = await fetch(data.avatar);
+            const blob = await response.blob();
+            formData.append('AvatarUrl', blob, 'avatar.png');
+        }
+
+        const response = await apiClient.put<UserProfileResponse>(`/user/profile`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
         return response.data
     } catch (error: any) {
         const errorData = error.response?.data || { 

@@ -26,12 +26,12 @@ public class MinioFileUploadService : IFileUploadService
         return await UploadFileAsync(file, TeamIconsBucket);
     }
 
-    public async Task<IFormFile> GetUserAvatarAsync(string fileName)
+    public async Task<IFormFile?> GetUserAvatarAsync(string fileName)
     {
         return await GetFileAsync(fileName, UserAvatarsBucket);
     }
 
-    public async Task<IFormFile> GetTeamIconAsync(string fileName)
+    public async Task<IFormFile?> GetTeamIconAsync(string fileName)
     {
         return await GetFileAsync(fileName, TeamIconsBucket);
     }
@@ -54,26 +54,30 @@ public class MinioFileUploadService : IFileUploadService
         await _minioClient.RemoveObjectAsync(removeObjectArgs).ConfigureAwait(false);
     }
 
-    private async Task<IFormFile> GetFileAsync(string fileName, string bucketName)
+    private async Task<IFormFile?> GetFileAsync(string fileName, string bucketName)
     {
-        var statObjectArgs = new StatObjectArgs()
-            .WithBucket(bucketName)
-            .WithObject(fileName);
-        var stat = await _minioClient.StatObjectAsync(statObjectArgs).ConfigureAwait(false);
+        try
+        {
+            var statObjectArgs = new StatObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(fileName);
+            var stat = await _minioClient.StatObjectAsync(statObjectArgs).ConfigureAwait(false);
 
-        var memoryStream = new MemoryStream();
-        var getObjectArgs = new GetObjectArgs()
-            .WithBucket(bucketName)
-            .WithObject(fileName)
-            .WithCallbackStream(stream =>
-            {
-                stream.CopyTo(memoryStream);
-            });
+            var memoryStream = new MemoryStream();
+            var getObjectArgs = new GetObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(fileName)
+                .WithCallbackStream(stream => { stream.CopyTo(memoryStream); });
 
-        await _minioClient.GetObjectAsync(getObjectArgs).ConfigureAwait(false);
-        memoryStream.Position = 0;
-        
-        return new CustomFormFile(memoryStream, "file", fileName, stat.ContentType);
+            await _minioClient.GetObjectAsync(getObjectArgs).ConfigureAwait(false);
+            memoryStream.Position = 0;
+
+            return new CustomFormFile(memoryStream, "file", fileName, stat.ContentType);
+        }
+        catch (Minio.Exceptions.ObjectNotFoundException)
+        {
+            return null;
+        }
     }
 
     private async Task<string> UploadFileAsync(IFormFile file, string bucketName)

@@ -104,7 +104,6 @@ export const fetchAvatarFile = async (
             return URL.createObjectURL(response.data)
         }
     } catch (error) {
-        // Return undefined if fetch fails
     }
 
     return undefined

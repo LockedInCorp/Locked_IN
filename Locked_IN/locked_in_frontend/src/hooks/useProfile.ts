@@ -103,13 +103,10 @@ export function useProfile() {
         setError(null)
 
         try {
-            const userId = parseInt(user.id)
-            const finalAvatarUrl = avatarPreview || profileData.avatarUrl
-
-            const updatedProfile = await updateUserProfile(userId, {
+            const updatedProfile = await updateUserProfile({
                 username: profileData.nickname,
-                email: user.email,
-                avatarUrl: finalAvatarUrl || undefined
+                email: user.email || '',
+                avatar: avatarPreview || undefined
             })
 
             if (updatedProfile.success && updatedProfile.data) {
@@ -118,13 +115,13 @@ export function useProfile() {
                 setProfileData({
                     ...profileData,
                     nickname: updatedProfile.data.username,
-                    avatarUrl: updatedAvatarUrl || finalAvatarUrl || profileData.avatarUrl,
+                    avatarUrl: updatedAvatarUrl || profileData.avatarUrl,
                     avatarFallback: updatedProfile.data.username.charAt(0).toUpperCase() || "U"
                 })
             } else {
                 setProfileData({
                     ...profileData,
-                    avatarUrl: finalAvatarUrl || profileData.avatarUrl
+                    avatarUrl: profileData.avatarUrl
                 })
             }
 

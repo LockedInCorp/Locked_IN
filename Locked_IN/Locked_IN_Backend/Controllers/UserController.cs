@@ -99,7 +99,7 @@ namespace Locked_IN_Backend.Controllers
         /// <returns>Updated profile</returns>
         [Authorize]
         [HttpPut("profile")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateUserProfileDto dto)
         {
             var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
