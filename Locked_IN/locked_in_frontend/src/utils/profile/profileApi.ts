@@ -92,15 +92,11 @@ export const updateUserProfile = async (
     }
 }
 
-//
-// TODO: Connect availability from the backend
-//
 export const updateUserAvailability = async (
-    userId: number,
     availability: Record<string, string[]>
 ): Promise<UserProfileResponse> => {
     try {
-        const response = await apiClient.put<UserProfileResponse>(`/user/availability/${userId}`, { availability })
+        const response = await apiClient.put<UserProfileResponse>(`/user/availability`, { availability })
         return response.data
     } catch (error: any) {
         const errorData = error.response?.data || { 

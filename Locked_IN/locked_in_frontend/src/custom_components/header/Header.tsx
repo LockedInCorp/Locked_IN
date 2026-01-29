@@ -34,6 +34,16 @@ export function Header() {
                     >
                         MyGroups
                     </Button>
+
+                    {isLoggedIn && (
+                        <Button
+                            variant="ghost"
+                            onClick={() => navigate("/friends")}
+                            className="text-muted-foreground hover:text-foreground hover:bg-transparent dark:hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                        >
+                            Friends
+                        </Button>
+                    )}
                 </nav>
             </div>
 

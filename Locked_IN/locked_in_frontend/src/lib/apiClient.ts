@@ -42,7 +42,7 @@ const setupResponseInterceptor = (client: typeof apiClient) => {
     },
     (error: AxiosError) => {
       if (error.response?.status === 401) {
-        tokenStorage.removeToken();
+        tokenStorage.clear();
         
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login';

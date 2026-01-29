@@ -19,12 +19,15 @@ export function useLogin() {
         
         const avatarUrl = await extractAvatarFromResponse(data.data as any)
         
-        setUser({
+        const userData = {
           id: data.data.id.toString(),
           email: data.data.email,
           nickname: data.data.username,
           avatarUrl: avatarUrl,
-        });
+        };
+        
+        tokenStorage.setUserData(userData);
+        setUser(userData);
         
         resetLoginForm();
         
