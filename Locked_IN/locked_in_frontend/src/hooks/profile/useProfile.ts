@@ -6,9 +6,8 @@ import {
     updateUserProfile,
     getUserGameProfiles,
     getAllTags
-} from "@/utils/profileApi"
-import { extractAvatarFromResponse } from "@/utils/avatarUtils"
-import { API_BASE_URL } from "@/lib/api"
+} from "@/utils/profile/profileApi"
+import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
 import type { GameProfile } from "@/stores/authStore"
 
 export function useProfile() {
@@ -51,7 +50,7 @@ export function useProfile() {
 
             const profile = profileResponse.data
             
-            let avatarUrl = await extractAvatarFromResponse(profile as any, API_BASE_URL)
+            let avatarUrl = await extractAvatarFromResponse(profile as any)
             
             if (!avatarUrl) {
                 avatarUrl = user?.avatarUrl
@@ -113,7 +112,7 @@ export function useProfile() {
             })
 
             if (updatedProfile.success && updatedProfile.data) {
-                const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile.data as any, API_BASE_URL)
+                const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile.data as any)
                 
                 setProfileData({
                     ...profileData,

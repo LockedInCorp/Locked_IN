@@ -92,6 +92,9 @@ export const updateUserProfile = async (
     }
 }
 
+//
+// TODO: Connect availability from the backend
+//
 export const updateUserAvailability = async (
     userId: number,
     availability: Record<string, string[]>

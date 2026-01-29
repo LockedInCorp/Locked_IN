@@ -2,11 +2,11 @@ import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { validateEmailFormat, validateNicknameFormat, validatePasswordFormat, parseBackendError, type Part1Errors, type Part2Errors } from "@/utils/validation"
-import { searchGamesByName, addGameProfile } from "@/utils/gameProfileApi"
-import { apiClient } from "@/lib/apiClient"
+import { searchGamesByName, addGameProfile } from "@/utils/games/gameProfileApi"
+import { registerUser } from "@/lib/api"
 import type { GameProfile } from "@/stores/authStore"
 
-export function useRegistrationForm() {
+export function useRegister() {
     const navigate = useNavigate()
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [part1Errors, setPart1Errors] = useState<Part1Errors>({})
@@ -150,22 +150,13 @@ export function useRegistrationForm() {
 
         setIsSubmittingPart1(true)
         try {
-            const formData = new FormData()
-            formData.append('username', registerNickname)
-            formData.append('email', registerEmail)
-            formData.append('password', registerPassword)
-            
-            if (registerAvatarFile) {
-                formData.append('avatar', registerAvatarFile)
-            }
-
-            const response = await apiClient.post('/user/register', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+            const responseData = await registerUser({
+                username: registerNickname,
+                email: registerEmail,
+                password: registerPassword,
+                avatar: registerAvatarFile || null
             })
 
-            const responseData = response.data
             if (responseData.success && responseData.data) {
                 const userId = responseData.data.id
                 if (userId) {
@@ -179,10 +170,7 @@ export function useRegistrationForm() {
                 setErrorMessage(responseData.message || 'Registration failed')
             }
         } catch (error: any) {
-            const errorData = error.response?.data || { 
-                message: 'Registration failed' 
-            }
-            const errorMessage = errorData.message || errorData.Message || 'Registration failed'
+            const errorMessage = error instanceof Error ? error.message : 'Registration failed'
             
             const fieldErrors = parseBackendError(errorMessage)
             

@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import { loginUser, type LoginRequest, type ApiResponse, type UserProfileDto, API_BASE_URL } from '@/lib/api';
+import { loginUser, type LoginRequest, type ApiResponse, type UserProfileDto } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
-import { extractAvatarFromResponse } from '@/utils/avatarUtils';
-import { tokenStorage } from '@/utils/tokenStorage';
+import { extractAvatarFromResponse } from '@/utils/profile/avatarUtils';
+import { tokenStorage } from '@/utils/auth/tokenStorage';
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export function useLogin() {
           tokenStorage.setToken(data.data.token);
         }
         
-        const avatarUrl = await extractAvatarFromResponse(data.data as any, API_BASE_URL)
+        const avatarUrl = await extractAvatarFromResponse(data.data as any)
         
         setUser({
           id: data.data.id.toString(),

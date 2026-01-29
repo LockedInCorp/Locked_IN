@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { tokenStorage } from '@/utils/tokenStorage';
+import { tokenStorage } from '@/utils/auth/tokenStorage';
 
 export const API_BASE_URL = 'http://localhost:5122/api';
 export const API_BASE_URL_HTTPS = 'https://localhost:7252/api';
