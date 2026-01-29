@@ -5,7 +5,7 @@ import { useSearchParams, useNavigate } from "react-router-dom"
 import RegisterPart1 from "@/custom_components/register/RegisterPart1"
 import RegisterPart2 from "@/custom_components/register/RegisterPart2"
 import { useAuthStore } from "@/stores/authStore"
-import { useRegistrationForm } from "@/hooks/useRegistrationForm"
+import { useRegister } from "@/hooks/auth/useRegister"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2 } from "lucide-react"
 
@@ -39,7 +39,7 @@ export default function Register() {
         handleBack,
         handleGameProfilesChange,
         handleNextPart2,
-    } = useRegistrationForm()
+    } = useRegister()
 
     useEffect(() => {
         const urlStep = searchParams.get("step")

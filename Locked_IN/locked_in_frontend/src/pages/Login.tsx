@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuthStore } from "@/stores/authStore"
-import { useLogin } from "@/hooks/useLogin"
+import { useLogin } from "@/hooks/auth/useLogin"
 
 export default function Login() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null)

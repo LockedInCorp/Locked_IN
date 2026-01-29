@@ -5,8 +5,8 @@ import ProfileHeader from "@/custom_components/profile/ProfileHeader"
 import ProfileFields from "@/custom_components/profile/ProfileFields"
 import ProfileFieldsEdit from "@/custom_components/profile/ProfileFieldsEdit"
 import { useProfileStore } from "@/stores/profileStore"
-import { useLogout } from "@/hooks/useLogout"
-import { useProfile } from "@/hooks/useProfile"
+import { useLogout } from "@/hooks/auth/useLogout"
+import { useProfile } from "@/hooks/profile/useProfile"
 
 export default function Profile() {
     const {
