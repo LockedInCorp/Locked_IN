@@ -1,5 +1,4 @@
 import { create } from "zustand"
-import type { GameProfile } from "./authStore"
 
 interface RegisterState {
     // Register Part 2 UI state

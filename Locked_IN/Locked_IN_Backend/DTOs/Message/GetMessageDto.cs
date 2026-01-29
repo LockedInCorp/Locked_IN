@@ -1,6 +1,6 @@
 namespace Locked_IN_Backend.DTOs.Chat;
 
-public class MessageResponseDto
+public class GetMessageDto
 {
     public int Id { get; set; }
     public string Content { get; set; } = null!;

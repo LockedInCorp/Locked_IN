@@ -62,7 +62,9 @@ namespace Locked_IN_Backend.Services
             {
                 if (avatarUrl != null)
                 {
-                    await _fileUploadService.DeleteUserAvatarAsync(avatarUrl);
+                    var bucket = avatarUrl.Split("/")[0];
+                    var fileName = avatarUrl.Split("/")[1];
+                    await _fileUploadService.DeleteFileAsync(bucket, fileName);
                 }
                 
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
@@ -114,15 +116,14 @@ namespace Locked_IN_Backend.Services
 
             user.UserName = dto.Username;
             user.Email = dto.Email;
-            if (user.AvatarUrl != null)
+            if (user.AvatarUrl != null && dto.AvatarFile != null)
             {
-                await _fileUploadService.DeleteUserAvatarAsync(user.AvatarUrl);
+                var bucket = user.AvatarUrl.Split("/")[0];
+                var fileName = user.AvatarUrl.Split("/")[1];
+                await _fileUploadService.DeleteFileAsync(bucket, fileName);
+                user.AvatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.AvatarFile);
             }
 
-            if (dto.AvatarUrl != null)
-            {
-                user.AvatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.AvatarUrl);
-            }
             var result = await _userRepository.UpdateUserAsync(user);
 
             if (!result.Succeeded)

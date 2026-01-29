@@ -10,6 +10,7 @@ public class MinioFileUploadService : IFileUploadService
     private readonly IMinioClient _minioClient;
     private const string UserAvatarsBucket = "useravatars";
     private const string TeamIconsBucket = "teamicons";
+    private const string AttachmentsBucket = "attachments";
 
     public MinioFileUploadService(IMinioClient minioClient)
     {
@@ -18,66 +19,49 @@ public class MinioFileUploadService : IFileUploadService
 
     public async Task<string> UploadUserAvatarAsync(IFormFile file)
     {
-        return await UploadFileAsync(file, UserAvatarsBucket);
+        var fileName = await UploadFileAsync(file, UserAvatarsBucket);
+        return $"{UserAvatarsBucket}/{fileName}";
     }
 
     public async Task<string> UploadTeamIconAsync(IFormFile file)
     {
-        return await UploadFileAsync(file, TeamIconsBucket);
+        var fileName = await UploadFileAsync(file, TeamIconsBucket);
+        return $"{TeamIconsBucket}/{fileName}";
     }
-
-    public async Task<IFormFile?> GetUserAvatarAsync(string fileName)
+    public async Task<string> UploadAttachmentAsync(IFormFile file)
     {
-        return await GetFileAsync(fileName, UserAvatarsBucket);
+        var fileName = await UploadFileAsync(file, AttachmentsBucket);
+        return $"{AttachmentsBucket}/{fileName}";
     }
 
-    public async Task<IFormFile?> GetTeamIconAsync(string fileName)
+    public async Task<IFormFile?> GetFileAsync(string bucketName, string fileName)
     {
-        return await GetFileAsync(fileName, TeamIconsBucket);
+        var statObjectArgs = new StatObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(fileName);
+        var stat = await _minioClient.StatObjectAsync(statObjectArgs).ConfigureAwait(false);
+
+        var memoryStream = new MemoryStream();
+        var getObjectArgs = new GetObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(fileName)
+            .WithCallbackStream(stream =>
+            {
+                stream.CopyTo(memoryStream);
+            });
+
+        await _minioClient.GetObjectAsync(getObjectArgs).ConfigureAwait(false);
+        memoryStream.Position = 0;
+        
+        return new CustomFormFile(memoryStream, "file", fileName, stat.ContentType);
     }
 
-    public async Task DeleteUserAvatarAsync(string fileName)
-    {
-        await DeleteFileAsync(fileName, UserAvatarsBucket);
-    }
-
-    public async Task DeleteTeamIconAsync(string fileName)
-    {
-        await DeleteFileAsync(fileName, TeamIconsBucket);
-    }
-
-    private async Task DeleteFileAsync(string fileName, string bucketName)
+    public async Task DeleteFileAsync(string bucketName, string fileName)
     {
         var removeObjectArgs = new RemoveObjectArgs()
             .WithBucket(bucketName)
             .WithObject(fileName);
         await _minioClient.RemoveObjectAsync(removeObjectArgs).ConfigureAwait(false);
-    }
-
-    private async Task<IFormFile?> GetFileAsync(string fileName, string bucketName)
-    {
-        try
-        {
-            var statObjectArgs = new StatObjectArgs()
-                .WithBucket(bucketName)
-                .WithObject(fileName);
-            var stat = await _minioClient.StatObjectAsync(statObjectArgs).ConfigureAwait(false);
-
-            var memoryStream = new MemoryStream();
-            var getObjectArgs = new GetObjectArgs()
-                .WithBucket(bucketName)
-                .WithObject(fileName)
-                .WithCallbackStream(stream => { stream.CopyTo(memoryStream); });
-
-            await _minioClient.GetObjectAsync(getObjectArgs).ConfigureAwait(false);
-            memoryStream.Position = 0;
-
-            return new CustomFormFile(memoryStream, "file", fileName, stat.ContentType);
-        }
-        catch (Minio.Exceptions.ObjectNotFoundException)
-        {
-            return null;
-        }
     }
 
     private async Task<string> UploadFileAsync(IFormFile file, string bucketName)
