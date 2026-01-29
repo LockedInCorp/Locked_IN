@@ -114,8 +114,15 @@ namespace Locked_IN_Backend.Services
 
             user.UserName = dto.Username;
             user.Email = dto.Email;
-            user.AvatarUrl = dto.AvatarUrl;
+            if (user.AvatarUrl != null)
+            {
+                await _fileUploadService.DeleteUserAvatarAsync(user.AvatarUrl);
+            }
 
+            if (dto.AvatarUrl != null)
+            {
+                user.AvatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.AvatarUrl);
+            }
             var result = await _userRepository.UpdateUserAsync(user);
 
             if (!result.Succeeded)
