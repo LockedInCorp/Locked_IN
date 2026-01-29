@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FluentValidation;
 using Locked_IN_Backend.DTOs.User;
+using Locked_IN_Backend.Interfaces.Services;
 using Locked_IN_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

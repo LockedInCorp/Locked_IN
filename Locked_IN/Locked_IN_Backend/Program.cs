@@ -1,4 +1,5 @@
 
+using Locked_IN_Backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
@@ -129,6 +130,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -185,6 +188,7 @@ void RegisterServices()
     builder.Services.AddScoped<ITagService, TagService>();
     builder.Services.AddScoped<IGameProfileService, GameProfileService>();
     builder.Services.AddScoped<IChatService, ChatService>();
+    builder.Services.AddScoped<IMessageService, MessageService>();
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
     builder.Services.AddScoped<IJwtService, JwtService>();
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Locked_IN_Backend.Misc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Locked_IN_Backend.Data.Entities;
@@ -15,7 +16,7 @@ public partial class Message
     public int Id { get; set; }
 
     [Column("content")]
-    [StringLength(2000)]
+    [StringLength(ValidationConstraints.MaxMessageLenght)]
     public string Content { get; set; } = null!;
 
     [Column("sent_at", TypeName = "timestamp without time zone")]

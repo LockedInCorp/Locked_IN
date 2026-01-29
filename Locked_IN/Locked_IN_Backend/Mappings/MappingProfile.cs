@@ -57,19 +57,30 @@ public class MappingProfile : Profile
 
         CreateMap<User, GetUserForTeamViewDto>();
 
-        CreateMap<Chat, ChatResponseDto>()
-            .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Chatparticipants));
+        CreateMap<Chat, GetUserChatsDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.ChatName, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.CreationTimestamp, opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.LastMessageTime, opt => opt.MapFrom(src => src.LastMessageAt));
 
-        CreateMap<Chatparticipant, ChatParticipantDto>()
-            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User.UserName))
-            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.User.AvatarUrl));
+        CreateMap<Chat, GetChatDetails>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.ChatName, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ChatIconUrl, opt => opt.MapFrom(src => src.Team.IconUrl));
 
-        CreateMap<Message, MessageResponseDto>()
+        CreateMap<Message, GetMessageDto>()
             .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.UserId))
-            .ForMember(dest => dest.SenderUsername, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.User.UserName))
-            .ForMember(dest => dest.SenderAvatarUrl, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.User.AvatarUrl))
-            .ForMember(dest => dest.ChatId, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.ChatId));
-
+            .ForMember(dest => dest.SenderUsername,
+                opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.User.UserName))
+            .ForMember(dest => dest.SenderAvatarUrl,
+                opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.User.AvatarUrl))
+            .ForMember(dest => dest.ChatId, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant.ChatId))
+            .ForMember(dest => dest.SentAt, opt => opt.MapFrom(src => src.SentAt))
+            .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+            .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+            .ForMember(dest => dest.AttachmentUrl, opt => opt.MapFrom(src => src.AttachmentUrl))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+        
         CreateMap<Team, GetTeamsCardDto>()
             .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game.Name))
             .ForMember(dest => dest.IsPrivate, opt => opt.MapFrom(src => src.Isprivate))

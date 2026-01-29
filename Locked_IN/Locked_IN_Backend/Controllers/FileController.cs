@@ -14,9 +14,10 @@ public class FileController : ControllerBase
         _fileUploadService = fileUploadService;
     }
     
-    [HttpGet("avatar/{filename}")]
-    public async Task<IActionResult> GetUserAvatar(string filename)
+    [HttpGet("{prefix}/{filename}")]
+    public async Task<IActionResult> GetFile(string prefix, string filename)
     {
+<<<<<<< Updated upstream
         var avatar =await  _fileUploadService.GetUserAvatarAsync(filename);
         return File(avatar.OpenReadStream(), avatar.ContentType, avatar.FileName);
     }
@@ -26,5 +27,14 @@ public class FileController : ControllerBase
     {
         var avatar =await  _fileUploadService.GetUserAvatarAsync(filename);
         return File(avatar.OpenReadStream(), avatar.ContentType, avatar.FileName);
+=======
+        var file = await _fileUploadService.GetFileAsync(prefix, filename);
+        if (file == null)
+        {
+            return NotFound();
+        }
+
+        return File(file.OpenReadStream(), file.ContentType, file.FileName);
+>>>>>>> Stashed changes
     }
 }

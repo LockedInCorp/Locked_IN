@@ -62,7 +62,9 @@ namespace Locked_IN_Backend.Services
             {
                 if (avatarUrl != null)
                 {
-                    await _fileUploadService.DeleteUserAvatarAsync(avatarUrl);
+                    var bucket = avatarUrl.Split("/")[0];
+                    var fileName = avatarUrl.Split("/")[1];
+                    await _fileUploadService.DeleteFileAsync(bucket, fileName);
                 }
                 
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
@@ -114,7 +116,16 @@ namespace Locked_IN_Backend.Services
 
             user.UserName = dto.Username;
             user.Email = dto.Email;
+<<<<<<< Updated upstream
             user.AvatarUrl = dto.AvatarUrl;
+=======
+            if (user.AvatarUrl != null)
+            {
+                var bucket = user.AvatarUrl.Split("/")[0];
+                var fileName = user.AvatarUrl.Split("/")[1];
+                await _fileUploadService.DeleteFileAsync(bucket, fileName);
+            }
+>>>>>>> Stashed changes
 
             var result = await _userRepository.UpdateUserAsync(user);
 

@@ -32,17 +32,17 @@ public class ChatHub : Hub
     /// Broadcast a new message to all participants in a chat group.
     /// Note: This is called AFTER the message is persisted to the database.
     /// </summary>
-    public async Task SendMessageToGroup(string chatId, MessageResponseDto message)
+    public async Task SendMessageToGroup(string chatId, GetMessageDto getMessage)
     {
-        await Clients.Group($"Chat_{chatId}").SendAsync("ReceiveMessage", message);
+        await Clients.Group($"Chat_{chatId}").SendAsync("ReceiveMessage", getMessage);
     }
 
     /// <summary>
     /// Broadcast an edited message to all participants in a chat group.
     /// </summary>
-    public async Task SendEditedMessageToGroup(string chatId, MessageResponseDto message)
+    public async Task SendEditedMessageToGroup(string chatId, GetMessageDto getMessage)
     {
-        await Clients.Group($"Chat_{chatId}").SendAsync("MessageEdited", message);
+        await Clients.Group($"Chat_{chatId}").SendAsync("MessageEdited", getMessage);
     }
 
     /// <summary>

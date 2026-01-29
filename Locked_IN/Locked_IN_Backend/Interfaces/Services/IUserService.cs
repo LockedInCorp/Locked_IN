@@ -1,6 +1,6 @@
 using Locked_IN_Backend.DTOs.User;
 
-namespace Locked_IN_Backend.Services
+namespace Locked_IN_Backend.Interfaces.Services
 {
     public record UserResult(bool Success, string Message, UserProfileDto? Data = null);
 
