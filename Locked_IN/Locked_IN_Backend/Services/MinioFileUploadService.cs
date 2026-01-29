@@ -28,46 +28,13 @@ public class MinioFileUploadService : IFileUploadService
         var fileName = await UploadFileAsync(file, TeamIconsBucket);
         return $"{TeamIconsBucket}/{fileName}";
     }
-<<<<<<< Updated upstream
-
-    public async Task<IFormFile> GetUserAvatarAsync(string fileName)
-=======
-    
     public async Task<string> UploadAttachmentAsync(IFormFile file)
->>>>>>> Stashed changes
     {
         var fileName = await UploadFileAsync(file, AttachmentsBucket);
         return $"{AttachmentsBucket}/{fileName}";
     }
 
-<<<<<<< Updated upstream
-    public async Task<IFormFile> GetTeamIconAsync(string fileName)
-    {
-        return await GetFileAsync(fileName, TeamIconsBucket);
-    }
-
-    public async Task DeleteUserAvatarAsync(string fileName)
-    {
-        await DeleteFileAsync(fileName, UserAvatarsBucket);
-    }
-
-    public async Task DeleteTeamIconAsync(string fileName)
-    {
-        await DeleteFileAsync(fileName, TeamIconsBucket);
-    }
-
-    private async Task DeleteFileAsync(string fileName, string bucketName)
-    {
-        var removeObjectArgs = new RemoveObjectArgs()
-            .WithBucket(bucketName)
-            .WithObject(fileName);
-        await _minioClient.RemoveObjectAsync(removeObjectArgs).ConfigureAwait(false);
-    }
-
-    private async Task<IFormFile> GetFileAsync(string fileName, string bucketName)
-=======
     public async Task<IFormFile?> GetFileAsync(string bucketName, string fileName)
->>>>>>> Stashed changes
     {
         var statObjectArgs = new StatObjectArgs()
             .WithBucket(bucketName)

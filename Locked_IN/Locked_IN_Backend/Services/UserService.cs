@@ -116,16 +116,13 @@ namespace Locked_IN_Backend.Services
 
             user.UserName = dto.Username;
             user.Email = dto.Email;
-<<<<<<< Updated upstream
-            user.AvatarUrl = dto.AvatarUrl;
-=======
-            if (user.AvatarUrl != null)
+            if (user.AvatarUrl != null && dto.AvatarFile != null)
             {
                 var bucket = user.AvatarUrl.Split("/")[0];
                 var fileName = user.AvatarUrl.Split("/")[1];
                 await _fileUploadService.DeleteFileAsync(bucket, fileName);
+                user.AvatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.AvatarFile);
             }
->>>>>>> Stashed changes
 
             var result = await _userRepository.UpdateUserAsync(user);
 

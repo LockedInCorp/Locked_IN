@@ -17,17 +17,6 @@ public class FileController : ControllerBase
     [HttpGet("{prefix}/{filename}")]
     public async Task<IActionResult> GetFile(string prefix, string filename)
     {
-<<<<<<< Updated upstream
-        var avatar =await  _fileUploadService.GetUserAvatarAsync(filename);
-        return File(avatar.OpenReadStream(), avatar.ContentType, avatar.FileName);
-    }
-    
-    [HttpGet("teamicon/{filename}")]
-    public async Task<IActionResult> GetTeamIcon(string filename)
-    {
-        var avatar =await  _fileUploadService.GetUserAvatarAsync(filename);
-        return File(avatar.OpenReadStream(), avatar.ContentType, avatar.FileName);
-=======
         var file = await _fileUploadService.GetFileAsync(prefix, filename);
         if (file == null)
         {
@@ -35,6 +24,5 @@ public class FileController : ControllerBase
         }
 
         return File(file.OpenReadStream(), file.ContentType, file.FileName);
->>>>>>> Stashed changes
     }
 }
