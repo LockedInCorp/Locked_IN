@@ -6,6 +6,7 @@ using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
+using Locked_IN_Backend.Exceptions;
 
 namespace Locked_IN_Backend.Services
 {
@@ -24,21 +25,19 @@ namespace Locked_IN_Backend.Services
             _mapper = mapper;
         }
 
-        public async Task<UserResult> GetUserProfileAsync(int userId)
+        public async Task<UserProfileDto> GetUserProfileAsync(int userId)
         {
             var user = await _userRepository.GetUserById(userId);
 
             if (user == null)
             {
-                return new UserResult(false, "User not found.");
+                throw new NotFoundException("User not found.");
             }
 
-            var response = _mapper.Map<UserProfileDto>(user);
-
-            return new UserResult(true, "User profile retrieved.", response);
+            return _mapper.Map<UserProfileDto>(user);
         }
 
-        public async Task<UserResult> RegisterAsync(RegisterDto dto)
+        public async Task<UserProfileDto> RegisterAsync(RegisterDto dto)
         {
             string? avatarUrl = null;
             if (dto.Avatar != null)
@@ -49,7 +48,7 @@ namespace Locked_IN_Backend.Services
                 }
                 catch (Exception ex)
                 {
-                    return new UserResult(false, $"Avatar upload failed: {ex.Message}");
+                    throw new BadRequestException($"Avatar upload failed: {ex.Message}");
                 }
             }
 
@@ -68,50 +67,44 @@ namespace Locked_IN_Backend.Services
                 }
                 
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                return new UserResult(false, errors);
+                throw new BadRequestException(errors);
             }
 
-            var userResult = await GetUserProfileAsync(user.Id);
-            if (userResult.Success && userResult.Data != null)
-            {
-                userResult.Data.Token = _jwtService.GenerateToken(user);
-            }
+            var userProfile = await GetUserProfileAsync(user.Id);
+            userProfile.Token = _jwtService.GenerateToken(user);
 
-            return userResult;
+            return userProfile;
         }
 
-        public async Task<UserResult> LoginAsync(LoginDto dto)
+        public async Task<UserProfileDto> LoginAsync(LoginDto dto)
         {
             var user = await _userRepository.FindByNameAsync(dto.Username) ?? await _userRepository.FindByEmailAsync(dto.Username);
 
             if (user == null)
             {
-                return new UserResult(false, "Invalid username or password.");
+                throw new UnauthorizedException("Invalid username or password.");
             }
 
             var result = await _userRepository.PasswordSignInAsync(user, dto.Password, false, false);
 
             if (!result.Succeeded)
             {
-                return new UserResult(false, "Invalid username or password.");
+                throw new UnauthorizedException("Invalid username or password.");
             }
 
-            var userResult = await GetUserProfileAsync(user.Id);
-            if (userResult.Success && userResult.Data != null)
-            {
-                userResult.Data.Token = _jwtService.GenerateToken(user);
-            }
+            var userProfile = await GetUserProfileAsync(user.Id);
+            userProfile.Token = _jwtService.GenerateToken(user);
             
-            return userResult;
+            return userProfile;
         }
 
-        public async Task<UserResult> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto)
+        public async Task<UserProfileDto> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto)
         {
             var user = await _userRepository.FindByIdAsync(userId.ToString());
 
             if (user == null)
             {
-                return new UserResult(false, "User not found.");
+                throw new NotFoundException("User not found.");
             }
 
             user.UserName = dto.Username;
@@ -129,19 +122,19 @@ namespace Locked_IN_Backend.Services
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                return new UserResult(false, errors);
+                throw new BadRequestException(errors);
             }
 
             return await GetUserProfileAsync(userId);
         }
 
-        public async Task<UserResult> UpdateAvailabilityAsync(int userId, UpdateAvailabilityDto dto)
+        public async Task<UserProfileDto> UpdateAvailabilityAsync(int userId, UpdateAvailabilityDto dto)
         {
             var user = await _userRepository.GetUserById(userId);
 
             if (user == null)
             {
-                return new UserResult(false, "User not found.");
+                throw new NotFoundException("User not found.");
             }
 
             string jsonString = JsonSerializer.Serialize(dto.Availability);
@@ -152,10 +145,9 @@ namespace Locked_IN_Backend.Services
             return await GetUserProfileAsync(userId);
         }
 
-        public async Task<UserResult> LogoutAsync()
+        public async Task LogoutAsync()
         {
             await _userRepository.SignOutAsync();
-            return new UserResult(true, "Logged out successfully.");
         }
     }
 }

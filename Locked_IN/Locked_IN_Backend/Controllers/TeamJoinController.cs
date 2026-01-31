@@ -33,16 +33,9 @@ namespace Locked_IN_Backend.Controllers
                 return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _teamMemberService.RequestToJoinTeamAsync(teamId, joinRequest.UserId);
+            await _teamMemberService.RequestToJoinTeamAsync(teamId, joinRequest.UserId);
             
-            return result.Status switch
-            {
-                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
-                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
-                TeamJoinResultStatus.BadRequest => BadRequest(new { Message = result.Message }),
-                TeamJoinResultStatus.Conflict => Conflict(new { Message = result.Message }),
-                _ => StatusCode(500, "An unexpected error occurred")
-            };
+            return Ok(new { Message = "Action completed successfully" });
         }
 
         /// <summary>
@@ -66,15 +59,9 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("teams/{teamId}/users/{userId}/accept")]
         public async Task<IActionResult> AcceptJoinRequest(int teamId, int userId)
         {
-            var result = await _teamMemberService.AcceptJoinRequestAsync(teamId, userId);
+            await _teamMemberService.AcceptJoinRequestAsync(teamId, userId);
 
-            return result.Status switch
-            {
-                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
-                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
-                TeamJoinResultStatus.BadRequest => BadRequest(new { Message = result.Message }),
-                _ => StatusCode(500, "An unexpected error occurred")
-            };
+            return Ok(new { Message = "User approved and added to team" });
         }
 
         /// <summary>
@@ -86,14 +73,9 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("teams/{teamId}/users/{userId}/decline")]
         public async Task<IActionResult> DeclineJoinRequest(int teamId, int userId)
         {
-            var result = await _teamMemberService.DeclineJoinRequestAsync(teamId, userId);
+            await _teamMemberService.DeclineJoinRequestAsync(teamId, userId);
 
-            return result.Status switch
-            {
-                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
-                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
-                _ => StatusCode(500, "An unexpected error occurred")
-            };
+            return Ok(new { Message = "Join request declined" });
         }
 
         /// <summary>
@@ -111,15 +93,9 @@ namespace Locked_IN_Backend.Controllers
                 return BadRequest(new { Message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _teamMemberService.CancelJoinRequestAsync(teamId, cancelRequest.UserId);
+            await _teamMemberService.CancelJoinRequestAsync(teamId, cancelRequest.UserId);
 
-            return result.Status switch
-            {
-                TeamJoinResultStatus.Success => Ok(new { Message = result.Message }),
-                TeamJoinResultStatus.NotFound => NotFound(new { Message = result.Message }),
-                TeamJoinResultStatus.BadRequest => BadRequest(new { Message = result.Message }),
-                _ => StatusCode(500, "An unexpected error occurred")
-            };
+            return Ok(new { Message = "Join request successfully cancelled" });
         }
     }
 }

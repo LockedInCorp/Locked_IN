@@ -48,7 +48,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.RegisterAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.LoginAsync(dto);
-            return result.Success ? Ok(result) : Unauthorized(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -76,8 +76,8 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var result = await _userService.LogoutAsync();
-            return Ok(result);
+            await _userService.LogoutAsync();
+            return Ok(new { Message = "Logged out successfully." });
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Locked_IN_Backend.Controllers
         public async Task<IActionResult> GetUserProfile(int userId)
         {
             var result = await _userService.GetUserProfileAsync(userId);
-            return result.Success ? Ok(result) : NotFound(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.UpdateUserProfileAsync(userId, dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.UpdateAvailabilityAsync(userId, dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
     }
 }

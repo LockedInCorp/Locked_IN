@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import { loginUser } from "@/lib/api"
-import type { UserProfileDto } from "@/lib/api"
 
 export type GameProfile = {
     gameName: string
@@ -101,26 +100,24 @@ export const useAuthStore = create<AuthState>((set) => ({
     
     login: async (email, password) => {
         try {
-            const response = await loginUser({
+            const userData = await loginUser({
                 username: email.trim(),
                 password: password,
             })
 
-            if (response.success && response.data) {
-                const userData: UserProfileDto = response.data
+            if (userData) {
+                const avatarUrl = userData.avatarURL || (typeof userData.avatar === 'string' ? userData.avatar : undefined);
                 set({
                     isLoggedIn: true,
                     user: {
                         id: userData.id.toString(),
                         email: userData.email,
                         nickname: userData.username,
-                        avatarUrl: typeof userData.avatar === 'string' ? userData.avatar : undefined,
+                        avatarUrl: avatarUrl,
                     },
                     loginEmail: "",
                     loginPassword: ""
                 })
-            } else {
-                throw new Error(response.message || 'Login failed')
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.'

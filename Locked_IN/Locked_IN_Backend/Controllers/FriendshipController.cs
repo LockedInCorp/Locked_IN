@@ -42,11 +42,11 @@ namespace Locked_IN_Backend.Controllers
             var validationResult = await _sendFriendRequestValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _friendshipService.SendFriendRequestAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            await _friendshipService.SendFriendRequestAsync(dto);
+            return Ok(new { message = "Friend request sent successfully." });
         }
 
         /// <summary>
@@ -62,11 +62,11 @@ namespace Locked_IN_Backend.Controllers
             var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _friendshipService.AcceptFriendRequestAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            await _friendshipService.AcceptFriendRequestAsync(dto);
+            return Ok(new { message = "Friend request accepted." });
         }
 
         /// <summary>
@@ -82,11 +82,11 @@ namespace Locked_IN_Backend.Controllers
             var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _friendshipService.DeclineFriendRequestAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            await _friendshipService.DeclineFriendRequestAsync(dto);
+            return Ok(new { message = "Friend request declined and removed." });
         }
 
         /// <summary>
@@ -102,11 +102,11 @@ namespace Locked_IN_Backend.Controllers
             var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _friendshipService.CancelFriendRequestAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            await _friendshipService.CancelFriendRequestAsync(dto);
+            return Ok(new { message = "Friend request cancelled." });
         }
 
         /// <summary>
@@ -142,8 +142,8 @@ namespace Locked_IN_Backend.Controllers
         [HttpGet("status/{userId1}/{userId2}")]
         public async Task<IActionResult> GetStatus(int userId1, int userId2)
         {
-            var result = await _friendshipService.GetFriendshipStatusAsync(userId1, userId2);
-            return Ok(result);
+            var status = await _friendshipService.GetFriendshipStatusAsync(userId1, userId2);
+            return Ok(new { status = status });
         }
         
         /// <summary>
@@ -159,11 +159,11 @@ namespace Locked_IN_Backend.Controllers
             var validationResult = await _blockUserValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _friendshipService.BlockUserAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            await _friendshipService.BlockUserAsync(dto);
+            return Ok(new { message = "User successfully blocked." });
         }
         
         /// <summary>
@@ -179,11 +179,11 @@ namespace Locked_IN_Backend.Controllers
             var validationResult = await _unblockUserValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
-                return BadRequest(new FriendshipResult(false, validationResult.Errors.First().ErrorMessage));
+                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
             }
 
-            var result = await _friendshipService.UnblockUserAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            await _friendshipService.UnblockUserAsync(dto);
+            return Ok(new { message = "User successfully unblocked." });
         }
     }
 }

@@ -14,10 +14,10 @@ namespace Locked_IN_Backend.Services
 
     public interface ITeamMemberService
     {
-        Task<TeamJoinResult> RequestToJoinTeamAsync(int teamId, int userId);
+        Task RequestToJoinTeamAsync(int teamId, int userId);
         Task<List<TeamJoinResponceDto>> GetJoinRequestsAsync(int teamId);
-        Task<TeamJoinResult> AcceptJoinRequestAsync(int teamId, int userId);
-        Task<TeamJoinResult> DeclineJoinRequestAsync(int teamId, int userId);
-        Task<TeamJoinResult> CancelJoinRequestAsync(int teamId, int userId);
+        Task AcceptJoinRequestAsync(int teamId, int userId);
+        Task DeclineJoinRequestAsync(int teamId, int userId);
+        Task CancelJoinRequestAsync(int teamId, int userId);
     }
 }

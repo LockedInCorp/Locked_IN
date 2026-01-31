@@ -17,14 +17,7 @@ public class GameController : ControllerBase
     [HttpGet("search")]
     public async Task<ActionResult<List<GetGameDto>>> SearchGamesByName([FromQuery] string searchTerm = "")
     {
-        try
-        {
-            var teams = await _teamService.GetGamesByNameAsync(searchTerm);
-            return Ok(teams);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        var teams = await _teamService.GetGamesByNameAsync(searchTerm);
+        return Ok(teams);
     }
 }

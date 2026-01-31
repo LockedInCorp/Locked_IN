@@ -157,17 +157,13 @@ export function useRegister() {
                 avatar: registerAvatarFile || null
             })
 
-            if (responseData.success && responseData.data) {
-                const userId = responseData.data.id
-                if (userId) {
-                    setRegisteredUserId(userId)
-                    setRegisterStep(2)
-                    navigate("/register?step=2", { replace: true })
-                } else {
-                    setErrorMessage('Registration succeeded but user ID not found')
-                }
+            const userId = responseData.id || (responseData as any).userId
+            if (userId !== undefined && userId !== null) {
+                setRegisteredUserId(Number(userId))
+                setRegisterStep(2)
+                navigate("/register?step=2", { replace: true })
             } else {
-                setErrorMessage(responseData.message || 'Registration failed')
+                setErrorMessage('Registration succeeded but user ID not found')
             }
         } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Registration failed'

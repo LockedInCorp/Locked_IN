@@ -14,6 +14,7 @@ export default function Profile() {
         profileData,
         avatarPreview,
         setAvatarPreview,
+        setAvatarFile,
         startEditing,
         cancelEditing,
         updateProfileData
@@ -23,6 +24,7 @@ export default function Profile() {
     const logoutMutation = useLogout()
 
     const handleAvatarChange = (file: File | null) => {
+        setAvatarFile(file)
         if (file) {
             const reader = new FileReader()
             reader.onloadend = () => {

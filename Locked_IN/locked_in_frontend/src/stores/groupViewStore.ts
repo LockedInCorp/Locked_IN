@@ -35,7 +35,7 @@ const initialMessages: Message[] = [
     { id: 4, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
 ]
 
-export const useGroupViewStore = create<GroupViewState>((set, get) => ({
+export const useGroupViewStore = create<GroupViewState>((set) => ({
     // Initial state
     selectedGroupId: null,
     messages: initialMessages,

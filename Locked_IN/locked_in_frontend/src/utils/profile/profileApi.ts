@@ -1,15 +1,11 @@
 import { apiClient } from '@/lib/apiClient';
 
 export interface UserProfileResponse {
-    success: boolean
-    message: string
-    data?: {
-        id: number
-        email: string
-        username: string
-        avatarURL?: string
-        availability?: Record<string, string[]>
-    }
+    id: number
+    email: string
+    username: string
+    avatarURL?: string
+    availability?: Record<string, string[]>
 }
 
 export interface UpdateProfileRequest {
@@ -67,11 +63,7 @@ export const getUserProfile = async (userId: number): Promise<UserProfileRespons
         const response = await apiClient.get<UserProfileResponse>(`/user/${userId}`)
         return response.data
     } catch (error: any) {
-        const errorData = error.response?.data || { 
-            success: false, 
-            message: 'Failed to fetch profile' 
-        }
-        throw new Error(errorData.message || 'Failed to fetch profile')
+        throw new Error(error.response?.data?.message || 'Failed to fetch profile')
     }
 }
 
@@ -80,16 +72,11 @@ export const updateUserProfile = async (
 ): Promise<UserProfileResponse> => {
     try {
         const formData = new FormData()
-        formData.append('Username', data.username)
-        formData.append('Email', data.email)
+        formData.append('username', data.username)
+        formData.append('email', data.email)
         
         if (data.avatar instanceof File) {
-            formData.append('AvatarUrl', data.avatar)
-        } else if (typeof data.avatar === 'string' && data.avatar.startsWith('data:')) {
-            // Handle base64 if necessary, though File is preferred
-            const response = await fetch(data.avatar);
-            const blob = await response.blob();
-            formData.append('AvatarUrl', blob, 'avatar.png');
+            formData.append('avatarfile', data.avatar)
         }
 
         const response = await apiClient.put<UserProfileResponse>(`/user/profile`, formData, {
@@ -99,11 +86,7 @@ export const updateUserProfile = async (
         })
         return response.data
     } catch (error: any) {
-        const errorData = error.response?.data || { 
-            success: false, 
-            message: 'Failed to update profile' 
-        }
-        throw new Error(errorData.message || 'Failed to update profile')
+        throw new Error(error.response?.data?.message || 'Failed to update profile')
     }
 }
 
@@ -118,11 +101,7 @@ export const updateUserAvailability = async (
         const response = await apiClient.put<UserProfileResponse>(`/user/availability/${userId}`, { availability })
         return response.data
     } catch (error: any) {
-        const errorData = error.response?.data || { 
-            success: false, 
-            message: 'Failed to update availability' 
-        }
-        throw new Error(errorData.message || 'Failed to update availability')
+        throw new Error(error.response?.data?.message || 'Failed to update availability')
     }
 }
 

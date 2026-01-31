@@ -47,6 +47,14 @@ public class ExceptionHandlingMiddleware
                 code = HttpStatusCode.Conflict;
                 result = JsonSerializer.Serialize(new { message = conflictException.Message });
                 break;
+            case BadRequestException badRequestException:
+                code = HttpStatusCode.BadRequest;
+                result = JsonSerializer.Serialize(new { message = badRequestException.Message });
+                break;
+            case UnauthorizedException unauthorizedException:
+                code = HttpStatusCode.Unauthorized;
+                result = JsonSerializer.Serialize(new { message = unauthorizedException.Message });
+                break;
             default:
                 result = JsonSerializer.Serialize(new { message = exception.Message });
                 break;
