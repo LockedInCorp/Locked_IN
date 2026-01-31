@@ -67,7 +67,7 @@ export default function DiscoverPage() {
         }
 
         fetchGroups()
-    }, [groupSearch, selectedGames, selectedTagIds, currentPage, pageSize, sortBy])
+    }, [groupSearch, selectedGames, selectedTagIds, currentPage, pageSize, sortBy, showPending])
 
     const handleToggleTagFilter = (tagId: string) => {
         setSelectedTagIds((prev) => {
