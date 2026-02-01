@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { loginUser } from "@/lib/api"
+import { loginUser } from "@/api/api"
 
 export type GameProfile = {
     gameName: string

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { loginUser, type LoginRequest, type UserProfileDto } from '@/lib/api';
+import { loginUser } from '@/api/api';
+import type { LoginRequest, UserProfileDto } from '@/api/types';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import { extractAvatarFromResponse } from '@/utils/profile/avatarUtils';

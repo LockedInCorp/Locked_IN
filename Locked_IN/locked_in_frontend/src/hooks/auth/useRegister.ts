@@ -2,8 +2,7 @@ import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { validateEmailFormat, validateNicknameFormat, validatePasswordFormat, parseBackendError, type Part1Errors, type Part2Errors } from "@/utils/validation"
-import { searchGamesByName, addGameProfile } from "@/utils/games/gameProfileApi"
-import { registerUser } from "@/lib/api"
+import { searchGamesByName, addGameProfile, registerUser } from "@/api/api"
 import type { GameProfile } from "@/stores/authStore"
 
 export function useRegister() {

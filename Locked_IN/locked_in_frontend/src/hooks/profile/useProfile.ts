@@ -6,7 +6,7 @@ import {
     updateUserProfile,
     getUserGameProfiles,
     getAllTags
-} from "@/utils/profile/profileApi"
+} from "@/api/api"
 import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
 import type { GameProfile } from "@/stores/authStore"
 
