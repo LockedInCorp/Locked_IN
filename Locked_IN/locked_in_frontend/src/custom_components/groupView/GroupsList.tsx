@@ -1,43 +1,44 @@
 "use client"
 
 import { X } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-
-const groups = [
-    {
-        id: 1,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 2,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-    {
-        id: 3,
-        name: "Group name",
-        lastMessage: "Last message",
-        user: "User",
-        date: "12/12/2025",
-        avatar: "/diverse-group-avatars.png",
-    },
-]
+import { getUserChats } from "@/api/api"
+import type {UserChatDto} from "@/api/types"
 
 export function GroupsList() {
     const navigate = useNavigate();
+    const { chatId } = useParams<{ chatId: string }>();
+    const [chats, setChats] = useState<UserChatDto[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchChats = async () => {
+            try {
+                const data = await getUserChats();
+                setChats(data);
+            } catch (error) {
+                console.error("Failed to fetch chats:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchChats();
+    }, []);
 
     const handleCreateGroup = () => {
         navigate("/groups/new");
+    }
+
+    const handleChatClick = (id: number) => {
+        navigate(`/my-groups/${id}`);
+    }
+
+    if (loading) {
+        return <div className="p-6 text-center text-muted-foreground">Loading chats...</div>;
     }
 
     return (
@@ -64,27 +65,39 @@ export function GroupsList() {
 
             {/* Groups List OR Empty State - Scrollable */}
             <div className="flex-1 overflow-y-auto px-6 pb-6">
-                {groups.length > 0 ? (
+                {chats.length > 0 ? (
                     <div className="space-y-3">
-                        {groups.map((group) => (
+                        {chats.map((chat) => (
                             <div
-                                key={group.id}
-                                className="flex items-center gap-3 p-4 bg-muted rounded-xl hover:bg-muted/80 transition-colors cursor-pointer"
+                                key={chat.id}
+                                onClick={() => handleChatClick(chat.id)}
+                                className={`flex items-center gap-3 p-4 rounded-xl transition-colors cursor-pointer ${
+                                    chatId === chat.id.toString() 
+                                    ? "bg-primary/20 hover:bg-primary/30" 
+                                    : "bg-muted hover:bg-muted/80"
+                                }`}
                             >
                                 <Avatar className="h-12 w-12 flex-shrink-0">
-                                    <AvatarImage src={group.avatar || "/placeholder.svg"} />
+                                    <AvatarImage src={chat.chatIconUrl || "/placeholder.svg"} />
                                     <AvatarFallback>G</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <h3 className="font-semibold text-foreground">{group.name}</h3>
-                                        <span className="text-xs text-muted-foreground">{group.date}</span>
+                                        <h3 className="font-semibold text-foreground truncate">{chat.chatName || "Group name"}</h3>
+                                        <span className="text-xs text-muted-foreground">
+                                            {chat.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleDateString() : ""}
+                                        </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground truncate">
-                                        {group.user && <span className="text-primary">{group.user}: </span>}
-                                        {group.lastMessage}
+                                        {chat.lastMessageUsername && <span className="text-primary">{chat.lastMessageUsername}: </span>}
+                                        {chat.lastMessageContent || "No messages yet"}
                                     </p>
                                 </div>
+                                {chat.unreadMessageCount > 0 && (
+                                    <div className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                        {chat.unreadMessageCount}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

@@ -85,16 +85,47 @@ export interface TagsResponse {
     }
 }
 
-export interface UserChatsResponce {
-    success: boolean
-    message: string
-    data?: Array<{
-        id: number
-        chatName: string
-        lastMessageUsername?: string
-        lastMessageContent?: string
-        lastMessageTime?: Date
-        unreadMessagesCount?: number
-        chatIconURL?: string
-    }>
+export interface UserChatDto {
+    id: number;
+    chatName?: string;
+    lastMessageUsername?: string;
+    lastMessageContent?: string;
+    lastMessageTime?: string | Date;
+    unreadMessageCount: number;
+    chatIconUrl?: string;
+    creationTimestamp: string | Date;
+}
+
+export interface ChatMessageDto {
+    id: number;
+    senderUsername: string;
+    content: string;
+    timestamp: string | Date;
+    isCurrentUser: boolean;
+}
+
+export interface GroupDetailsDto {
+    id: number;
+    name: string;
+    description?: string;
+    avatarUrl?: string;
+    memberCount: number;
+    tags: string[];
+    experience: string;
+    communicationService?: string;
+    games: string[];
+    members: GroupMemberDto[];
+    requests: GroupRequestDto[];
+}
+
+export interface GroupMemberDto {
+    id: number;
+    username: string;
+    avatarUrl?: string;
+}
+
+export interface GroupRequestDto {
+    id: number;
+    username: string;
+    avatarUrl?: string;
 }

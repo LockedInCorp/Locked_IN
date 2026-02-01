@@ -146,15 +146,29 @@ export const getAllTags = async (): Promise<Types.TagsResponse> => {
 }
 
 // Chat
-export const getUserChats = async (): Promise<Types.UserChatsResponce> => {
+export const getUserChats = async (): Promise<Types.UserChatDto[]> => {
     try {
-        const response = await apiClient.get<Types.UserChatsResponce>(`/game-profile/favorites`)
+        const response = await apiClient.get<Types.UserChatDto[]>(`/chat/user-chats`)
         return response.data
     } catch (error: any) {
-        const errorData = error.response?.data || {
-            success: false,
-            message: 'Failed to fetch user chats'
-        }
-        throw new Error(errorData.message || 'Failed to fetch user chats')
+        throw new Error(error.response?.data?.message || 'Failed to fetch user chats')
+    }
+}
+
+export const getChatMessages = async (chatId: string): Promise<Types.ChatMessageDto[]> => {
+    try {
+        const response = await apiClient.get<Types.ChatMessageDto[]>(`/chat/${chatId}/messages`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch messages')
+    }
+}
+
+export const getGroupDetails = async (chatId: string): Promise<Types.GroupDetailsDto> => {
+    try {
+        const response = await apiClient.get<Types.GroupDetailsDto>(`/chat/${chatId}/group-details`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch group details')
     }
 }

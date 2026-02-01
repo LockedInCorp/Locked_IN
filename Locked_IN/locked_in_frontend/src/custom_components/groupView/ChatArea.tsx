@@ -1,16 +1,49 @@
 "use client"
 
 import { ImageIcon, Send } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useGroupViewStore, type Message } from "@/stores/groupViewStore"
+import { useGroupViewStore } from "@/stores/groupViewStore"
+import { getChatMessages, getGroupDetails } from "@/api/api"
 
 export function ChatArea() {
-    const { messages } = useGroupViewStore()
-    
+    const { chatId } = useParams<{ chatId: string }>()
+    const { messages, setMessages } = useGroupViewStore()
+    const [groupName, setGroupName] = useState("Loading...")
+    const [groupIcon, setGroupIcon] = useState("/diverse-group-avatars.png")
+
+    useEffect(() => {
+        if (!chatId) return
+
+        const fetchChatData = async () => {
+            try {
+                const [msgData, groupData] = await Promise.all([
+                    getChatMessages(chatId),
+                    getGroupDetails(chatId)
+                ])
+
+                setMessages(msgData.map(m => ({
+                    id: m.id,
+                    sender: m.senderUsername,
+                    content: m.content,
+                    isCurrentUser: m.isCurrentUser
+                })))
+
+                setGroupName(groupData.name)
+                setGroupIcon(groupData.avatarUrl || "/diverse-group-avatars.png")
+            } catch (error) {
+                console.error("Failed to fetch chat data:", error)
+            }
+        }
+
+        fetchChatData()
+    }, [chatId, setMessages])
+
     const groups = messages.reduce<
-        { sender: string; isCurrentUser: boolean; items: Message[] }[]
+        { sender: string; isCurrentUser: boolean; items: any[] }[]
     >((acc, m) => {
         const last = acc[acc.length - 1]
         if (last && last.sender === m.sender && last.isCurrentUser === m.isCurrentUser) {
@@ -26,11 +59,11 @@ export function ChatArea() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                        <AvatarImage src="/diverse-group-avatars.png" />
+                        <AvatarImage src={groupIcon} />
                         <AvatarFallback>G</AvatarFallback>
                     </Avatar>
                     <div>
-                        <h2 className="font-semibold text-foreground">Group name</h2>
+                        <h2 className="font-semibold text-foreground">{groupName}</h2>
                         <p className="text-xs text-muted-foreground">icon</p>
                     </div>
                 </div>
