@@ -25,13 +25,7 @@ public partial class AppDbContext : IdentityDbContext<User, IdentityRole<int>, i
 
     public virtual DbSet<Game> Games { get; set; }
 
-    public virtual DbSet<GameExp> GameExps { get; set; }
-
     public virtual DbSet<GameProfile> GameProfiles { get; set; }
-
-    public virtual DbSet<GameProfilePref> GameProfilePrefs { get; set; }
-
-    public virtual DbSet<GameplayPref> GameplayPrefs { get; set; }
 
     public virtual DbSet<GameprofilePreferencetagRelation> GameprofilePreferencetagRelations { get; set; }
 
@@ -103,11 +97,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
-        modelBuilder.Entity<GameExp>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("game_exp_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-        });
 
         modelBuilder.Entity<GameProfile>(entity =>
         {
@@ -118,10 +107,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("game_profile_experience_tag");
 
-            entity.HasOne(d => d.GameExp).WithMany(p => p.GameProfiles)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("game_profile_game_exp");
-
             entity.HasOne(d => d.Game).WithMany(p => p.GameProfiles)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("user_game_game");
@@ -131,25 +116,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
                 .HasConstraintName("user_game_user");
         });
 
-        modelBuilder.Entity<GameProfilePref>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("game_profile_pref_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-            entity.HasOne(d => d.GameProfile).WithMany(p => p.GameProfilePrefs)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("game_profile_pref_game_profile");
-
-            entity.HasOne(d => d.GameplayPref).WithMany(p => p.GameProfilePrefs)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("game_profile_pref_gameplay_pref");
-        });
-
-        modelBuilder.Entity<GameplayPref>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("gameplay_pref_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-        });
 
         modelBuilder.Entity<GameprofilePreferencetagRelation>(entity =>
         {
@@ -286,18 +252,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
         new FriendshipStatus { Id = 3, StatusName = "Blocked" }
     );
     
-    modelBuilder.Entity<GameExp>().HasData(
-        new GameExp { Id = 1, Experience = "< 100 hours" },
-        new GameExp { Id = 2, Experience = "100-500 hours" },
-        new GameExp { Id = 3, Experience = "500-1000 hours" },
-        new GameExp { Id = 4, Experience = "1000+ hours" }
-    );
-    
-    modelBuilder.Entity<GameplayPref>().HasData(
-        new GameplayPref { Id = 1, Preference = "Voice Chat Only" },
-        new GameplayPref { Id = 2, Preference = "Ping Only" },
-        new GameplayPref { Id = 3, Preference = "Any Communication" }
-    );
 
     modelBuilder.Entity<Role>().HasData(
         new Role { Id = 1, Rolename = "Member" },

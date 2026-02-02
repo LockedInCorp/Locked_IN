@@ -129,3 +129,17 @@ export interface GroupRequestDto {
     username: string;
     avatarUrl?: string;
 }
+
+export interface CreateGroupRequest {
+    name: string;
+    game: string;
+    maxMembers: number;
+    isBlitz: boolean;
+    autoAccept: boolean;
+    previewImage?: File | null;
+    tags: string[];
+    experience: string;
+    minCompetitiveScore?: number;
+    communicationService?: string;
+    description?: string;
+}
