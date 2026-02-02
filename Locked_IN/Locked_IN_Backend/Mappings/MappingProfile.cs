@@ -60,10 +60,13 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Members, opt => opt.MapFrom(src => src.TeamMembers))
             .ForMember(dest => dest.AutoAccept, opt => opt.MapFrom(src => src.IsAutoaccept))
             .ForMember(dest => dest.PreferenceTags, opt => opt.MapFrom(src => 
-                src.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Name)
-                    .Where(name => !string.IsNullOrEmpty(name))
-                    .ToList()))
+                src.TeamPreferencetagRelations != null 
+                    ? src.TeamPreferencetagRelations
+                        .Where(tpr => tpr.PreferenceTag != null)
+                        .Select(tpr => tpr.PreferenceTag.Name)
+                        .Where(name => !string.IsNullOrEmpty(name))
+                        .ToList()
+                    : new List<string>()))
             .ForMember(dest => dest.SearchRank, opt => opt.Ignore());
 
         CreateMap<TeamMember, GetTeamMemberDto>()
@@ -104,10 +107,13 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ExperienceLevel, opt => opt.MapFrom(src => src.ExperienceTag != null ? src.ExperienceTag.Experiencelevel : string.Empty))
             .ForMember(dest => dest.CurrentMemberCount, opt => opt.MapFrom(src => src.TeamMembers != null ? src.TeamMembers.Count : 0))
             .ForMember(dest => dest.PreferenceTags, opt => opt.MapFrom(src => 
-                src.TeamPreferencetagRelations
-                    .Select(tpr => tpr.PreferenceTag.Name)
-                    .Where(name => !string.IsNullOrEmpty(name))
-                    .ToList()))
+                src.TeamPreferencetagRelations != null 
+                    ? src.TeamPreferencetagRelations
+                        .Where(tpr => tpr.PreferenceTag != null)
+                        .Select(tpr => tpr.PreferenceTag.Name)
+                        .Where(name => !string.IsNullOrEmpty(name))
+                        .ToList()
+                    : new List<string>()))
             .ForMember(dest => dest.SearchRank, opt => opt.Ignore())
             .ForMember(dest => dest.TeamLeaderUsername, opt => opt.Ignore());
     }

@@ -41,8 +41,8 @@ export default function GroupCreation() {
     } = useGroupCreationStore()
 
     const handleCreate = async () => {
-        if (!gameId || !groupName || !groupSize) {
-            alert("Please fill in all required fields (Group Name, Game, and Group Size)")
+        if (!gameId || !groupName || !groupSize || !experience) {
+            alert("Please fill in all required fields (Group Name, Game, Group Size, and Experience Level)")
             return
         }
 

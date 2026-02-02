@@ -26,7 +26,7 @@ public partial class Team
 
     [Column("description")]
     [StringLength(50)]
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; }
 
     [Column("game_id")]
     public int GameId { get; set; }
