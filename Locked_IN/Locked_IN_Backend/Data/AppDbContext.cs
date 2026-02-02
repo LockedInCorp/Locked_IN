@@ -43,6 +43,10 @@ public partial class AppDbContext : IdentityDbContext<User, IdentityRole<int>, i
 
     public virtual DbSet<TeamPreferencetagRelation> TeamPreferencetagRelations { get; set; }
 
+    public virtual DbSet<TeamCommunicationService> TeamCommunicationServices { get; set; }
+
+    public virtual DbSet<CommunicationService> CommunicationServices { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
     
 
@@ -173,6 +177,21 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
                 .HasConstraintName("team_game");
         });
 
+        modelBuilder.Entity<TeamCommunicationService>(entity =>
+        {
+            entity.HasKey(e => new { e.TeamId, e.CommunicationServiceId });
+
+            entity.HasOne(d => d.Team).WithOne(p => p.TeamCommunicationService)
+                .HasForeignKey<TeamCommunicationService>(d => d.TeamId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("team_communication_service_team");
+
+            entity.HasOne(d => d.CommunicationService).WithMany(p => p.TeamCommunicationServices)
+                .HasForeignKey(d => d.CommunicationServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("team_communication_service_communication_service");
+        });
+
         modelBuilder.Entity<TeamMember>(entity =>
         {
             entity.HasKey(e => new { e.TeamId, e.UserId });
@@ -257,6 +276,12 @@ private void SeedTestData(ModelBuilder modelBuilder)
         new Role { Id = 1, Rolename = "Member" },
         new Role { Id = 2, Rolename = "Admin" },
         new Role { Id = 3, Rolename = "Moderator" }
+    );
+
+    modelBuilder.Entity<CommunicationService>().HasData(
+        new CommunicationService { Id = 1, Name = "Discord" },
+        new CommunicationService { Id = 2, Name = "TeamSpeak" },
+        new CommunicationService { Id = 3, Name = "Mumble" }
     );
 
     modelBuilder.Entity<User>().HasData(

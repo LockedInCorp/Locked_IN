@@ -46,6 +46,9 @@ public partial class Team
     [Column("icon_url")]
     [StringLength(255)]
     public string? IconUrl { get; set; }
+    
+    [Column("isautoaccept")]
+    public bool IsAutoaccept { get; set; }
 
     [InverseProperty("Team")]
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
@@ -63,4 +66,7 @@ public partial class Team
 
     [InverseProperty("Team")]
     public virtual ICollection<TeamPreferencetagRelation> TeamPreferencetagRelations { get; set; } = new List<TeamPreferencetagRelation>();
+
+    [InverseProperty("Team")]
+    public virtual TeamCommunicationService? TeamCommunicationService { get; set; }
 }
