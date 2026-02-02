@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import { X, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { apiClientHttps } from "@/lib/apiClient"
+import { getPreferenceTags, searchGamesByName } from "@/api/api"
+import type {GameSuggestion} from "@/api/types"
 import type { DiscoverSidebarProps } from "./types"
 
 interface Tag {
@@ -25,7 +26,7 @@ export function DiscoverSidebar({
     const [tags, setTags] = useState<Tag[]>([])
     const [tagsLoading, setTagsLoading] = useState(true)
     const [tagsError, setTagsError] = useState<string | null>(null)
-    const [gameSuggestions, setGameSuggestions] = useState<Array<{ id: string; label: string }>>([])
+    const [gameSuggestions, setGameSuggestions] = useState<GameSuggestion[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -33,13 +34,12 @@ export function DiscoverSidebar({
         const fetchTags = async () => {
             try {
                 setTagsLoading(true)
-                const response = await apiClientHttps.get("/Tag")
-                const data = response.data
+                const data = await getPreferenceTags()
                 
-                if (data.data?.preferenceTags) {
-                    const mappedTags: Tag[] = data.data.preferenceTags.map((tag: any) => ({
+                if (Array.isArray(data)) {
+                    const mappedTags: Tag[] = data.map((tag: any) => ({
                         id: tag.id?.toString() || "",
-                        name: tag.preferencename || tag.name || ""
+                        name: tag.name || ""
                     })).filter((tag: Tag) => tag.id && tag.name)
                     setTags(mappedTags)
                 }
@@ -63,8 +63,7 @@ export function DiscoverSidebar({
             try {
                 setLoading(true)
                 setError(null)
-                const response = await apiClientHttps.get(`/Game/search?searchTerm=${encodeURIComponent(gameSearch)}`)
-                const data = response.data
+                const data = await searchGamesByName(gameSearch)
                 
                 const suggestions = Array.isArray(data) 
                     ? data.map((game: any) => ({

@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/apiClient';
+import { apiClient } from '@/api/apiClient.ts';
 
 export const extractAvatarFromResponse = async (
     response: any

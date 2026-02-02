@@ -34,9 +34,6 @@ public partial class Team
     [Column("isprivate")]
     public bool Isprivate { get; set; }
 
-    [Column("isblitz")]
-    public bool Isblitz { get; set; }
-
     [Column("experience_tag_id")]
     public int ExperienceTagId { get; set; }
     

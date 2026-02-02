@@ -74,7 +74,12 @@ export function GroupInfo() {
                 <p className="text-sm text-muted-foreground mb-2">{group.description || "No description"}</p>
 
                 {/* Communication Service */}
-                <p className="text-sm text-muted-foreground">{group.communicationService || "No communication service"}</p>
+                <p className="text-sm text-muted-foreground">{group.communicationService ? `Communication service ID: ${group.communicationService}` : "No communication service"}</p>
+                {group.communicationServiceLink && (
+                    <p className="text-sm text-muted-foreground">
+                        Join link: <a href={group.communicationServiceLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{group.communicationServiceLink}</a>
+                    </p>
+                )}
             </div>
 
             {/* Games Section */}

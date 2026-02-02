@@ -58,32 +58,23 @@ export interface GameDto {
     name: string
 }
 
-export interface TagsResponse {
-    success: boolean
-    message: string
-    data?: {
-        games: Array<{
-            id: number
-            name: string
-        }>
-        experienceTags: Array<{
-            id: number
-            experiencelevel: string
-        }>
-        preferenceTags: Array<{
-            id: number
-            name: string
-        }>
-        gameExperiences: Array<{
-            id: number
-            experience: string
-        }>
-        gameplayPreferences: Array<{
-            id: number
-            preference: string
-        }>
-    }
+export interface GameSuggestion {
+    id: string
+    label: string
 }
+
+
+
+export interface ExperienceTag {
+    id: number
+    name: string
+}
+
+export interface PreferenceTag {
+    id: number
+    name: string
+}
+
 
 export interface UserChatDto {
     id: number;
@@ -112,7 +103,8 @@ export interface GroupDetailsDto {
     memberCount: number;
     tags: string[];
     experience: string;
-    communicationService?: string;
+    communicationService?: number;
+    communicationServiceLink?: string;
     games: string[];
     members: GroupMemberDto[];
     requests: GroupRequestDto[];
@@ -132,14 +124,74 @@ export interface GroupRequestDto {
 
 export interface CreateGroupRequest {
     name: string;
-    game: string;
+    gameId: number;
     maxMembers: number;
-    isBlitz: boolean;
+    isPrivate: boolean;
     autoAccept: boolean;
     previewImage?: File | null;
-    tags: string[];
-    experience: string;
+    tags: number[];
+    experience: number;
     minCompetitiveScore?: number;
-    communicationService?: string;
+    communicationService?: number;
+    communicationServiceLink?: string;
     description?: string;
+}
+
+export interface CommunicationService {
+    id: number;
+    name: string;
+}
+
+export interface TeamSearchRequest {
+    gameIds: number[];
+    preferenceTagIds: number[];
+    searchTerm: string;
+    page: number;
+    pageSize: number;
+    sortBy: string;
+    showPendingRequests: boolean;
+}
+
+export interface TeamSearchResult {
+    id: number;
+    name: string;
+    minCompScore: number;
+    maxPlayerCount: number;
+    description: string;
+    gameId: number;
+    gameName: string;
+    isPrivate: boolean;
+    experienceTagId: number;
+    experienceLevel: string;
+    currentMemberCount: number;
+    members: TeamMemberSearchResult[];
+    preferenceTags: string[];
+    creationTimestamp: string;
+    iconUrl: string;
+    searchRank: number;
+    teamLeaderNickname: string;
+}
+
+export interface TeamMemberSearchResult {
+    id: number;
+    isLeader: boolean;
+    joinTimestamp: string;
+    teamId: number;
+    userId: number;
+    memberStatusId: number;
+    memberStatusName: string;
+    user: {
+        id: number;
+        email: string;
+        nickname: string;
+        availability: string;
+    };
+}
+
+export interface PagedResult<T> {
+    items: T[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
 }

@@ -1,4 +1,4 @@
-﻿import { apiClient } from '@/lib/apiClient';
+﻿import { apiClient } from '@/api/apiClient.ts';
 import * as Types from './types';
 
 // Auth
@@ -95,7 +95,7 @@ export const updateUserAvailability = async (
 // Games
 export const searchGamesByName = async (searchTerm: string): Promise<Types.GameDto[]> => {
     try {
-        const response = await apiClient.get<Types.GameDto[]>(`/game/search?searchTerm=${encodeURIComponent(searchTerm)}`)
+        const response = await apiClient.get<Types.GameDto[]>(`/Game/search?searchTerm=${encodeURIComponent(searchTerm)}`)
         return response.data
     } catch (error: any) {
         const errorData = error.response?.data || { 
@@ -131,17 +131,29 @@ export const getUserGameProfiles = async (userId: number): Promise<Types.GamePro
     }
 }
 
+
 // Tags
-export const getAllTags = async (): Promise<Types.TagsResponse> => {
+export const getExperienceTags = async (): Promise<Types.ExperienceTag[]> => {
     try {
-        const response = await apiClient.get<Types.TagsResponse>('/tag')
+        const response = await apiClient.get<Types.ExperienceTag[]>('/ExperienceTag')
         return response.data
     } catch (error: any) {
         const errorData = error.response?.data || { 
-            success: false, 
-            message: 'Failed to fetch tags' 
+            message: 'Failed to fetch experience tags' 
         }
-        throw new Error(errorData.message || 'Failed to fetch tags')
+        throw new Error(errorData.message || 'Failed to fetch experience tags')
+    }
+}
+
+export const getPreferenceTags = async (): Promise<Types.PreferenceTag[]> => {
+    try {
+        const response = await apiClient.get<Types.PreferenceTag[]>('/PreferanceTag')
+        return response.data
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
+            message: 'Failed to fetch preference tags' 
+        }
+        throw new Error(errorData.message || 'Failed to fetch preference tags')
     }
 }
 
@@ -172,3 +184,62 @@ export const getGroupDetails = async (chatId: string): Promise<Types.GroupDetail
         throw new Error(error.response?.data?.message || 'Failed to fetch group details')
     }
 }
+
+export const getCommunicationServices = async (): Promise<Types.CommunicationService[]> => {
+    try {
+        const response = await apiClient.get<Types.CommunicationService[]>('/CommunicationService')
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch communication services')
+    }
+}
+
+export const searchTeamsAdvanced = async (data: Types.TeamSearchRequest): Promise<Types.PagedResult<Types.TeamSearchResult>> => {
+    try {
+        const response = await apiClient.post<Types.PagedResult<Types.TeamSearchResult>>('/Team/search/advanced', data)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to search teams')
+    }
+}
+
+const createTeam = async (data: Types.CreateGroupRequest): Promise<void> => {
+    try {
+        const formData = new FormData()
+        formData.append('Name', data.name)
+        formData.append('GameId', data.gameId.toString())
+        formData.append('MaxMembers', data.maxMembers.toString())
+        formData.append('IsPrivate', data.isPrivate.toString())
+        formData.append('AutoAccept', data.autoAccept.toString())
+        formData.append('Experience', data.experience.toString())
+        
+        if (data.minCompetitiveScore !== undefined) {
+            formData.append('MinCompetitiveScore', data.minCompetitiveScore.toString())
+        }
+        if (data.communicationService !== undefined) {
+            formData.append('CommunicationService', data.communicationService.toString())
+        }
+        if (data.communicationServiceLink) {
+            formData.append('CommunicationServiceLink', data.communicationServiceLink)
+        }
+        if (data.description) {
+            formData.append('Description', data.description)
+        }
+        if (data.previewImage) {
+            formData.append('PreviewImage', data.previewImage)
+        }
+        
+        data.tags.forEach(tagId => {
+            formData.append('Tags', tagId.toString())
+        })
+
+        await apiClient.post('/Team', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to create team')
+    }
+}
+export default createTeam

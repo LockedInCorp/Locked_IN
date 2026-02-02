@@ -4,8 +4,7 @@ import { useProfileStore } from "@/stores/profileStore"
 import { 
     getUserProfile, 
     updateUserProfile,
-    getUserGameProfiles,
-    getAllTags
+    getUserGameProfiles
 } from "@/api/api"
 import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
 import type { GameProfile } from "@/stores/authStore"
@@ -17,7 +16,6 @@ export function useProfile() {
         setProfileData,
         setIsEditing,
         setAvatarPreview,
-        avatarPreview,
         avatarFile,
         setAvatarFile
     } = useProfileStore()
@@ -25,7 +23,7 @@ export function useProfile() {
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [availableGames, setAvailableGames] = useState<string[]>([])
+    const [availableGames] = useState<string[]>([])
 
     const loadProfile = useCallback(async () => {
         if (!user?.id) {
@@ -40,10 +38,9 @@ export function useProfile() {
         try {
             const userId = parseInt(user.id)
             
-            const [profile, gameProfilesResponse, tagsResponse] = await Promise.all([
+            const [profile, gameProfilesResponse] = await Promise.all([
                 getUserProfile(userId),
                 getUserGameProfiles(userId).catch(() => ({ success: false, message: '', data: [] })),
-                getAllTags().catch(() => ({ success: false, message: '', data: undefined }))
             ])
 
             if (!profile) {
@@ -56,7 +53,10 @@ export function useProfile() {
                 avatarUrl = user?.avatarUrl
             }
             
-            const gameProfiles: GameProfile[] = (gameProfilesResponse.data || []).map(gp => ({
+            const rawData = gameProfilesResponse.data
+            const profilesArray = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : [])
+            
+            const gameProfiles: GameProfile[] = profilesArray.map(gp => ({
                 gameName: gp.gameName,
                 preferences: [],
                 experience: "",
@@ -65,9 +65,6 @@ export function useProfile() {
                 role: ""
             }))
 
-            if (tagsResponse.data?.games) {
-                setAvailableGames(tagsResponse.data.games.map(g => g.name))
-            }
 
             const profileDataToSet = {
                 nickname: profile.username,

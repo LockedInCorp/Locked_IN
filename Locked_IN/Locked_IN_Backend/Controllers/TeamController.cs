@@ -19,11 +19,15 @@ public class TeamController : ControllerBase
 {
     private readonly ITeamService _teamService;
     private readonly IValidator<AdvancedSearchDto> _advancedSearchValidator;
+    private readonly IValidator<CreateTeamDto> _createTeamValidator;
 
-    public TeamController(ITeamService teamService, IValidator<AdvancedSearchDto> advancedSearchValidator)
+    public TeamController(ITeamService teamService, 
+        IValidator<AdvancedSearchDto> advancedSearchValidator,
+        IValidator<CreateTeamDto> createTeamValidator)
     {
         _teamService = teamService;
         _advancedSearchValidator = advancedSearchValidator;
+        _createTeamValidator = createTeamValidator;
     }
 
     /// <summary>
@@ -100,4 +104,22 @@ public class TeamController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
+    [HttpPost]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<GetTeamDto>> CreateTeam([FromForm] CreateTeamDto createTeamDto)
+    {
+        var validationResult = await _createTeamValidator.ValidateAsync(createTeamDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
+        }
+
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var team = await _teamService.CreateTeamAsync(createTeamDto, userId);
+        return CreatedAtAction(nameof(GetTeamById), new { id = team.Id }, team);
+    }
 }

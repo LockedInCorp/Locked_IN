@@ -169,6 +169,7 @@ void RegisterValidationServices()
     builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateAvailabilityDto>, UpdateAvailabilityDtoValidator>();
+    builder.Services.AddScoped<IValidator<CreateTeamDto>, CreateTeamDtoValidator>();
 }
 
 void RegisterServices()

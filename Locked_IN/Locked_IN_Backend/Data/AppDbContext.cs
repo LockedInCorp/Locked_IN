@@ -477,7 +477,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription1",
             GameId = 1,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 3,
             CreationTimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -491,7 +490,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription2",
             GameId = 2,
             Isprivate = true,
-            Isblitz = true,
             ExperienceTagId = 1,
             CreationTimestamp = new DateTime(2024, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -505,7 +503,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription3",
             GameId = 3,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 10, 5, 15, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -519,7 +516,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription4",
             GameId = 2,
             Isprivate = false,
-            Isblitz = true,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -533,7 +529,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription5",
             GameId = 1,
             Isprivate = false,
-            Isblitz = true,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 9, 15, 19, 30, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -547,7 +542,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription6",
             GameId = 2,
             Isprivate = true,
-            Isblitz = false,
             ExperienceTagId = 1,
             CreationTimestamp = new DateTime(2024, 8, 30, 8, 45, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -561,7 +555,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription7",
             GameId = 3,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 3,
             CreationTimestamp = new DateTime(2024, 10, 2, 21, 10, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -575,7 +568,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription8",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 1,
             CreationTimestamp = new DateTime(2024, 9, 5, 13, 5, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -589,7 +581,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription9",
             GameId = 1,
             Isprivate = true,
-            Isblitz = true,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 11, 1, 9, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -603,7 +594,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription10",
             GameId = 3,
             Isprivate = false,
-            Isblitz = true,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 8, 20, 17, 25, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -617,7 +607,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription11",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 11, 10, 10, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -631,7 +620,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription12",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 11, 15, 12, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -645,7 +633,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription13",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 11, 20, 15, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
