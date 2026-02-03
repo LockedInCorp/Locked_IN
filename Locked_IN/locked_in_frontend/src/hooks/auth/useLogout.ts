@@ -11,14 +11,14 @@ export function useLogout() {
   return useMutation<void, Error, void>({
     mutationFn: () => logoutUser(),
     onSuccess: () => {
-      tokenStorage.removeToken();
+      tokenStorage.clear();
       logout();
       navigate('/');
     },
     onError: (error) => {
       console.error('Logout error:', error);
 
-      tokenStorage.removeToken();
+      tokenStorage.clear();
       logout();
       navigate('/');
     },

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -8,28 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { GameProfile } from "../profile/ProfileFields"
 import { useRegisterStore } from "@/stores/registerStore"
-
-// Sample list of games - replace with actual API call later
-const availableGames = [
-    "Dota 2",
-    "Counter-Strike 2",
-    "League of Legends",
-    "Valorant",
-    "Apex Legends",
-    "Fortnite",
-    "Overwatch 2",
-    "Rocket League",
-    "Minecraft",
-    "Terraria",
-    "World of Warcraft",
-    "Final Fantasy XIV",
-    "Elden Ring",
-    "The Witcher 3",
-    "Cyberpunk 2077"
-]
-
-const gamePreferences = ["Chill", "Competitive", "Roleplay", "Strategic", "Hardcore"]
-const experienceLevels = ["Beginner", "Experienced", "Professional"]
+import { searchGamesByName, getPreferenceTags, getExperienceTags } from "@/api/api"
 
 type RegisterPart2Props = {
     gameProfiles: GameProfile[]
@@ -62,6 +42,37 @@ export default function RegisterPart2({
         setSelectedGame,
         setCustomGame
     } = useRegisterStore()
+
+    const [availableGames, setAvailableGames] = useState<string[]>([])
+    const [gamePreferences, setGamePreferences] = useState<string[]>([])
+    const [experienceLevels, setExperienceLevels] = useState<string[]>([])
+    const [isLoadingData, setIsLoadingData] = useState(true)
+    const [dataError, setDataError] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchGamesAndTags = async () => {
+            try {
+                setIsLoadingData(true)
+                setDataError(null)
+                
+                const [games, preferences, experiences] = await Promise.all([
+                    searchGamesByName(""),
+                    getPreferenceTags(),
+                    getExperienceTags()
+                ])
+                
+                setAvailableGames(games.map(game => game.name))
+                setGamePreferences(preferences.map(pref => pref.name))
+                setExperienceLevels(experiences.map(exp => exp.name))
+            } catch (error) {
+                setDataError(error instanceof Error ? error.message : "Failed to load games and tags")
+            } finally {
+                setIsLoadingData(false)
+            }
+        }
+
+        fetchGamesAndTags()
+    }, [])
 
     const handleAddGame = (game: string) => {
         const trimmedGame = game.trim()
@@ -107,6 +118,32 @@ export default function RegisterPart2({
             : [...profile.preferences, preference]
 
         handleUpdateGameProfile(gameName, { preferences: newPreferences })
+    }
+
+    if (isLoadingData) {
+        return (
+            <div className="space-y-6">
+                <p className="text-sm text-muted-foreground">Loading games and preferences...</p>
+            </div>
+        )
+    }
+
+    //
+    // TODO: Probably delete this
+    //
+    if (dataError) {
+        return (
+            <div className="space-y-6">
+                <p className="text-sm text-destructive">Error: {dataError}</p>
+                <Button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                    Retry
+                </Button>
+            </div>
+        )
     }
 
     return (

@@ -7,6 +7,7 @@ import {
     getUserGameProfiles
 } from "@/api/api"
 import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
+import { tokenStorage } from "@/utils/auth/tokenStorage"
 import type { GameProfile } from "@/stores/authStore"
 
 export function useProfile() {
@@ -76,10 +77,12 @@ export function useProfile() {
             setProfileData(profileDataToSet)
             
             if (avatarUrl && user) {
-                setUser({
+                const updatedUser = {
                     ...user,
                     avatarUrl: avatarUrl
-                })
+                };
+                setUser(updatedUser);
+                tokenStorage.setUserData(updatedUser);
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load profile'
