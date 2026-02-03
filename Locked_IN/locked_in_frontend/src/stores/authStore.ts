@@ -12,11 +12,9 @@ export type GameProfile = {
 }
 
 interface AuthState {
-    // Login state
     loginEmail: string
     loginPassword: string
     
-    // Register state
     registerStep: 1 | 2
     registerEmail: string
     registerNickname: string
@@ -26,7 +24,6 @@ interface AuthState {
     registerAvatarPreview: string | null
     registerGameProfiles: GameProfile[]
     
-    // Session state
     isLoggedIn: boolean
     user: {
         id: string
@@ -35,7 +32,6 @@ interface AuthState {
         avatarUrl?: string
     } | null
     
-    // Actions
     setLoginEmail: (email: string) => void
     setLoginPassword: (password: string) => void
     resetLoginForm: () => void
@@ -56,11 +52,10 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-    // Initial login state
+
     loginEmail: "",
     loginPassword: "",
     
-    // Initial register state
     registerStep: 1,
     registerEmail: "",
     registerNickname: "",
@@ -70,16 +65,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     registerAvatarPreview: null,
     registerGameProfiles: [],
     
-    // Initial session state
     isLoggedIn: false,
     user: null,
     
-    // Login actions
     setLoginEmail: (email) => set({ loginEmail: email }),
     setLoginPassword: (password) => set({ loginPassword: password }),
     resetLoginForm: () => set({ loginEmail: "", loginPassword: "" }),
     
-    // Register actions
     setRegisterStep: (step) => set({ registerStep: step }),
     setRegisterEmail: (email) => set({ registerEmail: email }),
     setRegisterNickname: (nickname) => set({ registerNickname: nickname }),

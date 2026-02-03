@@ -1,5 +1,5 @@
-export { API_BASE_URL } from './apiClient';
-import { apiClient } from './apiClient';
+export { API_BASE_URL } from './apiClient.ts';
+import { apiClient } from './apiClient.ts';
 
 export interface ApiResponse<T> {
   success: boolean;
