@@ -1,17 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using Locked_IN_Backend.Misc;
 
 namespace Locked_IN_Backend.DTOs.Chat;
 
-public class SendMessageDto
+public class EditMessageDto
 {
     [Required]
-    public int ChatId { get; set; }
+    public int MessageId { get; set; }
     
     [Required]
-    [StringLength(2000)]
+    [StringLength(ValidationConstraints.MaxMessageLenght)]
     public string Content { get; set; } = null!;
-    
-    [StringLength(500)]
-    public string? AttachmentUrl { get; set; }
 }
 

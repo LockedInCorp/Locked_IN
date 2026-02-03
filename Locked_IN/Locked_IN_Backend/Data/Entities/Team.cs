@@ -26,16 +26,13 @@ public partial class Team
 
     [Column("description")]
     [StringLength(50)]
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; }
 
     [Column("game_id")]
     public int GameId { get; set; }
 
     [Column("isprivate")]
     public bool Isprivate { get; set; }
-
-    [Column("isblitz")]
-    public bool Isblitz { get; set; }
 
     [Column("experience_tag_id")]
     public int ExperienceTagId { get; set; }
@@ -46,6 +43,9 @@ public partial class Team
     [Column("icon_url")]
     [StringLength(255)]
     public string? IconUrl { get; set; }
+    
+    [Column("isautoaccept")]
+    public bool IsAutoaccept { get; set; }
 
     [InverseProperty("Team")]
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
@@ -63,4 +63,7 @@ public partial class Team
 
     [InverseProperty("Team")]
     public virtual ICollection<TeamPreferencetagRelation> TeamPreferencetagRelations { get; set; } = new List<TeamPreferencetagRelation>();
+
+    [InverseProperty("Team")]
+    public virtual TeamCommunicationService? TeamCommunicationService { get; set; }
 }

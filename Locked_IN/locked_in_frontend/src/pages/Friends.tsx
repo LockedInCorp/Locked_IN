@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useFriends } from "@/hooks/friendship/useFriends"
 import { useAuthStore } from "@/stores/authStore"
-import { updateUserAvailability } from "@/utils/profile/profileApi"
+import { updateUserAvailability } from "@/api/api"
 import { isCellAvailable, toggleHour } from "@/utils/friendship_and_availability/availabilityUtils"
 import { formatDate, formatTimeAgo } from "@/utils/dateUtils"
 import { Check, X, MessageCircle, MoreHorizontal } from "lucide-react"
@@ -51,7 +51,8 @@ export default function Friends() {
 
         setIsSaving(true)
         try {
-            await updateUserAvailability(editingAvailability)
+            const userId = parseInt(user.id)
+            await updateUserAvailability(userId, editingAvailability)
             setUserAvailability(editingAvailability)
             setHasChanges(false)
         } catch (err) {

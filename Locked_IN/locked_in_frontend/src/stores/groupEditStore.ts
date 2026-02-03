@@ -1,41 +1,38 @@
 import { create } from "zustand"
 
 interface GroupEditState {
-    // General fields
     groupName: string
-    game: string
+    gameId: number | null
+    gameName: string
     groupSize: string
-    blitzRoom: boolean
+    isPrivate: boolean
     autoAccept: boolean
     previewImage: File | null
-    
-    // Finder Settings fields
-    selectedTags: string[]
-    experience: string
+
+    selectedTags: number[]
+    experience: number
     competitiveScore: string
-    communicationService: string
+    communicationService: number | undefined
+    communicationLink: string
     description: string
-    
-    // Team ID being edited
+
     teamId: number | null
-    
-    // Actions - General
+
     setGroupName: (name: string) => void
-    setGame: (game: string) => void
+    setGame: (id: number | null, name: string) => void
     setGroupSize: (size: string) => void
-    setBlitzRoom: (blitzRoom: boolean) => void
+    setIsPrivate: (isPrivate: boolean) => void
     setAutoAccept: (autoAccept: boolean) => void
     setPreviewImage: (file: File | null) => void
-    
-    // Actions - Finder Settings
-    setSelectedTags: (tags: string[]) => void
-    toggleTag: (tag: string) => void
-    setExperience: (experience: string) => void
+
+    setSelectedTags: (tags: number[]) => void
+    toggleTag: (tagId: number) => void
+    setExperience: (experience: number) => void
     setCompetitiveScore: (score: string) => void
-    setCommunicationService: (service: string) => void
+    setCommunicationService: (service?: number) => void
+    setCommunicationLink: (link: string) => void
     setDescription: (description: string) => void
-    
-    // Actions - Team management
+
     setTeamId: (id: number | null) => void
     loadTeamData: (teamData: any) => void
     resetForm: () => void
@@ -44,38 +41,41 @@ interface GroupEditState {
 export const useGroupEditStore = create<GroupEditState>((set, get) => ({
     // Initial state
     groupName: "",
-    game: "",
+    gameId: null,
+    gameName: "",
     groupSize: "",
-    blitzRoom: false,
+    isPrivate: false,
     autoAccept: false,
     previewImage: null,
     selectedTags: [],
-    experience: "beginner",
+    experience: 0,
     competitiveScore: "0",
-    communicationService: "discord",
+    communicationService: undefined,
+    communicationLink: "",
     description: "",
     teamId: null,
-    
+
     // Actions - General
     setGroupName: (name) => set({ groupName: name }),
-    setGame: (game) => set({ game }),
+    setGame: (id, name) => set({ gameId: id, gameName: name }),
     setGroupSize: (size) => set({ groupSize: size }),
-    setBlitzRoom: (blitzRoom) => set({ blitzRoom }),
+    setIsPrivate: (isPrivate) => set({ isPrivate }),
     setAutoAccept: (autoAccept) => set({ autoAccept }),
     setPreviewImage: (file) => set({ previewImage: file }),
     
     // Actions - Finder Settings
     setSelectedTags: (tags) => set({ selectedTags: tags }),
-    toggleTag: (tag) => {
+    toggleTag: (tagId) => {
         const currentTags = get().selectedTags
-        const newTags = currentTags.includes(tag)
-            ? currentTags.filter(t => t !== tag)
-            : [...currentTags, tag]
+        const newTags = currentTags.includes(tagId)
+            ? currentTags.filter(id => id !== tagId)
+            : [...currentTags, tagId]
         set({ selectedTags: newTags })
     },
     setExperience: (experience) => set({ experience }),
     setCompetitiveScore: (score) => set({ competitiveScore: score }),
     setCommunicationService: (service) => set({ communicationService: service }),
+    setCommunicationLink: (link) => set({ communicationLink: link }),
     setDescription: (description) => set({ description }),
     
     // Actions - Team management
@@ -83,29 +83,33 @@ export const useGroupEditStore = create<GroupEditState>((set, get) => ({
     loadTeamData: (teamData) => {
         set({
             groupName: teamData.name || "",
-            game: teamData.gameName || "",
+            gameId: teamData.gameId || null,
+            gameName: teamData.gameName || "",
             groupSize: teamData.maxPlayerCount?.toString() || "",
-            blitzRoom: teamData.isBlitz || false,
+            isPrivate: teamData.isPrivate || false,
             autoAccept: false,
             selectedTags: teamData.preferenceTags || [],
-            experience: teamData.experienceLevel?.toLowerCase() || "beginner",
+            experience: teamData.experienceLevel || 0,
             competitiveScore: teamData.minCompScore?.toString() || "0",
-            communicationService: "discord",
+            communicationService: teamData.communicationServiceId,
+            communicationLink: teamData.communicationServiceLink || "",
             description: teamData.description || "",
             teamId: teamData.id || null
         })
     },
     resetForm: () => set({
         groupName: "",
-        game: "",
+        gameId: null,
+        gameName: "",
         groupSize: "",
-        blitzRoom: false,
+        isPrivate: false,
         autoAccept: false,
         previewImage: null,
         selectedTags: [],
-        experience: "beginner",
+        experience: 0,
         competitiveScore: "0",
-        communicationService: "discord",
+        communicationService: undefined,
+        communicationLink: "",
         description: "",
         teamId: null
     })

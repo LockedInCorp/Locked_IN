@@ -22,6 +22,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/my-groups" element={<GroupView />} />
+                    <Route path="/my-groups/:chatId" element={<GroupView />} />
                     <Route path="/groups" element={<GroupDiscover />} />
                     <Route path="/groups/new" element={<GroupCreation />} />
                     <Route path="/groups/edit/:id" element={<GroupEdit />} />

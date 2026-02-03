@@ -18,7 +18,7 @@ public class GetTeamDto
     
     public bool IsPrivate { get; set; }
     
-    public bool IsBlitz { get; set; }
+    public bool AutoAccept { get; set; }
     
     public int ExperienceTagId { get; set; }
     

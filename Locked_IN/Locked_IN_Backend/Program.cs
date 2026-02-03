@@ -1,4 +1,5 @@
 
+using Locked_IN_Backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
@@ -129,6 +130,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -166,6 +169,7 @@ void RegisterValidationServices()
     builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateAvailabilityDto>, UpdateAvailabilityDtoValidator>();
+    builder.Services.AddScoped<IValidator<CreateTeamDto>, CreateTeamDtoValidator>();
 }
 
 void RegisterServices()
@@ -181,10 +185,12 @@ void RegisterServices()
     builder.Services.AddScoped<IGameService, GameService>();
     builder.Services.AddScoped<IFriendshipService, FriendshipService>();
     builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
+    builder.Services.AddScoped<ICommunicationService, CommunicationServiceImplementation>();
+    builder.Services.AddScoped<IExperienceTagService, ExperienceTagService>();
     builder.Services.AddScoped<IUserService, UserService>();
-    builder.Services.AddScoped<ITagService, TagService>();
     builder.Services.AddScoped<IGameProfileService, GameProfileService>();
     builder.Services.AddScoped<IChatService, ChatService>();
+    builder.Services.AddScoped<IMessageService, MessageService>();
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
     builder.Services.AddScoped<IJwtService, JwtService>();
 }

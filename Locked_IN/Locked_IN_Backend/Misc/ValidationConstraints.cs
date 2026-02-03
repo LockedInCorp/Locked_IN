@@ -6,4 +6,5 @@ public static class ValidationConstraints
     public const int DefaultPageSize = 12;
     public const int MaxActiveJoinRequestsPerUser = 5;
     public const int DefaultMaxTeamSize = 20;
+    public const int MaxMessageLenght = 2000;
 }

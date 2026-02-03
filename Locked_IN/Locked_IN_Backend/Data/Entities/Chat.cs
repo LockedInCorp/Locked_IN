@@ -27,7 +27,7 @@ public partial class Chat
 
     [Column("team_id")]
     public int? TeamId { get; set; }
-
+    
     [InverseProperty("Chat")]
     public virtual ICollection<Chatparticipant> Chatparticipants { get; set; } = new List<Chatparticipant>();
 

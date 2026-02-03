@@ -13,25 +13,28 @@ export default function GroupEdit() {
     
     const {
         groupName,
-        game,
+        gameId,
+        gameName,
         groupSize,
-        blitzRoom,
+        isPrivate,
         autoAccept,
         previewImage,
         selectedTags,
         experience,
         competitiveScore,
         communicationService,
+        communicationLink,
         description,
         setGroupName,
         setGame,
-        setBlitzRoom,
+        setIsPrivate,
         setAutoAccept,
         setPreviewImage,
         toggleTag,
         setExperience,
         setCompetitiveScore,
         setCommunicationService,
+        setCommunicationLink,
         setDescription,
         loadTeamData,
         resetForm
@@ -52,9 +55,10 @@ export default function GroupEdit() {
         
         console.log("Saving team:", {
             groupName,
-            game,
+            gameId,
+            gameName,
             groupSize,
-            blitzRoom,
+            isPrivate,
             autoAccept,
             selectedTags,
             experience,
@@ -78,17 +82,20 @@ export default function GroupEdit() {
                             <GeneralSection
                                 groupName={groupName}
                                 setGroupName={setGroupName}
-                                game={game}
+                                gameId={gameId}
+                                gameName={gameName}
                                 setGame={setGame}
-                                blitzRoom={blitzRoom}
-                                setBlitzRoom={setBlitzRoom}
+                                isPrivate={isPrivate}
+                                setIsPrivate={setIsPrivate}
                                 autoAccept={autoAccept}
                                 setAutoAccept={setAutoAccept}
                                 groupSize={groupSize}
                                 previewImage={previewImage}
                                 setPreviewImage={setPreviewImage}
+                                description={description}
+                                setDescription={setDescription}
                                 disableGroupSize={true}
-                                disableBlitzRoom={true}
+                                disableIsPrivate={true}
                             />
                             <FinderSettingsSection
                                 selectedTags={selectedTags}
@@ -99,8 +106,8 @@ export default function GroupEdit() {
                                 setCompetitiveScore={setCompetitiveScore}
                                 communicationService={communicationService}
                                 setCommunicationService={setCommunicationService}
-                                description={description}
-                                setDescription={setDescription}
+                                communicationLink={communicationLink}
+                                setCommunicationLink={setCommunicationLink}
                             />
                         </div>
 

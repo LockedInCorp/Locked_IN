@@ -30,18 +30,22 @@ public class TeamRepository : ITeamRepository
     public async Task AddTeam(Team team)
     {
          await _context.Teams.AddAsync(team);
-         await _context.SaveChangesAsync();
+         await Task.CompletedTask;
     }
 
     public async Task UpdateTeam(Team team)
     {
         _context.Teams.Update(team);
-        await _context.SaveChangesAsync();
+        await Task.CompletedTask;
     }
 
     public async Task DeleteTeam(Team team)
     {
         _context.Teams.Remove(team);
+        await Task.CompletedTask;
+    }
+    public async Task SaveChangesAsync()
+    {
         await _context.SaveChangesAsync();
     }
     
@@ -81,7 +85,7 @@ public class TeamRepository : ITeamRepository
             var searchArray = trimmedSearch.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             var searchWithStar = string.Join(" & ", searchArray) + ":*";
             
-            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name).Matches(EF.Functions.ToTsQuery("english", searchWithStar)));
+            query = query.Where(t => !t.Isprivate).Where(t => EF.Functions.ToTsVector("english", t.Name).Matches(EF.Functions.ToTsQuery("english", searchWithStar)));
         }
 
         var results = await query
@@ -123,18 +127,19 @@ public class TeamRepository : ITeamRepository
         query = query.Where(t => t.TeamMembers.Count(tm => 
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || 
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER) < t.MaxPlayerCount);
+        query = query.Where(t => !t.Isprivate);
 
         if (teamIds != null)
         {
             query = query.Where(t => teamIds.Contains(t.Id));
         }
 
-        if (gameIds != null && gameIds.Count > 0)
+        if (gameIds.Count > 0)
         {
             query = query.Where(t => gameIds.Contains(t.GameId));
         }
 
-        if (preferenceTagIds != null && preferenceTagIds.Count > 0)
+        if (preferenceTagIds.Count > 0)
         {
             query = query.Where(t => t.TeamPreferencetagRelations
                 .Any(rel => preferenceTagIds.Contains(rel.PreferenceTagId)));

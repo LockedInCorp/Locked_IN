@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { useAuthStore } from "@/stores/authStore"
 import { getFriendsList, getPendingRequests } from "@/utils/friendship_and_availability/friendshipApi"
-import { getUserProfile } from "@/utils/profile/profileApi"
+import { getUserProfile } from "@/api/api"
 import type { FriendshipDto, PendingFriendshipRequestDto } from "@/utils/friendship_and_availability/friendshipApi"
-import type { UserProfileResponse } from "@/utils/profile/profileApi"
 
 export interface FriendWithAvailability extends FriendshipDto {
     availability?: Record<string, string[]>
@@ -31,7 +30,7 @@ export function useFriends() {
         try {
             const userId = parseInt(user.id)
             
-            const [friendsResponse, pendingResponse, userProfileResponse] = await Promise.all([
+            const [friendsResponse, pendingResponse, userProfile] = await Promise.all([
                 getFriendsList(userId),
                 getPendingRequests(userId).catch(() => ({ success: false, message: '', data: [] })),
                 getUserProfile(userId)
@@ -44,8 +43,8 @@ export function useFriends() {
             setFriends(friendsResponse.data || [])
             setPendingRequests(pendingResponse.data || [])
             
-            if (userProfileResponse.success && userProfileResponse.data?.availability) {
-                setUserAvailability(userProfileResponse.data.availability)
+            if (userProfile?.availability) {
+                setUserAvailability(userProfile.availability)
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load friends'
@@ -57,11 +56,11 @@ export function useFriends() {
 
     const loadFriendAvailability = useCallback(async (friendId: number) => {
         try {
-            const response = await getUserProfile(friendId)
-            if (response.success && response.data?.availability) {
+            const profile = await getUserProfile(friendId)
+            if (profile?.availability) {
                 setFriends(prev => prev.map(friend => 
                     friend.friendId === friendId 
-                        ? { ...friend, availability: response.data!.availability }
+                        ? { ...friend, availability: profile.availability }
                         : friend
                 ))
             }

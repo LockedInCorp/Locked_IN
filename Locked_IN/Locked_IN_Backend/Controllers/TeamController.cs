@@ -19,11 +19,15 @@ public class TeamController : ControllerBase
 {
     private readonly ITeamService _teamService;
     private readonly IValidator<AdvancedSearchDto> _advancedSearchValidator;
+    private readonly IValidator<CreateTeamDto> _createTeamValidator;
 
-    public TeamController(ITeamService teamService, IValidator<AdvancedSearchDto> advancedSearchValidator)
+    public TeamController(ITeamService teamService, 
+        IValidator<AdvancedSearchDto> advancedSearchValidator,
+        IValidator<CreateTeamDto> createTeamValidator)
     {
         _teamService = teamService;
         _advancedSearchValidator = advancedSearchValidator;
+        _createTeamValidator = createTeamValidator;
     }
 
     /// <summary>
@@ -34,19 +38,12 @@ public class TeamController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<GetTeamDto>> GetTeamById(int id)
     {
-        try
-        {
-            var team = await _teamService.GetTeamByIdAsync(id);
-            
-            if (team == null)
-                return NotFound($"Team with ID {id} not found");
+        var team = await _teamService.GetTeamByIdAsync(id);
+        
+        if (team == null)
+            return NotFound($"Team with ID {id} not found");
 
-            return Ok(team);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        return Ok(team);
     }
 
     /// <summary>
@@ -57,15 +54,8 @@ public class TeamController : ControllerBase
     [HttpGet("game/{gameId}")]
     public async Task<ActionResult<List<GetTeamDto>>> GetTeamsByGameId(int gameId)
     {
-        try
-        {
-            var teams = await _teamService.GetTeamsByGameIdAsync(gameId);
-            return Ok(teams);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        var teams = await _teamService.GetTeamsByGameIdAsync(gameId);
+        return Ok(teams);
     }
     
     /// <summary>
@@ -76,15 +66,8 @@ public class TeamController : ControllerBase
     [HttpGet("search")]
     public async Task<ActionResult<List<GetTeamDto>>> SearchTeamsByName([FromQuery] string searchTerm = "")
     {
-        try
-        {
-            var teams = await _teamService.GetTeamsByNameSearchAsync(searchTerm);
-            return Ok(teams);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        var teams = await _teamService.GetTeamsByNameSearchAsync(searchTerm);
+        return Ok(teams);
     }
 
     /// <summary>
@@ -103,28 +86,40 @@ public class TeamController : ControllerBase
             if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
             userId = int.Parse(userIdClaim);
         }
-        try
-        {
-            var validationResult = await _advancedSearchValidator.ValidateAsync(searchDto);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors.First().ErrorMessage);
-            }
 
-            var result = await _teamService.SearchTeamsAdvancedAsync(
-                searchDto.GameIds ?? new List<int>(), 
-                searchDto.PreferenceTagIds ?? new List<int>(), 
-                searchDto.SearchTerm ?? "", 
-                searchDto.Page, 
-                searchDto.PageSize, 
-                searchDto.SortBy ?? "",
-                userId);
-            return Ok(result);
-        }
-        catch (Exception ex)
+        var validationResult = await _advancedSearchValidator.ValidateAsync(searchDto);
+        if (!validationResult.IsValid)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
         }
+
+        var result = await _teamService.SearchTeamsAdvancedAsync(
+            searchDto.GameIds ?? new List<int>(), 
+            searchDto.PreferenceTagIds ?? new List<int>(), 
+            searchDto.SearchTerm ?? "", 
+            searchDto.Page, 
+            searchDto.PageSize, 
+            searchDto.SortBy ?? "",
+            userId);
+        return Ok(result);
     }
 
+    [Authorize]
+    [HttpPost]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<GetTeamDto>> CreateTeam([FromForm] CreateTeamDto createTeamDto)
+    {
+        var validationResult = await _createTeamValidator.ValidateAsync(createTeamDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
+        }
+
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var team = await _teamService.CreateTeamAsync(createTeamDto, userId);
+        return CreatedAtAction(nameof(GetTeamById), new { id = team.Id }, team);
+    }
 }

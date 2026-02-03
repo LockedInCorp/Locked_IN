@@ -4,9 +4,8 @@ import { useProfileStore } from "@/stores/profileStore"
 import { 
     getUserProfile, 
     updateUserProfile,
-    getUserGameProfiles,
-    getAllTags
-} from "@/utils/profile/profileApi"
+    getUserGameProfiles
+} from "@/api/api"
 import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
 import { tokenStorage } from "@/utils/auth/tokenStorage"
 import type { GameProfile } from "@/stores/authStore"
@@ -18,13 +17,14 @@ export function useProfile() {
         setProfileData,
         setIsEditing,
         setAvatarPreview,
-        avatarPreview
+        avatarFile,
+        setAvatarFile
     } = useProfileStore()
     
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [availableGames, setAvailableGames] = useState<string[]>([])
+    const [availableGames] = useState<string[]>([])
 
     const loadProfile = useCallback(async () => {
         if (!user?.id) {
@@ -39,17 +39,14 @@ export function useProfile() {
         try {
             const userId = parseInt(user.id)
             
-            const [profileResponse, gameProfilesResponse, tagsResponse] = await Promise.all([
+            const [profile, gameProfilesResponse] = await Promise.all([
                 getUserProfile(userId),
                 getUserGameProfiles(userId).catch(() => ({ success: false, message: '', data: [] })),
-                getAllTags().catch(() => ({ success: false, message: '', data: undefined }))
             ])
 
-            if (!profileResponse.success || !profileResponse.data) {
-                throw new Error(profileResponse.message || 'Failed to load profile')
+            if (!profile) {
+                throw new Error('Failed to load profile')
             }
-
-            const profile = profileResponse.data
             
             let avatarUrl = await extractAvatarFromResponse(profile as any)
             
@@ -57,7 +54,10 @@ export function useProfile() {
                 avatarUrl = user?.avatarUrl
             }
             
-            const gameProfiles: GameProfile[] = (gameProfilesResponse.data || []).map(gp => ({
+            const rawData = gameProfilesResponse.data
+            const profilesArray = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : [])
+            
+            const gameProfiles: GameProfile[] = profilesArray.map(gp => ({
                 gameName: gp.gameName,
                 preferences: [],
                 experience: "",
@@ -66,9 +66,6 @@ export function useProfile() {
                 role: ""
             }))
 
-            if (tagsResponse.data?.games) {
-                setAvailableGames(tagsResponse.data.games.map(g => g.name))
-            }
 
             const profileDataToSet = {
                 nickname: profile.username,
@@ -105,32 +102,30 @@ export function useProfile() {
         setError(null)
 
         try {
-            const userId = parseInt(user.id)
-            const finalAvatarUrl = avatarPreview || profileData.avatarUrl
-
-            const updatedProfile = await updateUserProfile(userId, {
+            const updatedProfile = await updateUserProfile({
                 username: profileData.nickname,
-                email: user.email,
-                avatarUrl: finalAvatarUrl || undefined
+                email: user.email || '',
+                avatar: avatarFile
             })
 
-            if (updatedProfile.success && updatedProfile.data) {
-                const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile.data as any)
+            if (updatedProfile) {
+                const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile as any)
                 
                 setProfileData({
                     ...profileData,
-                    nickname: updatedProfile.data.username,
-                    avatarUrl: updatedAvatarUrl || finalAvatarUrl || profileData.avatarUrl,
-                    avatarFallback: updatedProfile.data.username.charAt(0).toUpperCase() || "U"
+                    nickname: updatedProfile.username,
+                    avatarUrl: updatedAvatarUrl || profileData.avatarUrl,
+                    avatarFallback: updatedProfile.username.charAt(0).toUpperCase() || "U"
                 })
             } else {
                 setProfileData({
                     ...profileData,
-                    avatarUrl: finalAvatarUrl || profileData.avatarUrl
+                    avatarUrl: profileData.avatarUrl
                 })
             }
 
             setAvatarPreview(null)
+            setAvatarFile(null)
             setIsEditing(false)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to save profile'
@@ -139,7 +134,7 @@ export function useProfile() {
         } finally {
             setIsSaving(false)
         }
-    }, [user?.id, user?.email, profileData, avatarPreview, setProfileData, setAvatarPreview, setIsEditing])
+    }, [user?.id, user?.email, profileData, avatarFile, setProfileData, setAvatarPreview, setAvatarFile, setIsEditing])
 
     useEffect(() => {
         if (user?.id) {

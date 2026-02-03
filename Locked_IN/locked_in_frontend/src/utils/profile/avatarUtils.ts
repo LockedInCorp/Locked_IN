@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/apiClient';
+import { apiClient } from '@/api/apiClient.ts';
 
 export const extractAvatarFromResponse = async (
     response: any
@@ -16,8 +16,16 @@ export const extractAvatarFromResponse = async (
     }
 
     try {
-        const encodedFilename = encodeURIComponent(trimmedUrl);
-        const response = await apiClient.get(`/file/avatar/${encodedFilename}`, {
+        const parts = trimmedUrl.split('/');
+        let apiEndpoint = '';
+        
+        if (parts.length >= 2) {
+            const prefix = parts[0];
+            const filename = parts.slice(1).join('/'); // Join back in case filename contains slashes
+            apiEndpoint = `/File/${prefix}/${filename}`;
+        }
+
+        const response = await apiClient.get(apiEndpoint, {
             responseType: 'blob',
         });
 

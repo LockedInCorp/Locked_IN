@@ -40,13 +40,6 @@ public partial class GameProfile
     [InverseProperty("GameProfiles")]
     public virtual Game Game { get; set; } = null!;
 
-    [ForeignKey("GameExpId")]
-    [InverseProperty("GameProfiles")]
-    public virtual GameExp GameExp { get; set; } = null!;
-
-    [InverseProperty("GameProfile")]
-    public virtual ICollection<GameProfilePref> GameProfilePrefs { get; set; } = new List<GameProfilePref>();
-
     [InverseProperty("GameProfile")]
     public virtual ICollection<GameprofilePreferencetagRelation> GameprofilePreferencetagRelations { get; set; } = new List<GameprofilePreferencetagRelation>();
 

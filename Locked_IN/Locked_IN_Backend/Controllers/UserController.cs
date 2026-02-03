@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FluentValidation;
 using Locked_IN_Backend.DTOs.User;
+using Locked_IN_Backend.Interfaces.Services;
 using Locked_IN_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.RegisterAsync(dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.LoginAsync(dto);
-            return result.Success ? Ok(result) : Unauthorized(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -75,8 +76,8 @@ namespace Locked_IN_Backend.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var result = await _userService.LogoutAsync();
-            return Ok(result);
+            await _userService.LogoutAsync();
+            return Ok(new { Message = "Logged out successfully." });
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace Locked_IN_Backend.Controllers
         public async Task<IActionResult> GetUserProfile(int userId)
         {
             var result = await _userService.GetUserProfileAsync(userId);
-            return result.Success ? Ok(result) : NotFound(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -99,7 +100,7 @@ namespace Locked_IN_Backend.Controllers
         /// <returns>Updated profile</returns>
         [Authorize]
         [HttpPut("profile")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateUserProfileDto dto)
         {
             var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
@@ -111,7 +112,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.UpdateUserProfileAsync(userId, dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -134,7 +135,7 @@ namespace Locked_IN_Backend.Controllers
             }
 
             var result = await _userService.UpdateAvailabilityAsync(userId, dto);
-            return result.Success ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
     }
 }

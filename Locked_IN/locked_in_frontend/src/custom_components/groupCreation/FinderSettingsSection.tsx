@@ -1,24 +1,24 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-
-const gameTags = ["Chill", "Competitive", "Roleplay", "Strategic", "Hardcore"]
+import { getPreferenceTags, getExperienceTags, getCommunicationServices } from "@/api/api"
+import type {PreferenceTag, ExperienceTag, CommunicationService} from "@/api/types"
 
 type FinderSettingsProps = {
-    selectedTags: string[]
-    toggleTag: (tag: string) => void
-    experience: string
-    setExperience: (v: string) => void
+    selectedTags: number[]
+    toggleTag: (tagId: number) => void
+    experience: number
+    setExperience: (v: number) => void
     competitiveScore?: string
     setCompetitiveScore?: (v: string) => void
-    communicationService?: string
-    setCommunicationService?: (v: string) => void
-    description?: string
-    setDescription?: (v: string) => void
+    communicationService?: number | null
+    setCommunicationService?: (v?: number) => void
+    communicationLink?: string
+    setCommunicationLink?: (v: string) => void
 }
 
 export default function FinderSettingsSection({
@@ -28,11 +28,33 @@ export default function FinderSettingsSection({
                                                   setExperience,
                                                   competitiveScore = "0",
                                                   setCompetitiveScore,
-                                                  communicationService = "discord",
+                                                  communicationService,
                                                   setCommunicationService,
-                                                  description = "",
-                                                  setDescription,
+                                                  communicationLink,
+                                                  setCommunicationLink,
                                               }: FinderSettingsProps) {
+    const [availableTags, setAvailableTags] = useState<PreferenceTag[]>([])
+    const [availableExperienceLevels, setAvailableExperienceLevels] = useState<ExperienceTag[]>([])
+    const [availableCommunicationServices, setAvailableCommunicationServices] = useState<CommunicationService[]>([])
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const [tags, experiences, communicationServices] = await Promise.all([
+                    getPreferenceTags(),
+                    getExperienceTags(),
+                    getCommunicationServices()
+                ])
+                setAvailableTags(tags)
+                setAvailableExperienceLevels(experiences)
+                setAvailableCommunicationServices(communicationServices)
+            } catch (error) {
+                console.error("Failed to fetch tags:", error)
+            }
+        }
+        fetchTags()
+    }, [])
+
     return (
         <div className="rounded-lg border border-border bg-card p-6">
             <h3 className="mb-6 text-xl font-semibold text-foreground">Finder Settings</h3>
@@ -42,17 +64,17 @@ export default function FinderSettingsSection({
                 <div className="space-y-3">
                     <Label className="text-sm text-muted-foreground">Game Tags</Label>
                     <div className="flex flex-wrap gap-2">
-                        {gameTags.map(tag => (
+                        {availableTags.map(tag => (
                             <button
-                                key={tag}
-                                onClick={() => toggleTag(tag)}
+                                key={tag.id}
+                                onClick={() => toggleTag(tag.id)}
                                 className={`flex items-center rounded-md px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
-                                    selectedTags.includes(tag)
+                                    selectedTags.includes(tag.id)
                                         ? "bg-primary text-primary-foreground border-2 border-primary shadow-sm"
                                         : "bg-card text-muted-foreground border-2 border-transparent hover:bg-muted hover:text-foreground hover:border-border"
                                 }`}
                             >
-                                {tag}
+                                {tag.name}
                             </button>
                         ))}
                     </div>
@@ -61,12 +83,12 @@ export default function FinderSettingsSection({
                 {/* Group Experience */}
                 <div className="space-y-3">
                     <Label className="text-sm text-muted-foreground">Group Experience</Label>
-                    <RadioGroup value={experience} onValueChange={setExperience}>
-                        {["beginner", "experienced", "professional"].map(level => (
-                            <div key={level} className="flex items-center gap-2">
-                                <RadioGroupItem value={level} id={level} className="border-border" />
-                                <Label htmlFor={level} className="cursor-pointer text-sm text-foreground capitalize">
-                                    {level}
+                    <RadioGroup value={experience.toString()} onValueChange={(v) => setExperience(parseInt(v))}>
+                        {availableExperienceLevels.map(level => (
+                            <div key={level.id} className="flex items-center gap-2">
+                                <RadioGroupItem value={level.id.toString()} id={level.id.toString()} className="border-border" />
+                                <Label htmlFor={level.id.toString()} className="cursor-pointer text-sm text-foreground capitalize">
+                                    {level.name}
                                 </Label>
                             </div>
                         ))}
@@ -93,31 +115,40 @@ export default function FinderSettingsSection({
                     <Label htmlFor="communication-service" className="text-sm text-muted-foreground">
                         Communication Service
                     </Label>
-                    <Select value={communicationService} onValueChange={(value) => setCommunicationService?.(value)}>
+                    <Select 
+                        value={communicationService?.toString() || "none"} 
+                        onValueChange={(value) => setCommunicationService?.(value === "none" ? undefined : parseInt(value))}
+                    >
                         <SelectTrigger id="communication-service" className="w-full border-border bg-card text-foreground">
                             <SelectValue placeholder="Select service" />
                         </SelectTrigger>
                         <SelectContent className="border-border bg-card">
-                            <SelectItem value="discord" className="text-foreground">Discord</SelectItem>
-                            <SelectItem value="teamspeak" className="text-foreground">TeamSpeak</SelectItem>
-                            <SelectItem value="mumble" className="text-foreground">Mumble</SelectItem>
+                            <SelectItem value="none" className="text-foreground">None</SelectItem>
+                            {availableCommunicationServices.map((service) => (
+                                <SelectItem key={service.id} value={service.id.toString()} className="text-foreground">
+                                    {service.name}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>
 
-                {/* Description */}
-                <div className="space-y-2">
-                    <Label htmlFor="description" className="text-sm text-muted-foreground">
-                        Description (optional)
-                    </Label>
-                    <Textarea
-                        id="description"
-                        placeholder="Type your description here"
-                        value={description}
-                        onChange={(e) => setDescription?.(e.target.value)}
-                        className="min-h-32 resize-none border-border bg-card text-foreground placeholder:text-muted-foreground"
-                    />
-                </div>
+                {/* Communication Service Join Link */}
+                {!!communicationService && (
+                    <div className="space-y-2">
+                        <Label htmlFor="communication-link" className="text-sm text-muted-foreground">
+                            Communication Join Link
+                        </Label>
+                        <Input
+                            id="communication-link"
+                            type="text"
+                            placeholder="https://..."
+                            value={communicationLink}
+                            onChange={(e) => setCommunicationLink?.(e.target.value)}
+                            className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                        />
+                    </div>
+                )}
             </div>
         </div>
     )

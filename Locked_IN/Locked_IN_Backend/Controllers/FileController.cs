@@ -14,17 +14,15 @@ public class FileController : ControllerBase
         _fileUploadService = fileUploadService;
     }
     
-    [HttpGet("avatar/{filename}")]
-    public async Task<IActionResult> GetUserAvatar(string filename)
+    [HttpGet("{prefix}/{filename}")]
+    public async Task<IActionResult> GetFile(string prefix, string filename)
     {
-        var avatar =await  _fileUploadService.GetUserAvatarAsync(filename);
-        return File(avatar.OpenReadStream(), avatar.ContentType, avatar.FileName);
-    }
-    
-    [HttpGet("teamicon/{filename}")]
-    public async Task<IActionResult> GetTeamIcon(string filename)
-    {
-        var avatar =await  _fileUploadService.GetUserAvatarAsync(filename);
-        return File(avatar.OpenReadStream(), avatar.ContentType, avatar.FileName);
+        var file = await _fileUploadService.GetFileAsync(prefix, filename);
+        if (file == null)
+        {
+            return NotFound();
+        }
+
+        return File(file.OpenReadStream(), file.ContentType, file.FileName);
     }
 }

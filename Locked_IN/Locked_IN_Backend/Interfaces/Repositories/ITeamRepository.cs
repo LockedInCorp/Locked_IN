@@ -11,6 +11,7 @@ public interface ITeamRepository
     Task AddTeam(Team team);
     Task UpdateTeam(Team team);
     Task DeleteTeam(Team team);
+    Task SaveChangesAsync();
     
     Task<List<Team>> GetTeamsByGameIdAsync(int gameId);
     Task<List<TeamSearchResult>> GetTeamsByNameSearchAsync(string searchTerm);

@@ -12,6 +12,7 @@ interface ProfileState {
     isEditing: boolean
     profileData: ProfileData
     avatarPreview: string | null
+    avatarFile: File | null
     profileDataBeforeEdit: ProfileData
     
     // Profile fields UI state
@@ -24,6 +25,7 @@ interface ProfileState {
     setProfileData: (data: ProfileData) => void
     updateProfileData: (updates: Partial<ProfileData>) => void
     setAvatarPreview: (preview: string | null) => void
+    setAvatarFile: (file: File | null) => void
     setProfileDataBeforeEdit: (data: ProfileData) => void
     
     // Profile fields UI actions
@@ -58,6 +60,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     isEditing: false,
     profileData: initialProfileData,
     avatarPreview: null,
+    avatarFile: null,
     profileDataBeforeEdit: initialProfileData,
     
     // Profile fields UI state
@@ -72,6 +75,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         profileData: { ...state.profileData, ...updates }
     })),
     setAvatarPreview: (preview) => set({ avatarPreview: preview }),
+    setAvatarFile: (file) => set({ avatarFile: file }),
     setProfileDataBeforeEdit: (data) => set({ profileDataBeforeEdit: data }),
     
     // Profile fields UI actions
@@ -102,7 +106,8 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         set({
             isEditing: false,
             profileData: { ...beforeEdit },
-            avatarPreview: null
+            avatarPreview: null,
+            avatarFile: null
         })
     }
 }))

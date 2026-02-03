@@ -5,8 +5,9 @@ import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSideb
 import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
 import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
-import { apiClientHttps } from "@/lib/apiClient"
-import type { GroupCard, GameOption, PagedResult, TeamSearchResult } from "@/custom_components/groupDiscover/types"
+import { searchTeamsAdvanced } from "@/api/api"
+import type { GroupCard, GameOption } from "@/custom_components/groupDiscover/types"
+import type { TeamSearchResult } from "@/api/types"
 //#TODO when current page=maxpage and changeView to lower value displays empty page
 export default function DiscoverPage() {
     const { 
@@ -43,8 +44,7 @@ export default function DiscoverPage() {
                     showPendingRequests: showPending
                 }
                 
-                const response = await apiClientHttps.post<PagedResult<TeamSearchResult>>('/Team/search/advanced', dto)
-                const data = response.data
+                const data = await searchTeamsAdvanced(dto)
                 
                 const mappedGroups: GroupCard[] = data.items.map((team: TeamSearchResult) => ({
                     id: team.id.toString(),
@@ -67,7 +67,7 @@ export default function DiscoverPage() {
         }
 
         fetchGroups()
-    }, [groupSearch, selectedGames, selectedTagIds, currentPage, pageSize, sortBy])
+    }, [groupSearch, selectedGames, selectedTagIds, currentPage, pageSize, sortBy, showPending])
 
     const handleToggleTagFilter = (tagId: string) => {
         setSelectedTagIds((prev) => {

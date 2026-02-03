@@ -11,49 +11,6 @@ export interface GroupCard {
     isPending?: boolean
 }
 
-export interface PagedResult<T> {
-    items: T[]
-    totalCount: number
-    page: number
-    pageSize: number
-    totalPages: number
-}
-
-export interface TeamSearchResult {
-    id: number
-    name: string
-    minCompScore: number
-    maxPlayerCount: number
-    description: string
-    gameId: number
-    gameName: string
-    isPrivate: boolean
-    isBlitz: boolean
-    experienceTagId: number
-    experienceLevel: string
-    currentMemberCount: number
-    members: {
-        id: number
-        isLeader: boolean
-        joinTimestamp: string
-        teamId: number
-        userId: number
-        memberStatusId: number
-        memberStatusName: string
-        user: {
-            id: number
-            email: string
-            nickname: string
-            availability: string
-        }
-    }[]
-    preferenceTags: string[]
-    creationTimestamp: string
-    iconUrl: string
-    searchRank: number
-    teamLeaderNickname: string
-}
-
 export interface GameOption {
     id: string
     label: string

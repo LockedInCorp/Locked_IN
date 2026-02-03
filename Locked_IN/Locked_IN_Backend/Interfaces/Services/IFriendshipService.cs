@@ -2,18 +2,16 @@ using Locked_IN_Backend.DTOs.Friendship;
 
 namespace Locked_IN_Backend.Services
 {
-    public record FriendshipResult(bool Success, string Message, object? Data = null);
-
     public interface IFriendshipService
     {
-        Task<FriendshipResult> SendFriendRequestAsync(SendFriendRequestDto dto);
-        Task<FriendshipResult> AcceptFriendRequestAsync(FriendshipActionDto dto);
-        Task<FriendshipResult> DeclineFriendRequestAsync(FriendshipActionDto dto);
-        Task<FriendshipResult> CancelFriendRequestAsync(FriendshipActionDto dto);
-        Task<FriendshipResult> GetFriendsListAsync(int userId);
-        Task<FriendshipResult> GetPendingRequestsAsync(int userId);
-        Task<FriendshipResult> GetFriendshipStatusAsync(int userId1, int userId2);
-        Task<FriendshipResult> BlockUserAsync(BlockUserDto dto);
-        Task<FriendshipResult> UnblockUserAsync(UnblockUserDto dto);
+        Task SendFriendRequestAsync(SendFriendRequestDto dto);
+        Task AcceptFriendRequestAsync(FriendshipActionDto dto);
+        Task DeclineFriendRequestAsync(FriendshipActionDto dto);
+        Task CancelFriendRequestAsync(FriendshipActionDto dto);
+        Task<List<FriendshipDto>> GetFriendsListAsync(int userId);
+        Task<List<PendingFriendshipRequestDto>> GetPendingRequestsAsync(int userId);
+        Task<string> GetFriendshipStatusAsync(int userId1, int userId2);
+        Task BlockUserAsync(BlockUserDto dto);
+        Task UnblockUserAsync(UnblockUserDto dto);
     }
 }

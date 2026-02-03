@@ -9,7 +9,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { GameProfile } from "./ProfileFields"
 import { useProfileStore } from "@/stores/profileStore"
 
-// Sample list of games - replace with actual API call later
 const availableGames = [
     "Dota 2",
     "Counter-Strike 2",

@@ -20,23 +20,24 @@ public class ChatRepository : IChatRepository
         return await _context.Chats.FindAsync(chatId);
     }
 
-    public async Task<Chat?> GetChatWithParticipantsAsync(int chatId)
-    {
-        return await _context.Chats
-            .Include(c => c.Chatparticipants)
-                .ThenInclude(cp => cp.User)
-            .FirstOrDefaultAsync(c => c.Id == chatId);
-    }
-
     public async Task<Chat?> GetDirectChatAsync(HashSet<int> participantIds)
     {
-        var directType = ChatType.Direct.ToString();
+        var directType = nameof(ChatType.Direct);
         return await _context.Chats
-            .Where(c => c.Type == directType)
+            .Where(c => c.Type.Equals(directType))
             .Where(c => c.Chatparticipants.Count == participantIds.Count && 
                        c.Chatparticipants.All(cp => participantIds.Contains(cp.UserId)))
             .FirstOrDefaultAsync();
     }
+
+    public async Task<Chat?> GetTeamChatAsync(int teamId)
+    {
+        var teamType = nameof(ChatType.Team);
+        return await _context.Chats.Where(c => c.TeamId == teamId)
+            .Where(c => c.Type.Equals(teamType))
+            .FirstOrDefaultAsync();
+    }
+
 
     public async Task AddChatAsync(Chat chat)
     {

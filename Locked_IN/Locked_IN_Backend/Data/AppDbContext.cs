@@ -25,13 +25,7 @@ public partial class AppDbContext : IdentityDbContext<User, IdentityRole<int>, i
 
     public virtual DbSet<Game> Games { get; set; }
 
-    public virtual DbSet<GameExp> GameExps { get; set; }
-
     public virtual DbSet<GameProfile> GameProfiles { get; set; }
-
-    public virtual DbSet<GameProfilePref> GameProfilePrefs { get; set; }
-
-    public virtual DbSet<GameplayPref> GameplayPrefs { get; set; }
 
     public virtual DbSet<GameprofilePreferencetagRelation> GameprofilePreferencetagRelations { get; set; }
 
@@ -48,6 +42,10 @@ public partial class AppDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public virtual DbSet<TeamMember> TeamMembers { get; set; }
 
     public virtual DbSet<TeamPreferencetagRelation> TeamPreferencetagRelations { get; set; }
+
+    public virtual DbSet<TeamCommunicationService> TeamCommunicationServices { get; set; }
+
+    public virtual DbSet<CommunicationService> CommunicationServices { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
     
@@ -103,11 +101,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
-        modelBuilder.Entity<GameExp>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("game_exp_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-        });
 
         modelBuilder.Entity<GameProfile>(entity =>
         {
@@ -118,10 +111,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("game_profile_experience_tag");
 
-            entity.HasOne(d => d.GameExp).WithMany(p => p.GameProfiles)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("game_profile_game_exp");
-
             entity.HasOne(d => d.Game).WithMany(p => p.GameProfiles)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("user_game_game");
@@ -131,25 +120,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
                 .HasConstraintName("user_game_user");
         });
 
-        modelBuilder.Entity<GameProfilePref>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("game_profile_pref_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-            entity.HasOne(d => d.GameProfile).WithMany(p => p.GameProfilePrefs)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("game_profile_pref_game_profile");
-
-            entity.HasOne(d => d.GameplayPref).WithMany(p => p.GameProfilePrefs)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("game_profile_pref_gameplay_pref");
-        });
-
-        modelBuilder.Entity<GameplayPref>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("gameplay_pref_pk");
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-        });
 
         modelBuilder.Entity<GameprofilePreferencetagRelation>(entity =>
         {
@@ -205,6 +175,21 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             entity.HasOne(d => d.Game).WithMany(p => p.Teams)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("team_game");
+        });
+
+        modelBuilder.Entity<TeamCommunicationService>(entity =>
+        {
+            entity.HasKey(e => new { e.TeamId, e.CommunicationServiceId });
+
+            entity.HasOne(d => d.Team).WithOne(p => p.TeamCommunicationService)
+                .HasForeignKey<TeamCommunicationService>(d => d.TeamId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("team_communication_service_team");
+
+            entity.HasOne(d => d.CommunicationService).WithMany(p => p.TeamCommunicationServices)
+                .HasForeignKey(d => d.CommunicationServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("team_communication_service_communication_service");
         });
 
         modelBuilder.Entity<TeamMember>(entity =>
@@ -286,23 +271,17 @@ private void SeedTestData(ModelBuilder modelBuilder)
         new FriendshipStatus { Id = 3, StatusName = "Blocked" }
     );
     
-    modelBuilder.Entity<GameExp>().HasData(
-        new GameExp { Id = 1, Experience = "< 100 hours" },
-        new GameExp { Id = 2, Experience = "100-500 hours" },
-        new GameExp { Id = 3, Experience = "500-1000 hours" },
-        new GameExp { Id = 4, Experience = "1000+ hours" }
-    );
-    
-    modelBuilder.Entity<GameplayPref>().HasData(
-        new GameplayPref { Id = 1, Preference = "Voice Chat Only" },
-        new GameplayPref { Id = 2, Preference = "Ping Only" },
-        new GameplayPref { Id = 3, Preference = "Any Communication" }
-    );
 
     modelBuilder.Entity<Role>().HasData(
         new Role { Id = 1, Rolename = "Member" },
         new Role { Id = 2, Rolename = "Admin" },
         new Role { Id = 3, Rolename = "Moderator" }
+    );
+
+    modelBuilder.Entity<CommunicationService>().HasData(
+        new CommunicationService { Id = 1, Name = "Discord" },
+        new CommunicationService { Id = 2, Name = "TeamSpeak" },
+        new CommunicationService { Id = 3, Name = "Mumble" }
     );
 
     modelBuilder.Entity<User>().HasData(
@@ -498,7 +477,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription1",
             GameId = 1,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 3,
             CreationTimestamp = new DateTime(2024, 9, 28, 10, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -512,7 +490,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription2",
             GameId = 2,
             Isprivate = true,
-            Isblitz = true,
             ExperienceTagId = 1,
             CreationTimestamp = new DateTime(2024, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -526,7 +503,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription3",
             GameId = 3,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 10, 5, 15, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -540,7 +516,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription4",
             GameId = 2,
             Isprivate = false,
-            Isblitz = true,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 10, 10, 18, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -554,7 +529,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription5",
             GameId = 1,
             Isprivate = false,
-            Isblitz = true,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 9, 15, 19, 30, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -568,7 +542,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription6",
             GameId = 2,
             Isprivate = true,
-            Isblitz = false,
             ExperienceTagId = 1,
             CreationTimestamp = new DateTime(2024, 8, 30, 8, 45, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -582,7 +555,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription7",
             GameId = 3,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 3,
             CreationTimestamp = new DateTime(2024, 10, 2, 21, 10, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -596,7 +568,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription8",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 1,
             CreationTimestamp = new DateTime(2024, 9, 5, 13, 5, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -610,7 +581,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription9",
             GameId = 1,
             Isprivate = true,
-            Isblitz = true,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 11, 1, 9, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -624,7 +594,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription10",
             GameId = 3,
             Isprivate = false,
-            Isblitz = true,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 8, 20, 17, 25, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -638,7 +607,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription11",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 2,
             CreationTimestamp = new DateTime(2024, 11, 10, 10, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -652,7 +620,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription12",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 11, 15, 12, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"
@@ -666,7 +633,6 @@ private void SeedTestData(ModelBuilder modelBuilder)
             Description = "TestDescription13",
             GameId = 2,
             Isprivate = false,
-            Isblitz = false,
             ExperienceTagId = 4,
             CreationTimestamp = new DateTime(2024, 11, 20, 15, 0, 0, DateTimeKind.Utc),
             IconUrl = "https://pl.wikipedia.org/wiki/World_of_Warcraft#/media/Plik:WoW_icon.svg"

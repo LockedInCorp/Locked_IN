@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { GameProfile } from "../profile/ProfileFields"
 import { useRegisterStore } from "@/stores/registerStore"
-import { getAllTags } from "@/utils/profile/profileApi"
+import { searchGamesByName, getPreferenceTags, getExperienceTags } from "@/api/api"
 
 type RegisterPart2Props = {
     gameProfiles: GameProfile[]
@@ -54,19 +54,16 @@ export default function RegisterPart2({
             try {
                 setIsLoadingData(true)
                 setDataError(null)
-                const response = await getAllTags()
                 
-                if (response.success && response.data) {
-                    const games = response.data.games?.map(game => game.name) || []
-                    const preferences = response.data.gameplayPreferences?.map(pref => pref.preference) || []
-                    const experiences = response.data.gameExperiences?.map(exp => exp.experience) || []
-                    
-                    setAvailableGames(games)
-                    setGamePreferences(preferences)
-                    setExperienceLevels(experiences)
-                } else {
-                    setDataError("Failed to load games and tags")
-                }
+                const [games, preferences, experiences] = await Promise.all([
+                    searchGamesByName(""),
+                    getPreferenceTags(),
+                    getExperienceTags()
+                ])
+                
+                setAvailableGames(games.map(game => game.name))
+                setGamePreferences(preferences.map(pref => pref.name))
+                setExperienceLevels(experiences.map(exp => exp.name))
             } catch (error) {
                 setDataError(error instanceof Error ? error.message : "Failed to load games and tags")
             } finally {
@@ -131,6 +128,9 @@ export default function RegisterPart2({
         )
     }
 
+    //
+    // TODO: Probably delete this
+    //
     if (dataError) {
         return (
             <div className="space-y-6">
