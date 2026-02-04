@@ -43,10 +43,9 @@ export function useFriends() {
             setFriends(friendsResponse.data || [])
             setPendingRequests(pendingResponse.data || [])
             
-            if (userProfile?.availability) {
-                setUserAvailability(userProfile.availability)
-            }
+            setUserAvailability(userProfile?.availability || {})
         } catch (err) {
+            console.error('Error loading friends/availability:', err)
             const errorMessage = err instanceof Error ? err.message : 'Failed to load friends'
             setError(errorMessage)
         } finally {
