@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FluentValidation;
 using Locked_IN_Backend.DTOs.User;
+using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,8 @@ namespace Locked_IN_Backend.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IUserRepository _userRepository;
+    private readonly IJwtService _jwtService;
     private readonly IValidator<RegisterDto> _registerValidator;
     private readonly IValidator<LoginDto> _loginValidator;
     private readonly IValidator<UpdateUserProfileDto> _updateProfileValidator;
@@ -20,12 +23,16 @@ public class UserController : ControllerBase
 
     public UserController(
         IUserService userService,
+        IUserRepository userRepository,
+        IJwtService jwtService,
         IValidator<RegisterDto> registerValidator,
         IValidator<LoginDto> loginValidator,
         IValidator<UpdateUserProfileDto> updateProfileValidator,
         IValidator<UpdateAvailabilityDto> updateAvailabilityValidator)
     {
         _userService = userService;
+        _userRepository = userRepository;
+        _jwtService = jwtService;
         _registerValidator = registerValidator;
         _loginValidator = loginValidator;
         _updateProfileValidator = updateProfileValidator;
@@ -50,6 +57,17 @@ public class UserController : ControllerBase
         }
 
         var result = await _userService.RegisterAsync(dto);
+        var user = await _userRepository.GetUserById(result.Id);
+        var token = _jwtService.GenerateToken(user!);
+
+        Response.Cookies.Append("AuthToken", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        });
+
         return Ok(result);
     }
 
@@ -71,6 +89,17 @@ public class UserController : ControllerBase
         }
 
         var result = await _userService.LoginAsync(dto);
+        var user = await _userRepository.GetUserById(result.Id);
+        var token = _jwtService.GenerateToken(user!);
+
+        Response.Cookies.Append("AuthToken", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        });
+
         return Ok(result);
     }
 
@@ -84,6 +113,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         await _userService.LogoutAsync();
+        Response.Cookies.Delete("AuthToken");
         return Ok(new { Message = "Logged out successfully." });
     }
 

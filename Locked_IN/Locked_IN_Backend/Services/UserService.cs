@@ -13,18 +13,15 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IFileUploadService _fileUploadService;
-    private readonly IJwtService _jwtService;
     private readonly IMapper _mapper;
 
     public UserService(
         IUserRepository userRepository, 
         IFileUploadService fileUploadService, 
-        IJwtService jwtService, 
         IMapper mapper)
     {
         _userRepository = userRepository;
         _fileUploadService = fileUploadService;
-        _jwtService = jwtService;
         _mapper = mapper;
     }
 
@@ -88,10 +85,7 @@ public class UserService : IUserService
             throw new BadRequestException(errors);
         }
 
-        var userProfile = _mapper.Map<UserProfileDto>(user);
-        userProfile.Token = _jwtService.GenerateToken(user);
-
-        return userProfile;
+        return _mapper.Map<UserProfileDto>(user);
     }
 
     public async Task<UserProfileDto> LoginAsync(LoginDto dto)
@@ -110,10 +104,7 @@ public class UserService : IUserService
             throw new UnauthorizedException("Invalid username or password.");
         }
 
-        var userProfile = _mapper.Map<UserProfileDto>(user);
-        userProfile.Token = _jwtService.GenerateToken(user);
-        
-        return userProfile;
+        return _mapper.Map<UserProfileDto>(user);
     }
 
     public async Task<UserProfileDto> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto)
