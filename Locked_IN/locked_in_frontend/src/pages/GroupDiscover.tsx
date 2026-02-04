@@ -50,7 +50,7 @@ export default function DiscoverPage() {
                     id: team.id.toString(),
                     title: team.name,
                     game: team.gameName || "Unknown Game",
-                    creator: team.teamLeaderNickname || "Unknown",
+                    teamLeaderUsername: team.teamLeaderUsername || "Unknown",
                     description: team.description,
                     image: team.iconUrl || "/assets/sunset-silhouette-gaming.jpg",
                     tags: team.preferenceTags || [],

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { tokenStorage } from '@/utils/auth/tokenStorage';
 import { getUserProfile } from '@/api/api';
-import { extractAvatarFromResponse } from '@/utils/profile/avatarUtils';
+import { getImageUrl, extractAvatarPath } from '@/utils/imageUtils';
 
 export function useAuthInit() {
   const { setUser } = useAuthStore();
@@ -17,7 +17,8 @@ export function useAuthInit() {
       getUserProfile(parseInt(userData.id))
         .then(async (profile) => {
           if (profile) {
-            const avatarUrl = await extractAvatarFromResponse(profile as any);
+            const avatarPath = extractAvatarPath(profile);
+            const avatarUrl = getImageUrl(avatarPath);
             const updatedUserData = {
               ...userData,
               nickname: profile.username,

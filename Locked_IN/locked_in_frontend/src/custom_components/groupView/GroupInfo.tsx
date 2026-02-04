@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useGroupViewStore } from "@/stores/groupViewStore"
 import { getGroupDetails } from "@/api/api"
 import type {GroupDetailsDto} from "@/api/types"
+import { getImageUrl } from "@/utils/imageUtils"
 
 export function GroupInfo() {
     const navigate = useNavigate()
@@ -48,7 +49,15 @@ export function GroupInfo() {
             <div className="px-6 py-6 border-b border-border">
                 <div className="flex items-center gap-3 mb-4">
                     <Avatar className="h-12 w-12">
-                        <AvatarImage src={group.avatarUrl || "/diverse-group-avatars.png"} />
+                        <AvatarImage 
+                            src={getImageUrl(group.avatarUrl)} 
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (!target.src.includes("/assets/sunset-silhouette-gaming.jpg")) {
+                                    target.src = "/assets/sunset-silhouette-gaming.jpg";
+                                }
+                            }}
+                        />
                         <AvatarFallback>G</AvatarFallback>
                     </Avatar>
                     <div>
@@ -111,7 +120,7 @@ export function GroupInfo() {
                             <div key={member.id} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={member.avatarUrl || "/placeholder.svg"} />
+                                        <AvatarImage src={getImageUrl(member.avatarUrl) || "/placeholder.svg"} />
                                         <AvatarFallback>F</AvatarFallback>
                                     </Avatar>
                                     <span className="text-sm text-foreground">{member.username}</span>
@@ -155,7 +164,7 @@ export function GroupInfo() {
                             <div key={request.id} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={request.avatarUrl || "/placeholder.svg"} />
+                                        <AvatarImage src={getImageUrl(request.avatarUrl) || "/placeholder.svg"} />
                                         <AvatarFallback>N</AvatarFallback>
                                     </Avatar>
                                     <span className="text-sm text-foreground">{request.username}</span>

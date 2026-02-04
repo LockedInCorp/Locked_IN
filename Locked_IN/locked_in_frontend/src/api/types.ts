@@ -169,7 +169,7 @@ export interface TeamSearchResult {
     creationTimestamp: string;
     iconUrl: string;
     searchRank: number;
-    teamLeaderNickname: string;
+    teamLeaderUsername: string;
 }
 
 export interface TeamMemberSearchResult {

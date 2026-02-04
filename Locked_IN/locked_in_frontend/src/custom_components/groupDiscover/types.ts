@@ -2,7 +2,7 @@ export interface GroupCard {
     id: string
     title: string
     game: string
-    creator: string
+    teamLeaderUsername: string
     description: string
     image: string
     tags: string[]

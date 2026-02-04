@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { getImageUrl } from "@/utils/imageUtils"
 import { useFriends } from "@/hooks/friendship/useFriends"
 import { useAuthStore } from "@/stores/authStore"
 import { updateUserAvailability } from "@/api/api"
@@ -94,7 +95,7 @@ export default function Friends() {
                         }`}
                     >
                         <Avatar className="h-12 w-12 flex-shrink-0">
-                            <AvatarImage src={user?.avatarUrl} />
+                            <AvatarImage src={getImageUrl(user?.avatarUrl)} />
                             <AvatarFallback>{user?.nickname.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
@@ -116,7 +117,7 @@ export default function Friends() {
                                 }`}
                             >
                                 <Avatar className="h-12 w-12 flex-shrink-0">
-                                    <AvatarImage src={friend.avatarUrl} />
+                                    <AvatarImage src={getImageUrl(friend.avatarUrl)} />
                                     <AvatarFallback>{friend.friendUsername.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">

@@ -1,6 +1,7 @@
 import { X, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { GroupCard as GroupCardType } from "./types"
+import {getImageUrl} from "@/utils/imageUtils.ts";
 
 interface GroupCardProps {
     group: GroupCardType
@@ -12,16 +13,19 @@ export function GroupCard({ group }: GroupCardProps) {
             {/* Card Header */}
             <div className="flex gap-3 p-4 border-b border-border">
                 <img
-                    src={"/assets/sunset-silhouette-gaming.jpg"}
+                    src={getImageUrl(group.image) || "/assets/sunset-silhouette-gaming.jpg"}
                     alt={group.title}
                     className="w-16 h-16 rounded-lg object-cover"
+                    onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/assets/sunset-silhouette-gaming.jpg"
+                    }}
                 />
                 <div className="flex-1 min-w-0">
                     <h3 className="text-foreground font-semibold text-lg">{group.title}</h3>
                     <p className="text-muted-foreground text-sm">
                         {group.game}
                         <br/>
-                        by <span className="text-primary">{group.creator}</span>
+                        by <span className="text-primary">{group.teamLeaderUsername}</span>
                     </p>
                 </div>
             </div>

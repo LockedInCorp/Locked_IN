@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuthStore } from "@/stores/authStore"
+import { getImageUrl } from "@/utils/imageUtils"
 
 export function Header() {
     const navigate = useNavigate();
@@ -54,7 +55,7 @@ export function Header() {
                             className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-ring transition-all"
                             onClick={() => navigate("/profile")}
                         >
-                            <AvatarImage src={user?.avatarUrl || "/assets/diverse-user-avatars.png"} />
+                            <AvatarImage src={getImageUrl(user?.avatarUrl) || "/assets/diverse-user-avatars.png"} />
                             <AvatarFallback>{user?.nickname?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                         </Avatar>
                     </>

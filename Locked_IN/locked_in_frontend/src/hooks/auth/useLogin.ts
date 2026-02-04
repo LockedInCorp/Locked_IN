@@ -3,7 +3,7 @@ import { loginUser } from '@/api/api';
 import type { LoginRequest, UserProfileDto } from '@/api/types';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
-import { extractAvatarFromResponse } from '@/utils/profile/avatarUtils';
+import { getImageUrl, extractAvatarPath } from '@/utils/imageUtils';
 import { tokenStorage } from '@/utils/auth/tokenStorage';
 
 export function useLogin() {
@@ -18,7 +18,8 @@ export function useLogin() {
           tokenStorage.setToken(data.token);
         }
         
-        const avatarUrl = await extractAvatarFromResponse(data as any)
+        const avatarPath = extractAvatarPath(data);
+        const avatarUrl = getImageUrl(avatarPath);
         
         setUser({
           id: data.id.toString(),

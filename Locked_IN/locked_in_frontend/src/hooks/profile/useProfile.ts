@@ -6,11 +6,11 @@ import {
     updateUserProfile,
     getUserGameProfiles
 } from "@/api/api"
-import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
+import { getImageUrl, extractAvatarPath } from "@/utils/imageUtils"
 import { tokenStorage } from "@/utils/auth/tokenStorage"
 import type { GameProfile } from "@/stores/authStore"
 
-export function useProfile() {
+function useProfile() {
     const { user, setUser } = useAuthStore()
     const { 
         profileData, 
@@ -48,7 +48,8 @@ export function useProfile() {
                 throw new Error('Failed to load profile')
             }
             
-            let avatarUrl = await extractAvatarFromResponse(profile as any)
+            const avatarPath = extractAvatarPath(profile)
+            let avatarUrl = getImageUrl(avatarPath)
             
             if (!avatarUrl) {
                 avatarUrl = user?.avatarUrl
@@ -58,9 +59,10 @@ export function useProfile() {
             const profilesArray = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : [])
             
             const gameProfiles: GameProfile[] = profilesArray.map(gp => ({
+                gameId: gp.gameId,
                 gameName: gp.gameName,
                 preferences: [],
-                experience: "",
+                experience: 0,
                 inGameNickname: "",
                 ranking: gp.rank || "",
                 role: ""
@@ -109,7 +111,8 @@ export function useProfile() {
             })
 
             if (updatedProfile) {
-                const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile as any)
+                const avatarPath = extractAvatarPath(updatedProfile)
+                const updatedAvatarUrl = getImageUrl(avatarPath)
                 
                 setProfileData({
                     ...profileData,
@@ -151,3 +154,5 @@ export function useProfile() {
         saveProfile
     }
 }
+
+export default useProfile
