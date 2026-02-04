@@ -2,9 +2,9 @@ import { create } from "zustand"
 import { loginUser } from "@/api/api"
 
 export type GameProfile = {
-    gameName: string
-    preferences: string[]
-    experience: string
+    gameId: number
+    preferences: number[]
+    experience: number
     inGameNickname: string
     ranking?: string
     role?: string

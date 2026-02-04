@@ -3,32 +3,12 @@
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { GameProfile } from "./ProfileFields"
 import { useProfileStore } from "@/stores/profileStore"
-
-const availableGames = [
-    "Dota 2",
-    "Counter-Strike 2",
-    "League of Legends",
-    "Valorant",
-    "Apex Legends",
-    "Fortnite",
-    "Overwatch 2",
-    "Rocket League",
-    "Minecraft",
-    "Terraria",
-    "World of Warcraft",
-    "Final Fantasy XIV",
-    "Elden Ring",
-    "The Witcher 3",
-    "Cyberpunk 2077"
-]
-
-const gamePreferences = ["Chill", "Competitive", "Roleplay", "Strategic", "Hardcore"]
-const experienceLevels = ["Beginner", "Experienced", "Professional"]
+import { useEffect, useState } from "react"
+import { getExperienceTags, getPreferenceTags, searchGamesByName } from "@/api/api"
 
 type ProfileFieldsEditProps = {
     nickname: string
@@ -53,61 +33,88 @@ export default function ProfileFieldsEdit({
         setCustomGame
     } = useProfileStore()
 
-    const handleAddGame = (game: string) => {
-        const trimmedGame = game.trim()
-        if (trimmedGame && !gameProfiles.some(p => p.gameName === trimmedGame)) {
+    const [availableGamesDict, setAvailableGamesDict] = useState<Record<number, string>>({})
+    const [gamePreferencesDict, setGamePreferencesDict] = useState<Record<number, string>>({})
+    const [experienceLevelsDict, setExperienceLevelsDict] = useState<Record<number, string>>({})
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const [prefs, exps] = await Promise.all([
+                    getPreferenceTags(),
+                    getExperienceTags()
+                ])
+                setGamePreferencesDict(prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {}))
+                setExperienceLevelsDict(exps.reduce((acc, e) => ({ ...acc, [e.id]: e.name }), {}))
+            } catch (error) {
+                console.error("Failed to fetch tags", error)
+            }
+        }
+        fetchTags()
+    }, [])
+
+    const handleAddGame = (gameId: number, gameName: string) => {
+        if (!gameProfiles.some(p => p.gameId === gameId)) {
             const newProfile: GameProfile = {
-                gameName: trimmedGame,
+                gameId: gameId,
                 preferences: [],
-                experience: "",
+                experience: 0,
                 inGameNickname: "",
                 ranking: "",
                 role: ""
             }
             onGameProfilesChange([...gameProfiles, newProfile])
             setSelectedGame("")
-            setCustomGame("")
+            setAvailableGamesDict(prev => ({ ...prev, [gameId]: gameName }))
             // Auto-expand the newly added game
-            toggleExpandedGame(trimmedGame)
+            toggleExpandedGame(gameId)
         }
     }
 
-    const handleRemoveGame = (gameToRemove: string) => {
-        onGameProfilesChange(gameProfiles.filter(profile => profile.gameName !== gameToRemove))
-        if (expandedGames.has(gameToRemove)) {
+    const handleRemoveGame = (gameId: number) => {
+        onGameProfilesChange(gameProfiles.filter(profile => profile.gameId !== gameId))
+        if (expandedGames.has(gameId)) {
             const newExpanded = new Set(expandedGames)
-            newExpanded.delete(gameToRemove)
+            newExpanded.delete(gameId)
             setExpandedGames(newExpanded)
         }
     }
 
-    const handleUpdateGameProfile = (gameName: string, updates: Partial<GameProfile>) => {
+    const handleUpdateGameProfile = (gameId: number, updates: Partial<GameProfile>) => {
         onGameProfilesChange(
             gameProfiles.map(profile =>
-                profile.gameName === gameName ? { ...profile, ...updates } : profile
+                profile.gameId === gameId ? { ...profile, ...updates } : profile
             )
         )
     }
 
-    const togglePreference = (gameName: string, preference: string) => {
-        const profile = gameProfiles.find(p => p.gameName === gameName)
+    const togglePreference = (gameId: number, preferenceId: number) => {
+        const profile = gameProfiles.find(p => p.gameId === gameId)
         if (!profile) return
 
-        const newPreferences = profile.preferences.includes(preference)
-            ? profile.preferences.filter(p => p !== preference)
-            : [...profile.preferences, preference]
+        const newPreferences = profile.preferences.includes(preferenceId)
+            ? profile.preferences.filter(p => p !== preferenceId)
+            : [...profile.preferences, preferenceId]
 
-        handleUpdateGameProfile(gameName, { preferences: newPreferences })
+        handleUpdateGameProfile(gameId, { preferences: newPreferences })
     }
 
-    const handleCustomGameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-            e.preventDefault()
-            handleAddGame(customGame)
+    const handleSearchGames = async (term: string) => {
+        setCustomGame(term)
+        if (term.length > 2) {
+            try {
+                const games = await searchGamesByName(term)
+                const newGamesDict = games.reduce((acc, g) => ({ ...acc, [g.id]: g.name }), {})
+                setAvailableGamesDict(prev => ({ ...prev, ...newGamesDict }))
+            } catch (error) {
+                console.error("Failed to search games", error)
+            }
         }
     }
 
-    const availableGamesFiltered = availableGames.filter(game => !gameProfiles.some(p => p.gameName === game))
+    const availableGamesFiltered = Object.entries(availableGamesDict)
+        .map(([id, name]) => ({ id: Number(id), name }))
+        .filter(game => !gameProfiles.some(p => p.gameId === game.id))
 
     return (
         <div className="space-y-6">
@@ -128,10 +135,23 @@ export default function ProfileFieldsEdit({
                 
                 {/* Add new game section */}
                 <div className="space-y-2">
-                    {/* Dropdown to select games */}
+                    {/* Search/Custom game input */}
+                    <div className="flex gap-2">
+                        <Input
+                            type="text"
+                            value={customGame}
+                            onChange={(e) => handleSearchGames(e.target.value)}
+                            placeholder="Search games..."
+                            className="flex-1 border-border bg-card text-foreground placeholder:text-muted-foreground"
+                        />
+                    </div>
+                    
+                    {/* Dropdown to select games from search results */}
                     <Select value={selectedGame} onValueChange={(value) => {
+                        const gameId = Number(value)
+                        const gameName = availableGamesDict[gameId]
                         setSelectedGame(value)
-                        handleAddGame(value)
+                        handleAddGame(gameId, gameName)
                     }}>
                         <SelectTrigger className="w-full border-border bg-card text-foreground">
                             <SelectValue placeholder="Select a game to add" />
@@ -139,57 +159,37 @@ export default function ProfileFieldsEdit({
                         <SelectContent className="border-border bg-card">
                             {availableGamesFiltered.length > 0 ? (
                                 availableGamesFiltered.map((game) => (
-                                    <SelectItem key={game} value={game} className="text-foreground">
-                                        {game}
+                                    <SelectItem key={game.id} value={game.id.toString()} className="text-foreground">
+                                        {game.name}
                                     </SelectItem>
                                 ))
                             ) : (
                                 <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                                    All games added
+                                    {customGame.length > 2 ? "No results found" : "Type to search games"}
                                 </div>
                             )}
                         </SelectContent>
                     </Select>
-
-                    {/* Custom game input */}
-                    <div className="flex gap-2">
-                        <Input
-                            type="text"
-                            value={customGame}
-                            onChange={(e) => setCustomGame(e.target.value)}
-                            onKeyPress={handleCustomGameKeyPress}
-                            placeholder="ex. Terraria, Overwatch"
-                            className="flex-1 border-border bg-card text-foreground placeholder:text-muted-foreground"
-                        />
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => handleAddGame(customGame)}
-                            disabled={!customGame.trim() || gameProfiles.some(p => p.gameName === customGame.trim())}
-                            className="border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Add
-                        </Button>
-                    </div>
                 </div>
 
                 {/* Game profiles list */}
                 {gameProfiles.length > 0 && (
                     <div className="space-y-2 mt-3">
                         {gameProfiles.map((profile) => {
-                            const isExpanded = expandedGames.has(profile.gameName)
+                            const isExpanded = expandedGames.has(profile.gameId)
+                            const gameName = availableGamesDict[profile.gameId] || `Game #${profile.gameId}`
                             return (
                                 <div
-                                    key={profile.gameName}
+                                    key={profile.gameId}
                                     className="rounded-lg border border-border bg-card overflow-hidden"
                                 >
                                     {/* Collapsed Header */}
                                     <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
                                         <button
-                                            onClick={() => toggleExpandedGame(profile.gameName)}
+                                            onClick={() => toggleExpandedGame(profile.gameId)}
                                             className="flex-1 flex items-center justify-between cursor-pointer"
                                         >
-                                            <span className="text-sm font-semibold text-foreground">{profile.gameName}</span>
+                                            <span className="text-sm font-semibold text-foreground">{gameName}</span>
                                             {isExpanded ? (
                                                 <ChevronUp className="h-4 w-4 text-muted-foreground" />
                                             ) : (
@@ -198,9 +198,9 @@ export default function ProfileFieldsEdit({
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveGame(profile.gameName)}
+                                            onClick={() => handleRemoveGame(profile.gameId)}
                                             className="ml-2 p-1.5 hover:bg-destructive/20 rounded transition-colors cursor-pointer"
-                                            aria-label={`Remove ${profile.gameName}`}
+                                            aria-label={`Remove ${gameName}`}
                                         >
                                             <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                                         </button>
@@ -213,13 +213,14 @@ export default function ProfileFieldsEdit({
                                             <div className="space-y-3">
                                                 <Label className="text-sm text-muted-foreground">Choose your gameplay preferences</Label>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {gamePreferences.map((pref) => {
-                                                        const isSelected = profile.preferences.includes(pref)
+                                                    {Object.entries(gamePreferencesDict).map(([idStr, name]) => {
+                                                        const id = Number(idStr)
+                                                        const isSelected = profile.preferences.includes(id)
                                                         return (
                                                             <button
-                                                                key={pref}
+                                                                key={id}
                                                                 type="button"
-                                                                onClick={() => togglePreference(profile.gameName, pref)}
+                                                                onClick={() => togglePreference(profile.gameId, id)}
                                                                 className={`flex items-center rounded-md px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
                                                                     isSelected
                                                                         ? "bg-primary text-primary-foreground border-2 border-primary shadow-sm"
@@ -227,7 +228,7 @@ export default function ProfileFieldsEdit({
                                                                 }`}
                                                             >
                                                                 {isSelected && <Check className="h-3 w-3 mr-1" />}
-                                                                {pref}
+                                                                {name}
                                                             </button>
                                                         )
                                                     })}
@@ -238,14 +239,14 @@ export default function ProfileFieldsEdit({
                                             <div className="space-y-3">
                                                 <Label className="text-sm text-muted-foreground">Choose your game experience</Label>
                                                 <RadioGroup
-                                                    value={profile.experience}
-                                                    onValueChange={(value) => handleUpdateGameProfile(profile.gameName, { experience: value })}
+                                                    value={profile.experience.toString()}
+                                                    onValueChange={(value) => handleUpdateGameProfile(profile.gameId, { experience: Number(value) })}
                                                 >
-                                                    {experienceLevels.map((level) => (
-                                                        <div key={level} className="flex items-center gap-2">
-                                                            <RadioGroupItem value={level} id={`${profile.gameName}-${level}`} className="border-border" />
-                                                            <Label htmlFor={`${profile.gameName}-${level}`} className="cursor-pointer text-sm text-foreground">
-                                                                {level}
+                                                    {Object.entries(experienceLevelsDict).map(([idStr, name]) => (
+                                                        <div key={idStr} className="flex items-center gap-2">
+                                                            <RadioGroupItem value={idStr} id={`${profile.gameId}-${idStr}`} className="border-border" />
+                                                            <Label htmlFor={`${profile.gameId}-${idStr}`} className="cursor-pointer text-sm text-foreground">
+                                                                {name}
                                                             </Label>
                                                         </div>
                                                     ))}
@@ -254,12 +255,12 @@ export default function ProfileFieldsEdit({
 
                                             {/* In-game Nickname */}
                                             <div className="space-y-2">
-                                                <Label htmlFor={`${profile.gameName}-nickname`} className="text-sm text-muted-foreground">Enter your in-game nickname</Label>
+                                                <Label htmlFor={`${profile.gameId}-nickname`} className="text-sm text-muted-foreground">Enter your in-game nickname</Label>
                                                 <Input
-                                                    id={`${profile.gameName}-nickname`}
+                                                    id={`${profile.gameId}-nickname`}
                                                     type="text"
                                                     value={profile.inGameNickname}
-                                                    onChange={(e) => handleUpdateGameProfile(profile.gameName, { inGameNickname: e.target.value })}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId, { inGameNickname: e.target.value })}
                                                     placeholder="Enter your in-game nickname"
                                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                                 />
@@ -267,12 +268,12 @@ export default function ProfileFieldsEdit({
 
                                             {/* Ranking */}
                                             <div className="space-y-2">
-                                                <Label htmlFor={`${profile.gameName}-ranking`} className="text-sm text-muted-foreground">Enter your game ranking (optional)</Label>
+                                                <Label htmlFor={`${profile.gameId}-ranking`} className="text-sm text-muted-foreground">Enter your game ranking (optional)</Label>
                                                 <Input
-                                                    id={`${profile.gameName}-ranking`}
+                                                    id={`${profile.gameId}-ranking`}
                                                     type="text"
                                                     value={profile.ranking || ""}
-                                                    onChange={(e) => handleUpdateGameProfile(profile.gameName, { ranking: e.target.value })}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId, { ranking: e.target.value })}
                                                     placeholder="0"
                                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                                 />
@@ -280,12 +281,12 @@ export default function ProfileFieldsEdit({
 
                                             {/* Role */}
                                             <div className="space-y-2">
-                                                <Label htmlFor={`${profile.gameName}-role`} className="text-sm text-muted-foreground">Enter your in-game role (optional)</Label>
+                                                <Label htmlFor={`${profile.gameId}-role`} className="text-sm text-muted-foreground">Enter your in-game role (optional)</Label>
                                                 <Input
-                                                    id={`${profile.gameName}-role`}
+                                                    id={`${profile.gameId}-role`}
                                                     type="text"
                                                     value={profile.role || ""}
-                                                    onChange={(e) => handleUpdateGameProfile(profile.gameName, { role: e.target.value })}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId, { role: e.target.value })}
                                                     placeholder="e.g. Tank, Damager"
                                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                                 />

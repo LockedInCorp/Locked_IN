@@ -67,7 +67,7 @@ namespace Locked_IN_Backend.Services
                 throw new BadRequestException("User has reached the maximum number of active join requests");
             }
 
-            int newMemberStatusId = team.Isprivate ? (int)TeamMemberStatus.STATUS_PENDING : (int)TeamMemberStatus.STATUS_MEMBER;
+            int newMemberStatusId = team.IsAutoaccept ? (int)TeamMemberStatus.STATUS_PENDING : (int)TeamMemberStatus.STATUS_MEMBER;
 
             var newTeamMember = new TeamMember
             {

@@ -16,7 +16,7 @@ interface ProfileState {
     profileDataBeforeEdit: ProfileData
     
     // Profile fields UI state
-    expandedGames: Set<string>
+    expandedGames: Set<number>
     selectedGame: string
     customGame: string
     
@@ -29,8 +29,8 @@ interface ProfileState {
     setProfileDataBeforeEdit: (data: ProfileData) => void
     
     // Profile fields UI actions
-    setExpandedGames: (games: Set<string>) => void
-    toggleExpandedGame: (gameName: string) => void
+    setExpandedGames: (games: Set<number>) => void
+    toggleExpandedGame: (gameId: number) => void
     setSelectedGame: (game: string) => void
     setCustomGame: (game: string) => void
     
@@ -43,9 +43,9 @@ const initialProfileData: ProfileData = {
     nickname: "Jan Kowalski",
     gameProfiles: [
         {
-            gameName: "Dota 2",
-            preferences: ["Competitive", "Strategic"],
-            experience: "Experienced",
+            gameId: 1,
+            preferences: [1, 2],
+            experience: 2,
             inGameNickname: "JanKowalski123",
             ranking: "4500",
             role: "Support"
@@ -80,12 +80,12 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     
     // Profile fields UI actions
     setExpandedGames: (games) => set({ expandedGames: games }),
-    toggleExpandedGame: (gameName) => {
+    toggleExpandedGame: (gameId) => {
         const newExpanded = new Set(get().expandedGames)
-        if (newExpanded.has(gameName)) {
-            newExpanded.delete(gameName)
+        if (newExpanded.has(gameId)) {
+            newExpanded.delete(gameId)
         } else {
-            newExpanded.add(gameName)
+            newExpanded.add(gameId)
         }
         set({ expandedGames: newExpanded })
     },
