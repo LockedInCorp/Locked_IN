@@ -120,19 +120,15 @@ public class TeamRepository : ITeamRepository
         }).ToList();
     }
     
-    public async Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, List<int>? teamIds)
+    public async Task<PagedResult<TeamSearchResult>> GetTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, int userId, bool OnlyShowPending)
     {
         var query = _context.Teams.AsQueryable();
 
         query = query.Where(t => t.TeamMembers.Count(tm => 
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || 
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER) < t.MaxPlayerCount);
-        query = query.Where(t => !t.Isprivate);
-
-        if (teamIds != null)
-        {
-            query = query.Where(t => teamIds.Contains(t.Id));
-        }
+        query = query.Where(t => !t.Isprivate)
+            .Where(t => !OnlyShowPending || t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING && tm.UserId != userId));
 
         if (gameIds.Count > 0)
         {
@@ -225,9 +221,11 @@ public class TeamRepository : ITeamRepository
             .Include(t => t.Game)
             .Include(t => t.ExperienceTag)
             .Include(t => t.TeamMembers)
-                .ThenInclude(tm => tm.User)
+            .ThenInclude(tm => tm.User)
             .Include(t => t.TeamPreferencetagRelations)
-                .ThenInclude(r => r.PreferenceTag)
+            .ThenInclude(r => r.PreferenceTag)
+            .Include(team => team.TeamMembers)
+            .ThenInclude(teamMember => teamMember.MemberStatus)
             .Where(t => teamIntermediateIds.Contains(t.Id))
             .ToListAsync();
         
@@ -237,7 +235,8 @@ public class TeamRepository : ITeamRepository
         {
             Team = teamMap[r.TeamId],
             SearchRank = r.SearchRank,
-            TeamLeaderUsername = r.TeamLeaderUsername
+            TeamLeaderUsername = r.TeamLeaderUsername,
+            TeamMemberStatus = (TeamMemberStatus)(teamMap[r.TeamId].TeamMembers.FirstOrDefault(u => u.UserId == userId)?.MemberStatus.Id ?? (int)TeamMemberStatus.STATUS_NONE)
         }).ToList();
 
         return new PagedResult<TeamSearchResult>

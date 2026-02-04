@@ -100,7 +100,8 @@ public class TeamController : ControllerBase
             searchDto.Page, 
             searchDto.PageSize, 
             searchDto.SortBy ?? "",
-            userId);
+            userId,
+            searchDto.ShowPendingRequests);
         return Ok(result);
     }
 
