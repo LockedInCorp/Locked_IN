@@ -130,25 +130,25 @@ public class TeamRepository : ITeamRepository
         query = query.Where(t => !t.Isprivate)
             .Where(t => !OnlyShowPending || t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING && tm.UserId == userId));
 
-        if (gameIds.Count > 0)
+        if (gameIds.Any())
         {
             query = query.Where(t => gameIds.Contains(t.GameId));
         }
 
-        if (preferenceTagIds.Count > 0)
+        if (preferenceTagIds.Any())
         {
             query = query.Where(t => t.TeamPreferencetagRelations
                 .Any(rel => preferenceTagIds.Contains(rel.PreferenceTagId)));
         }
 
         var hasSearch = !string.IsNullOrWhiteSpace(searchTerm);
-        string searchWithStar = "";
+        string searchWithStar = string.Empty;
         if (hasSearch)
         {
-            var trimmedSearch = searchTerm.Trim();
-            var searchArray = trimmedSearch.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            searchWithStar = string.Join(" & ", searchArray) + ":*";
+            var trimmedSearch = searchTerm.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            searchWithStar = string.Join(" & ", trimmedSearch) + ":*";
             
+            //TODO english w const
             query = query.Where(t => EF.Functions.ToTsVector("english", t.Name)
                 .Matches(EF.Functions.ToTsQuery("english", searchWithStar)));
         }

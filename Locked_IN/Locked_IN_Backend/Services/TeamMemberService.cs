@@ -93,7 +93,7 @@ namespace Locked_IN_Backend.Services
                 {
                     TeamId = teamId,
                     TeamName = team.Name,
-                    Status = team.IsAutoaccept ? "UserJoined" : "NewJoinRequest"
+                    Status = team.IsAutoaccept ? (int)TeamMemberStatus.STATUS_MEMBER : (int)TeamMemberStatus.STATUS_PENDING,
                 });
             }
         }
