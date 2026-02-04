@@ -3,7 +3,7 @@ import { loginUser } from '@/api/api';
 import type { LoginRequest, UserProfileDto } from '@/api/types';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
-import { extractAvatarFromResponse } from '@/utils/profile/avatarUtils';
+import { extractAvatarPath, getImageUrl } from '@/utils/imageUtils';
 import { persist } from '@/utils/auth/persistance';
 
 export function useLogin() {
@@ -14,7 +14,7 @@ export function useLogin() {
     mutationFn: loginUser,
     onSuccess: async (data) => {
       if (data) {
-        const avatarUrl = await extractAvatarFromResponse(data as any)
+        const avatarUrl = getImageUrl(extractAvatarPath(data as any))
         
         const userData = {
           id: data.id.toString(),
