@@ -159,7 +159,7 @@ export const getPreferenceTags = async (): Promise<Types.PreferenceTag[]> => {
 // Chat
 export const getUserChats = async (): Promise<Types.UserChatDto[]> => {
     try {
-        const response = await apiClient.get<Types.UserChatDto[]>(`/chat/user-chats`)
+        const response = await apiClient.get<Types.UserChatDto[]>(`/chat/user`)
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch user chats')
