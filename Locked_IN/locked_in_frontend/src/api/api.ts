@@ -202,6 +202,22 @@ export const searchTeamsAdvanced = async (data: Types.TeamSearchRequest): Promis
     }
 }
 
+export const requestToJoinTeam = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.post(`/teams/${teamId}/join`, { userId })
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to join team')
+    }
+}
+
+export const cancelJoinRequest = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/teams/${teamId}/cancel-join`, { data: { userId } })
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to cancel join request')
+    }
+}
+
 const createTeam = async (data: Types.CreateGroupRequest): Promise<void> => {
     try {
         const formData = new FormData()
