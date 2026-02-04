@@ -1,4 +1,4 @@
-﻿export interface UserProfileDto {
+export interface UserProfileDto {
   id: number;
   email: string;
   username: string;
@@ -152,6 +152,16 @@ export interface TeamSearchRequest {
     showPendingRequests: boolean;
 }
 
+export const TeamMemberStatus = {
+    STATUS_LEADER: 1,
+    STATUS_MEMBER: 2,
+    STATUS_PENDING: 3,
+    STATUS_REJECTED: 4,
+    STATUS_NONE: 5
+} as const satisfies Record<string, number>
+
+export type TeamMemberStatus = 1 | 2 | 3 | 4 | 5
+
 export interface TeamSearchResult {
     id: number;
     name: string;
@@ -161,6 +171,7 @@ export interface TeamSearchResult {
     gameId: number;
     gameName: string;
     isPrivate: boolean;
+    autoAccept: boolean;
     experienceTagId: number;
     experienceLevel: string;
     currentMemberCount: number;
@@ -170,6 +181,7 @@ export interface TeamSearchResult {
     iconUrl: string;
     searchRank: number;
     teamLeaderUsername: string;
+    teamMemberStatus: TeamMemberStatus;
 }
 
 export interface TeamMemberSearchResult {

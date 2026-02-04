@@ -1,3 +1,5 @@
+import type { TeamMemberStatus } from "@/api/types"
+
 export interface GroupCard {
     id: string
     title: string
@@ -9,6 +11,8 @@ export interface GroupCard {
     currentMembers: number
     maxMembers: number
     isPending?: boolean
+    autoAccept: boolean
+    teamMemberStatus: TeamMemberStatus
 }
 
 export interface GameOption {
