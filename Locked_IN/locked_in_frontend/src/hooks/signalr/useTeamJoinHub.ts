@@ -1,25 +1,32 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { API_BASE_URL } from '@/api/apiClient';
 import type { TeamJoinStatusDto } from '@/api/types';
 
+const BASE_URL = API_BASE_URL.replace('/api', '');
+
 type JoinRequestStatusHandler = (data: TeamJoinStatusDto) => void;
 
+//TODO: Add a way to "prettify" this code
 export function useTeamJoinHub(onJoinRequestStatus?: JoinRequestStatusHandler) {
     const connectionRef = useRef<signalR.HubConnection | null>(null);
     const handlerRef = useRef(onJoinRequestStatus);
+    const isSettingUpRef = useRef(false);
 
     useEffect(() => {
         handlerRef.current = onJoinRequestStatus;
     }, [onJoinRequestStatus]);
 
-    const setupSignalRConnection = useCallback(() => {
-        if (connectionRef.current) {
+    useEffect(() => {
+        if (connectionRef.current || isSettingUpRef.current) {
             return;
         }
 
+        isSettingUpRef.current = true;
+        let isMounted = true;
+
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl(`${API_BASE_URL}/teamjoinhub`)
+            .withUrl(`${BASE_URL}/teamjoinhub`)
             .withAutomaticReconnect()
             .build();
 
@@ -30,24 +37,45 @@ export function useTeamJoinHub(onJoinRequestStatus?: JoinRequestStatusHandler) {
         });
 
         connection.start()
-            .then(() => console.log("Connected to SignalR hub"))
-            .catch((err) => console.error("SignalR connection error:", err));
+            .then(() => {
+                if (isMounted) {
+                    console.log("Connected to SignalR hub");
+                    isSettingUpRef.current = false;
+                }
+            })
+            .catch((err) => {
+                if (isMounted) {
+                    console.error("SignalR connection error:", err);
+                    isSettingUpRef.current = false;
+                    connectionRef.current = null;
+                }
+            });
 
-        connectionRef.current = connection;
-    }, []);
-
-    useEffect(() => {
-        setupSignalRConnection();
+        if (isMounted) {
+            connectionRef.current = connection;
+        }
 
         return () => {
+            isMounted = false;
+            isSettingUpRef.current = false;
+            
             if (connectionRef.current) {
-                connectionRef.current.stop()
-                    .then(() => console.log("Disconnected from SignalR hub"))
-                    .catch((err) => console.error("SignalR disconnection error:", err));
+                const conn = connectionRef.current;
                 connectionRef.current = null;
+                
+                if (conn.state !== signalR.HubConnectionState.Disconnected && 
+                    conn.state !== signalR.HubConnectionState.Disconnecting) {
+                    conn.stop()
+                        .then(() => console.log("Disconnected from SignalR hub"))
+                        .catch((err) => {
+                            if (err.name !== 'AbortError') {
+                                console.error("SignalR disconnection error:", err);
+                            }
+                        });
+                }
             }
         };
-    }, [setupSignalRConnection]);
+    }, []);
 
     return {
         connection: connectionRef.current,

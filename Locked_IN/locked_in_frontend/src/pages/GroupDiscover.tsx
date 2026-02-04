@@ -6,8 +6,10 @@ import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilte
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
 import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 import { searchTeamsAdvanced } from "@/api/api"
+import { useTeamJoinHub } from "@/hooks/signalr/useTeamJoinHub"
 import type { GroupCard, GameOption } from "@/custom_components/groupDiscover/types"
-import type { TeamSearchResult } from "@/api/types"
+import type { TeamSearchResult, TeamMemberStatus, TeamJoinStatusDto } from "@/api/types"
+import { TeamMemberStatus as TeamMemberStatusValues } from "@/api/types"
 
 //#TODO when current page=maxpage and changeView to lower value displays empty page
 export default function DiscoverPage() {
@@ -47,7 +49,7 @@ export default function DiscoverPage() {
             const data = await searchTeamsAdvanced(dto)
             
             const mappedGroups: GroupCard[] = data.items.map((team: TeamSearchResult) => ({
-                id: team.id.toString(),
+                id: team.id,
                 title: team.name,
                 game: team.gameName || "Unknown Game",
                 teamLeaderUsername: team.teamLeaderUsername || "Unknown",
@@ -71,6 +73,28 @@ export default function DiscoverPage() {
     useEffect(() => {
         fetchGroups()
     }, [fetchGroups])
+
+    const handleJoinRequestStatus = useCallback((data: TeamJoinStatusDto) => {
+        setGroups((prevGroups) => {
+            const updatedGroups = prevGroups.map((group) => {
+                if (group.id === data.teamId) {
+                    return {
+                        ...group,
+                        teamMemberStatus: data.status as TeamMemberStatus,
+                        isPending: data.status === TeamMemberStatusValues.STATUS_PENDING
+                    }
+                }
+                return group
+            })
+            return updatedGroups
+        })
+
+        if (showPending) {
+            fetchGroups()
+        }
+    }, [showPending, fetchGroups])
+
+    useTeamJoinHub(handleJoinRequestStatus)
 
     const handleToggleTagFilter = (tagId: string) => {
         setSelectedTagIds((prev) => {
