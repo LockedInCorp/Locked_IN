@@ -110,13 +110,24 @@ export function useProfile() {
 
             if (updatedProfile) {
                 const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile as any)
+                const finalAvatarUrl = updatedAvatarUrl || profileData.avatarUrl
                 
                 setProfileData({
                     ...profileData,
                     nickname: updatedProfile.username,
-                    avatarUrl: updatedAvatarUrl || profileData.avatarUrl,
+                    avatarUrl: finalAvatarUrl,
                     avatarFallback: updatedProfile.username.charAt(0).toUpperCase() || "U"
                 })
+
+                if (user && finalAvatarUrl) {
+                    const updatedUser = {
+                        ...user,
+                        avatarUrl: finalAvatarUrl,
+                        nickname: updatedProfile.username
+                    }
+                    setUser(updatedUser)
+                    tokenStorage.setUserData(updatedUser)
+                }
             } else {
                 setProfileData({
                     ...profileData,
