@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { tokenStorage } from '@/utils/auth/cookieStorage';
+import { persist } from '@/utils/auth/persistance';
 import { getUserProfile } from '@/api/api';
 import { getImageUrl, extractAvatarPath } from '@/utils/imageUtils';
 
@@ -8,10 +8,9 @@ export function useAuthInit() {
   const { setUser } = useAuthStore();
 
   useEffect(() => {
-    const token = tokenStorage.getToken();
-    const userData = tokenStorage.getUserData();
+    const userData = persist.getUserData();
 
-    if (token && userData) {
+    if (userData) {
       setUser(userData);
       
       getUserProfile(parseInt(userData.id))
@@ -25,16 +24,15 @@ export function useAuthInit() {
               email: profile.email,
               avatarUrl: avatarUrl || userData.avatarUrl,
             };
-            tokenStorage.setUserData(updatedUserData);
+            persist.setUserData(updatedUserData);
             setUser(updatedUserData);
           }
         })
         .catch((error) => {
           console.error('Failed to refresh user profile:', error);
+          persist.clearUserData();
+          setUser(null);
         });
-    } else if (token && !userData) {
-      tokenStorage.removeToken();
-      setUser(null);
     }
   }, [setUser]);
 }
