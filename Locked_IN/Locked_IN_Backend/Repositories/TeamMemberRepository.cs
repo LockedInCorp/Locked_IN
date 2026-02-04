@@ -82,4 +82,10 @@ public class TeamMemberRepository : ITeamMemberRepository
     {
         return await _context.TeamMembers.Where(tm => tm.TeamId == teamId).ToListAsync();
     }
+
+    public async Task<TeamMember?> GetTeamLeaderAsync(int teamId)
+    {
+        return await _context.TeamMembers
+            .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.Isleader);
+    }
 }

@@ -1,9 +1,12 @@
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.DTOs.Team;
 using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Misc;
 using Locked_IN_Backend.Misc.Enum;
 using Locked_IN_Backend.Exceptions;
+using Microsoft.AspNetCore.SignalR;
+using Locked_IN_Backend.Hubs;
 
 namespace Locked_IN_Backend.Services
 {
@@ -12,12 +15,14 @@ namespace Locked_IN_Backend.Services
         private readonly ITeamRepository _teamRepository;
         private readonly ITeamMemberRepository _teamMemberRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IHubContext<TeamJoinHub> _hubContext;
 
-        public TeamMemberService(ITeamRepository teamRepository, ITeamMemberRepository teamMemberRepository, IUserRepository userRepository)
+        public TeamMemberService(ITeamRepository teamRepository, ITeamMemberRepository teamMemberRepository, IUserRepository userRepository, IHubContext<TeamJoinHub> hubContext)
         {
             _teamRepository = teamRepository;
             _teamMemberRepository = teamMemberRepository;
             _userRepository = userRepository;
+            _hubContext = hubContext;
         }
 
         public async Task RequestToJoinTeamAsync(int teamId, int userId)
@@ -67,7 +72,7 @@ namespace Locked_IN_Backend.Services
                 throw new BadRequestException("User has reached the maximum number of active join requests");
             }
 
-            int newMemberStatusId = team.IsAutoaccept ? (int)TeamMemberStatus.STATUS_PENDING : (int)TeamMemberStatus.STATUS_MEMBER;
+            int newMemberStatusId = team.IsAutoaccept ? (int)TeamMemberStatus.STATUS_MEMBER : (int)TeamMemberStatus.STATUS_PENDING;
 
             var newTeamMember = new TeamMember
             {
@@ -79,6 +84,17 @@ namespace Locked_IN_Backend.Services
             };
 
             await _teamMemberRepository.AddTeamMemberAsync(newTeamMember);
+
+            var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
+            if (leader != null)
+            {
+                await _hubContext.Clients.User(leader.UserId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+                {
+                    TeamId = teamId,
+                    TeamName = team.Name,
+                    Status = team.IsAutoaccept ? "UserJoined" : "NewJoinRequest"
+                });
+            }
         }
 
         public async Task<List<TeamJoinResponceDto>> GetJoinRequestsAsync(int teamId)
@@ -114,11 +130,18 @@ namespace Locked_IN_Backend.Services
             request.Jointimestamp = DateTime.UtcNow;
 
             await _teamMemberRepository.UpdateTeamMemberAsync(request);
+
+            await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+            {
+                TeamId = teamId,
+                TeamName = request.Team.Name,
+                Status = "Accepted"
+            });
         }
 
         public async Task DeclineJoinRequestAsync(int teamId, int userId)
         {
-            var request = await _teamMemberRepository.GetTeamMemberByIdAsync(teamId, userId);
+            var request = await _teamMemberRepository.GetTeamMemberWithTeamByIdAsync(teamId, userId);
 
             if (request == null || request.MemberStatusId != (int)TeamMemberStatus.STATUS_PENDING)
             {
@@ -128,11 +151,18 @@ namespace Locked_IN_Backend.Services
             request.MemberStatusId = (int)TeamMemberStatus.STATUS_REJECTED;
 
             await _teamMemberRepository.UpdateTeamMemberAsync(request);
+
+            await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+            {
+                TeamId = teamId,
+                TeamName = request.Team.Name,
+                Status = "Declined"
+            });
         }
 
         public async Task CancelJoinRequestAsync(int teamId, int userId)
         {
-            var request = await _teamMemberRepository.GetTeamMemberAsync(teamId, userId);
+            var request = await _teamMemberRepository.GetTeamMemberWithTeamByIdAsync(teamId, userId);
 
             if (request == null || request.MemberStatusId != (int)TeamMemberStatus.STATUS_PENDING)
             {
@@ -140,6 +170,17 @@ namespace Locked_IN_Backend.Services
             }
 
             await _teamMemberRepository.DeleteTeamMemberAsync(request);
+
+            var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
+            if (leader != null)
+            {
+                await _hubContext.Clients.User(leader.UserId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+                {
+                    TeamId = teamId,
+                    TeamName = request.Team.Name,
+                    Status = "JoinRequestCancelled"
+                });
+            }
         }
     }
 }
