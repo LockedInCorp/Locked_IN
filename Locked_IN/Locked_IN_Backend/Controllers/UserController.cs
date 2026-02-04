@@ -14,6 +14,8 @@ namespace Locked_IN_Backend.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IUserRepository _userRepository;
+    private readonly IJwtService _jwtService;
     private readonly IValidator<RegisterDto> _registerValidator;
     private readonly IValidator<LoginDto> _loginValidator;
     private readonly IValidator<UpdateUserProfileDto> _updateProfileValidator;
@@ -21,13 +23,16 @@ public class UserController : ControllerBase
 
     public UserController(
         IUserService userService,
+        IUserRepository userRepository,
+        IJwtService jwtService,
         IValidator<RegisterDto> registerValidator,
         IValidator<LoginDto> loginValidator,
         IValidator<UpdateUserProfileDto> updateProfileValidator,
         IValidator<UpdateAvailabilityDto> updateAvailabilityValidator)
     {
-<<<<<<< Updated upstream
         _userService = userService;
+        _userRepository = userRepository;
+        _jwtService = jwtService;
         _registerValidator = registerValidator;
         _loginValidator = loginValidator;
         _updateProfileValidator = updateProfileValidator;
@@ -49,39 +54,23 @@ public class UserController : ControllerBase
         if (!validationResult.IsValid)
         {
             return BadRequest(validationResult.Errors.First().ErrorMessage);
-=======
-        private readonly IUserService _userService;
-        private readonly IJwtService _jwtService;
-        private readonly IUserRepository _userRepository;
-        private readonly IValidator<RegisterDto> _registerValidator;
-        private readonly IValidator<LoginDto> _loginValidator;
-        private readonly IValidator<UpdateUserProfileDto> _updateProfileValidator;
-        private readonly IValidator<UpdateAvailabilityDto> _updateAvailabilityValidator;
-
-        public UserController(
-            IUserService userService,
-            IJwtService jwtService,
-            IUserRepository userRepository,
-            IValidator<RegisterDto> registerValidator,
-            IValidator<LoginDto> loginValidator,
-            IValidator<UpdateUserProfileDto> updateProfileValidator,
-            IValidator<UpdateAvailabilityDto> updateAvailabilityValidator)
-        {
-            _userService = userService;
-            _jwtService = jwtService;
-            _userRepository = userRepository;
-            _registerValidator = registerValidator;
-            _loginValidator = loginValidator;
-            _updateProfileValidator = updateProfileValidator;
-            _updateAvailabilityValidator = updateAvailabilityValidator;
->>>>>>> Stashed changes
         }
 
         var result = await _userService.RegisterAsync(dto);
+        var user = await _userRepository.GetUserById(result.Id);
+        var token = _jwtService.GenerateToken(user!);
+
+        Response.Cookies.Append("AuthToken", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        });
+
         return Ok(result);
     }
 
-<<<<<<< Updated upstream
     /// <summary>
     /// Login a user.
     /// </summary>
@@ -97,22 +86,23 @@ public class UserController : ControllerBase
         if (!validationResult.IsValid)
         {
             return BadRequest(validationResult.Errors.First().ErrorMessage);
-=======
-            var result = await _userService.RegisterAsync(dto);
-            
-            var user = await _userRepository.FindByNameAsync(result.Username);
-            var token = _jwtService.GenerateToken(user!);
-            Response.Cookies.Append("AuthToken", token, new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict });
-
-            return Ok(result);
->>>>>>> Stashed changes
         }
 
         var result = await _userService.LoginAsync(dto);
+        var user = await _userRepository.GetUserById(result.Id);
+        var token = _jwtService.GenerateToken(user!);
+
+        Response.Cookies.Append("AuthToken", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        });
+
         return Ok(result);
     }
 
-<<<<<<< Updated upstream
     /// <summary>
     /// Logout the current user.
     /// </summary>
@@ -123,6 +113,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         await _userService.LogoutAsync();
+        Response.Cookies.Delete("AuthToken");
         return Ok(new { Message = "Logged out successfully." });
     }
 
@@ -161,15 +152,6 @@ public class UserController : ControllerBase
         if (!validationResult.IsValid)
         {
             return BadRequest(validationResult.Errors.First().ErrorMessage);
-=======
-            var result = await _userService.LoginAsync(dto);
-            
-            var user = await _userRepository.FindByNameAsync(result.Username);
-            var token = _jwtService.GenerateToken(user!);
-            Response.Cookies.Append("AuthToken", token, new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict });
-            
-            return Ok(result);
->>>>>>> Stashed changes
         }
 
         var result = await _userService.UpdateUserProfileAsync(userId, dto);
@@ -195,13 +177,7 @@ public class UserController : ControllerBase
         var validationResult = await _updateAvailabilityValidator.ValidateAsync(dto);
         if (!validationResult.IsValid)
         {
-<<<<<<< Updated upstream
             return BadRequest(validationResult.Errors.First().ErrorMessage);
-=======
-            await _userService.LogoutAsync();
-            Response.Cookies.Delete("AuthToken");
-            return Ok(new { Message = "Logged out successfully." });
->>>>>>> Stashed changes
         }
 
         var result = await _userService.UpdateAvailabilityAsync(userId, dto);
