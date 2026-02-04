@@ -207,3 +207,9 @@ export interface PagedResult<T> {
     pageSize: number;
     totalPages: number;
 }
+
+export interface TeamJoinStatusDto {
+    teamId: number;
+    teamName: string;
+    status: number;
+}
