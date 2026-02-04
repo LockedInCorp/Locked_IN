@@ -1,3 +1,5 @@
+using Locked_IN_Backend.Misc.Enum;
+
 namespace Locked_IN_Backend.DTOs;
 
 public class GetTeamsCardDto
@@ -32,4 +34,5 @@ public class GetTeamsCardDto
     public string? IconUrl { get; set; }
     public float? SearchRank { get; set; }
     public string? TeamLeaderUsername { get; set; }
+    public TeamMemberStatus TeamMemberStatus { get; set; }
 }

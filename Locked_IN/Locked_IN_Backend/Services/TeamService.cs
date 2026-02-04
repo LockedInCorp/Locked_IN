@@ -51,15 +51,10 @@ public class TeamService : ITeamService
         }).ToList();
     }
 
-    public async Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, int ShowPendingRequestsUserId)
+    public async Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, int userId, bool OnlyShowPending)
     {
-        List<int>? teamIds = null;
-        if (ShowPendingRequestsUserId >= 0)
-        {
-            var pendingRequests = await _teamMemberRepository.GetPendingRequestsAsync(ShowPendingRequestsUserId);
-            teamIds = pendingRequests.Select(tm => tm.TeamId).ToList(); 
-        }
-        var pagedResults = await _teamRepository.GetTeamsAdvancedAsync(gameIds, preferenceTagIds, searchTerm, page, pageSize, sortBy, teamIds);
+        var pagedResults = await _teamRepository.GetTeamsAdvancedAsync(gameIds, preferenceTagIds, searchTerm, page, pageSize, sortBy, userId, OnlyShowPending);
+        
         
         return new PagedResult<GetTeamsCardDto>
         {
@@ -68,12 +63,13 @@ public class TeamService : ITeamService
                 var dto = _mapper.Map<GetTeamsCardDto>(r.Team);
                 dto.SearchRank = r.SearchRank;
                 dto.TeamLeaderUsername = r.TeamLeaderUsername;
+                dto.TeamMemberStatus = r.TeamMemberStatus;
                 return dto;
             }).ToList(),
             TotalCount = pagedResults.TotalCount,
             Page = pagedResults.Page,
             PageSize = pagedResults.PageSize,
-            TotalPages = pagedResults.TotalPages
+            TotalPages = pagedResults.TotalPages,
         };
     }
 

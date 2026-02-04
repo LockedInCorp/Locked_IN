@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { getUserChats } from "@/api/api"
 import type {UserChatDto} from "@/api/types"
+import { getImageUrl } from "@/utils/imageUtils"
 
 export function GroupsList() {
     const navigate = useNavigate();
@@ -78,7 +79,15 @@ export function GroupsList() {
                                 }`}
                             >
                                 <Avatar className="h-12 w-12 flex-shrink-0">
-                                    <AvatarImage src={chat.chatIconUrl || "/placeholder.svg"} />
+                                    <AvatarImage 
+                                        src={getImageUrl(chat.chatIconUrl)} 
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            if (!target.src.includes("/assets/sunset-silhouette-gaming.jpg")) {
+                                                target.src = "/assets/sunset-silhouette-gaming.jpg";
+                                            }
+                                        }}
+                                    />
                                     <AvatarFallback>G</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">

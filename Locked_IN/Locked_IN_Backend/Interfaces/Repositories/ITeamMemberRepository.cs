@@ -16,4 +16,5 @@ public interface ITeamMemberRepository
     Task<List<TeamMember>> GetPendingRequestsByTeamIdAsync(int teamId);
     Task<TeamMember?> GetTeamMemberWithTeamByIdAsync(int teamId, int userId);
     Task<List<TeamMember>> GetTeamMembersByTeamIdAsync(int teamId);
+    Task<TeamMember?> GetTeamLeaderAsync(int teamId);
 }

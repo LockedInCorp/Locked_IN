@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { tokenStorage } from '@/utils/auth/cookieStorage';
+import { persist } from '@/utils/auth/persistance';
 
 export const API_BASE_URL = 'http://localhost:5122/api';
 export const API_BASE_URL_HTTPS = 'https://localhost:7252/api';
@@ -21,21 +21,6 @@ export const apiClientHttps = axios.create({
   },
 });
 
-const setupRequestInterceptor = (client: typeof apiClient) => {
-  client.interceptors.request.use(
-    (config) => {
-      const token = tokenStorage.getToken();
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-};
-
 const setupResponseInterceptor = (client: typeof apiClient) => {
   client.interceptors.response.use(
     (response) => {
@@ -43,7 +28,7 @@ const setupResponseInterceptor = (client: typeof apiClient) => {
     },
     (error: AxiosError) => {
       if (error.response?.status === 401) {
-        tokenStorage.clear();
+        persist.clearUserData();
         
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login';
@@ -54,8 +39,5 @@ const setupResponseInterceptor = (client: typeof apiClient) => {
   );
 };
 
-setupRequestInterceptor(apiClient);
 setupResponseInterceptor(apiClient);
-
-setupRequestInterceptor(apiClientHttps);
 setupResponseInterceptor(apiClientHttps);

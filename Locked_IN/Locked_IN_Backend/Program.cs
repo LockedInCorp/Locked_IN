@@ -58,6 +58,15 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["AuthToken"];
+                return Task.CompletedTask;
+            }
+        };
     });
 
 
@@ -153,6 +162,7 @@ app.MapControllers();
 
 
 app.MapHub<ChatHub>("/chathub");
+app.MapHub<TeamJoinHub>("/teamjoinhub");
 
 app.Run();
 

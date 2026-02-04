@@ -6,8 +6,8 @@ import {
     updateUserProfile,
     getUserGameProfiles
 } from "@/api/api"
-import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
-import { tokenStorage } from "@/utils/auth/cookieStorage"
+import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
+import { persist } from "@/utils/auth/persistance"
 import type { GameProfile } from "@/stores/authStore"
 
 export function useProfile() {
@@ -48,7 +48,7 @@ export function useProfile() {
                 throw new Error('Failed to load profile')
             }
             
-            let avatarUrl = await extractAvatarFromResponse(profile as any)
+            let avatarUrl = getImageUrl(extractAvatarPath(profile as any))
             
             if (!avatarUrl) {
                 avatarUrl = user?.avatarUrl
@@ -82,7 +82,7 @@ export function useProfile() {
                     avatarUrl: avatarUrl
                 };
                 setUser(updatedUser);
-                tokenStorage.setUserData(updatedUser);
+                    persist.setUserData(updatedUser);
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load profile'
@@ -109,14 +109,25 @@ export function useProfile() {
             })
 
             if (updatedProfile) {
-                const updatedAvatarUrl = await extractAvatarFromResponse(updatedProfile as any)
+                const updatedAvatarUrl = getImageUrl(extractAvatarPath(updatedProfile as any))
+                const finalAvatarUrl = updatedAvatarUrl || profileData.avatarUrl
                 
                 setProfileData({
                     ...profileData,
                     nickname: updatedProfile.username,
-                    avatarUrl: updatedAvatarUrl || profileData.avatarUrl,
+                    avatarUrl: finalAvatarUrl,
                     avatarFallback: updatedProfile.username.charAt(0).toUpperCase() || "U"
                 })
+
+                if (user && finalAvatarUrl) {
+                    const updatedUser = {
+                        ...user,
+                        avatarUrl: finalAvatarUrl,
+                        nickname: updatedProfile.username
+                    }
+                    setUser(updatedUser)
+                    persist.setUserData(updatedUser)
+                }
             } else {
                 setProfileData({
                     ...profileData,

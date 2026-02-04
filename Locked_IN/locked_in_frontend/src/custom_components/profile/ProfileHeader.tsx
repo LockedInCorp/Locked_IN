@@ -4,6 +4,7 @@ import { useRef } from "react"
 import { Upload } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { getImageUrl } from "@/utils/imageUtils"
 
 type ProfileHeaderProps = {
     avatarUrl?: string
@@ -35,7 +36,7 @@ export default function ProfileHeader({
         <div className={`flex items-center gap-4 ${isEditing ? 'mb-12' : 'mb-8'}`}>
             <div className={`relative ${isEditing ? 'pb-3' : ''}`}>
                 <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarUrl} />
+                    <AvatarImage src={getImageUrl(avatarUrl)} />
                     <AvatarFallback>{avatarFallback}</AvatarFallback>
                 </Avatar>
                 {isEditing && (

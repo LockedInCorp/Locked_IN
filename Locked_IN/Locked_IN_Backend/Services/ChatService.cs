@@ -130,6 +130,7 @@ public class ChatService : IChatService
         {
             Type = nameof(ChatType.Team),
             TeamId = teamId,
+            Name = team.Name,
             CreatedAt = currentTimestamp
         };
         
@@ -162,6 +163,8 @@ public class ChatService : IChatService
             chatDto.UnreadMessageCount = participant.UnreadCount;
             if (participant.Chat.Type.Equals(nameof(ChatType.Direct)))
             {
+                var otherParticipant = participant.Chat.Chatparticipants.FirstOrDefault(cp => cp.UserId != userId);
+                chatDto.ChatName = otherParticipant?.User.UserName;
                 chatDto.ChatIconUrl = _participantRepository.GetOtherParticipantsAsync(participant.ChatId, userId)
                     .Result.FirstOrDefault(p => p.UserId != userId)?.User.AvatarUrl;
             }
