@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSidebar"
 import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
 import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
@@ -8,6 +8,7 @@ import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 import { searchTeamsAdvanced } from "@/api/api"
 import type { GroupCard, GameOption } from "@/custom_components/groupDiscover/types"
 import type { TeamSearchResult } from "@/api/types"
+
 //#TODO when current page=maxpage and changeView to lower value displays empty page
 export default function DiscoverPage() {
     const { 
@@ -31,43 +32,45 @@ export default function DiscoverPage() {
 
     const visibleGames: GameOption[] = customGames.map((g) => ({ ...g, isFavorite: false }))
 
-    useEffect(() => {
-        const fetchGroups = async () => {
-            try {
-                const dto = {
-                    gameIds: Array.from(selectedGames).map(id => parseInt(id)),
-                    preferenceTagIds: Array.from(selectedTagIds).map(id => parseInt(id)),
-                    searchTerm: groupSearch,
-                    page: currentPage,
-                    pageSize: pageSize,
-                    sortBy: sortBy,
-                    showPendingRequests: showPending
-                }
-                
-                const data = await searchTeamsAdvanced(dto)
-                
-                const mappedGroups: GroupCard[] = data.items.map((team: TeamSearchResult) => ({
-                    id: team.id.toString(),
-                    title: team.name,
-                    game: team.gameName || "Unknown Game",
-                    teamLeaderUsername: team.teamLeaderUsername || "Unknown",
-                    description: team.description,
-                    image: team.iconUrl || "/assets/sunset-silhouette-gaming.jpg",
-                    tags: team.preferenceTags || [],
-                    currentMembers: team.currentMemberCount,
-                    maxMembers: team.maxPlayerCount,
-                    isPending: false
-                }))
-
-                setGroups(mappedGroups)
-                setTotalPages(data.totalPages)
-            } catch (error) {
-                console.error(error)
+    const fetchGroups = useCallback(async () => {
+        try {
+            const dto = {
+                gameIds: Array.from(selectedGames).map(id => parseInt(id)),
+                preferenceTagIds: Array.from(selectedTagIds).map(id => parseInt(id)),
+                searchTerm: groupSearch,
+                page: currentPage,
+                pageSize: pageSize,
+                sortBy: sortBy,
+                showPendingRequests: showPending
             }
-        }
+            
+            const data = await searchTeamsAdvanced(dto)
+            
+            const mappedGroups: GroupCard[] = data.items.map((team: TeamSearchResult) => ({
+                id: team.id.toString(),
+                title: team.name,
+                game: team.gameName || "Unknown Game",
+                teamLeaderUsername: team.teamLeaderUsername || "Unknown",
+                description: team.description,
+                image: team.iconUrl || "/assets/sunset-silhouette-gaming.jpg",
+                tags: team.preferenceTags || [],
+                currentMembers: team.currentMemberCount,
+                maxMembers: team.maxPlayerCount,
+                isPending: false,
+                autoAccept: team.autoAccept,
+                teamMemberStatus: team.teamMemberStatus
+            }))
 
-        fetchGroups()
+            setGroups(mappedGroups)
+            setTotalPages(data.totalPages)
+        } catch (error) {
+            console.error(error)
+        }
     }, [groupSearch, selectedGames, selectedTagIds, currentPage, pageSize, sortBy, showPending])
+
+    useEffect(() => {
+        fetchGroups()
+    }, [fetchGroups])
 
     const handleToggleTagFilter = (tagId: string) => {
         setSelectedTagIds((prev) => {
@@ -146,6 +149,7 @@ export default function DiscoverPage() {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
+                    onRefresh={fetchGroups}
                 />
             </div>
         </div>

@@ -8,9 +8,10 @@ interface GroupCardGridProps {
     currentPage: number
     totalPages: number
     onPageChange: (page: number) => void
+    onRefresh?: () => void
 }
 
-export function GroupCardGrid({ groups, currentPage, totalPages, onPageChange }: GroupCardGridProps) {
+export function GroupCardGrid({ groups, currentPage, totalPages, onPageChange, onRefresh }: GroupCardGridProps) {
     const handlePreviousPage = () => {
         if (currentPage > 1) {
             onPageChange(currentPage - 1)
@@ -48,7 +49,7 @@ export function GroupCardGrid({ groups, currentPage, totalPages, onPageChange }:
             <div className="flex-1 overflow-y-auto pr-2 w-full min-w-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full">
                     {groups.map((group) => (
-                        <GroupCardComponent key={group.id} group={group} />
+                        <GroupCardComponent key={group.id} group={group} onUpdate={onRefresh} />
                     ))}
                 </div>
             </div>

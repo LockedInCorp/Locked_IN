@@ -1,11 +1,16 @@
 const USER_DATA_KEY = 'auth_user_data';
 
-const getCookieOptions = () => ({
-  maxAge: 7 * 24 * 60 * 60,
-  path: '/',
-  sameSite: 'Strict' as const,
-  secure: typeof window !== 'undefined' && window.location.protocol === 'https:',
-});
+const getCookieOptions = () => {
+  const isProduction = import.meta.env.PROD;
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  
+  return {
+    maxAge: 7 * 24 * 60 * 60,
+    path: '/',
+    sameSite: 'Lax' as const,
+    secure: isProduction || isHttps,
+  };
+};
 
 export interface StoredUserData {
   id: string;

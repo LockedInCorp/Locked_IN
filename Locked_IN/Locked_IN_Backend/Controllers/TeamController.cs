@@ -79,13 +79,10 @@ public class TeamController : ControllerBase
     [HttpPost("search/advanced")]
     public async Task<ActionResult<PagedResult<GetTeamsCardDto>>> AdvancedSearch([FromBody] AdvancedSearchDto searchDto)
     {
-        var userId = -1;
-        if (searchDto.ShowPendingRequests)
-        {
-            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
-            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
-            userId = int.Parse(userIdClaim);
-        }
+        
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
 
         var validationResult = await _advancedSearchValidator.ValidateAsync(searchDto);
         if (!validationResult.IsValid)
