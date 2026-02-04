@@ -22,6 +22,7 @@ public class UserService : IUserService
         IJwtService jwtService, 
         IMapper mapper)
     {
+<<<<<<< Updated upstream
         _userRepository = userRepository;
         _fileUploadService = fileUploadService;
         _jwtService = jwtService;
@@ -35,6 +36,17 @@ public class UserService : IUserService
         if (user == null)
         {
             throw new NotFoundException($"User with ID {userId} not found.");
+=======
+        private readonly IUserRepository _userRepository;
+        private readonly IFileUploadService _fileUploadService;
+        private readonly IMapper _mapper;
+
+        public UserService(IUserRepository userRepository, IFileUploadService fileUploadService, IMapper mapper)
+        {
+            _userRepository = userRepository;
+            _fileUploadService = fileUploadService;
+            _mapper = mapper;
+>>>>>>> Stashed changes
         }
 
         return _mapper.Map<UserProfileDto>(user);
@@ -157,15 +169,54 @@ public class UserService : IUserService
                 }
             }
             
+<<<<<<< Updated upstream
             user.AvatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.AvatarFile);
+=======
+            if (!result.Succeeded)
+            {
+                if (avatarUrl != null)
+                {
+                    var bucket = avatarUrl.Split("/")[0];
+                    var fileName = avatarUrl.Split("/")[1];
+                    await _fileUploadService.DeleteFileAsync(bucket, fileName);
+                }
+                
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new BadRequestException(errors);
+            }
+
+            var userProfile = await GetUserProfileAsync(user.Id);
+
+            return userProfile;
+>>>>>>> Stashed changes
         }
 
         var result = await _userRepository.UpdateUserAsync(user);
 
         if (!result.Succeeded)
         {
+<<<<<<< Updated upstream
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
             throw new BadRequestException(errors);
+=======
+            var user = await _userRepository.FindByNameAsync(dto.Username) ?? await _userRepository.FindByEmailAsync(dto.Username);
+
+            if (user == null)
+            {
+                throw new UnauthorizedException("Invalid username or password.");
+            }
+
+            var result = await _userRepository.PasswordSignInAsync(user, dto.Password, false, false);
+
+            if (!result.Succeeded)
+            {
+                throw new UnauthorizedException("Invalid username or password.");
+            }
+
+            var userProfile = await GetUserProfileAsync(user.Id);
+            
+            return userProfile;
+>>>>>>> Stashed changes
         }
 
         return _mapper.Map<UserProfileDto>(user);

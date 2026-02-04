@@ -162,8 +162,14 @@ public class ChatService : IChatService
             chatDto.UnreadMessageCount = participant.UnreadCount;
             if (participant.Chat.Type.Equals(nameof(ChatType.Direct)))
             {
+<<<<<<< Updated upstream
                 chatDto.ChatIconUrl = _participantRepository.GetOtherParticipantsAsync(participant.ChatId, userId)
                     .Result.FirstOrDefault(p => p.UserId != userId)?.User.AvatarUrl;
+=======
+                var otherParticipant = participant.Chat.Chatparticipants.FirstOrDefault(cp => cp.UserId != userId);
+                chatDto.ChatName = otherParticipant?.User.UserName;
+                chatDto.ChatIconUrl = otherParticipant?.User.AvatarUrl;
+>>>>>>> Stashed changes
             }
             else if (participant.Chat.Type.Equals(nameof(ChatType.Team)) && participant.Chat.TeamId != null)
             {
