@@ -1,8 +1,9 @@
 import axios, { AxiosError } from 'axios';
-import { tokenStorage } from '@/utils/auth/tokenStorage.ts';
+import { tokenStorage } from '@/utils/auth/cookieStorage';
 
 export const API_BASE_URL = 'http://localhost:5122/api';
 export const API_BASE_URL_HTTPS = 'https://localhost:7252/api';
+
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

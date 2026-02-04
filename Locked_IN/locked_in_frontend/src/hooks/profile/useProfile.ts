@@ -7,7 +7,7 @@ import {
     getUserGameProfiles
 } from "@/api/api"
 import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
-import { tokenStorage } from "@/utils/auth/tokenStorage"
+import { tokenStorage } from "@/utils/auth/cookieStorage"
 import type { GameProfile } from "@/stores/authStore"
 
 export function useProfile() {
