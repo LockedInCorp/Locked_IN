@@ -170,6 +170,7 @@ public class ChatService : IChatService
             }
             else if (participant.Chat.Type.Equals(nameof(ChatType.Team)) && participant.Chat.TeamId != null)
             {
+                chatDto.ChatName = participant.Chat.Team?.Name;
                 chatDto.ChatIconUrl = _teamRepository.GetTeamById(participant.Chat.TeamId ?? -1).Result?.IconUrl;
             }
 

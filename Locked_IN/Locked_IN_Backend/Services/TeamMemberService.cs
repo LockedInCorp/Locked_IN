@@ -7,6 +7,7 @@ using Locked_IN_Backend.Misc.Enum;
 using Locked_IN_Backend.Exceptions;
 using Microsoft.AspNetCore.SignalR;
 using Locked_IN_Backend.Hubs;
+using Locked_IN_Backend.Interfaces;
 
 namespace Locked_IN_Backend.Services
 {
@@ -15,9 +16,9 @@ namespace Locked_IN_Backend.Services
         private readonly ITeamRepository _teamRepository;
         private readonly ITeamMemberRepository _teamMemberRepository;
         private readonly IUserRepository _userRepository;
-        private readonly IHubContext<TeamJoinHub> _hubContext;
+        private readonly IHubContext<TeamJoinHub, ITeamMemberHub> _hubContext;
 
-        public TeamMemberService(ITeamRepository teamRepository, ITeamMemberRepository teamMemberRepository, IUserRepository userRepository, IHubContext<TeamJoinHub> hubContext)
+        public TeamMemberService(ITeamRepository teamRepository, ITeamMemberRepository teamMemberRepository, IUserRepository userRepository, IHubContext<TeamJoinHub, ITeamMemberHub> hubContext)
         {
             _teamRepository = teamRepository;
             _teamMemberRepository = teamMemberRepository;
@@ -88,7 +89,7 @@ namespace Locked_IN_Backend.Services
             var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
             if (leader != null)
             {
-                await _hubContext.Clients.User(leader.UserId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+                await _hubContext.Clients.User(leader.UserId.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
                 {
                     TeamId = teamId,
                     TeamName = team.Name,
@@ -131,7 +132,7 @@ namespace Locked_IN_Backend.Services
 
             await _teamMemberRepository.UpdateTeamMemberAsync(request);
 
-            await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+            await _hubContext.Clients.User(userId.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
             {
                 TeamId = teamId,
                 TeamName = request.Team.Name,
@@ -152,7 +153,7 @@ namespace Locked_IN_Backend.Services
 
             await _teamMemberRepository.UpdateTeamMemberAsync(request);
 
-            await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+            await _hubContext.Clients.User(userId.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
             {
                 TeamId = teamId,
                 TeamName = request.Team.Name,
@@ -174,7 +175,7 @@ namespace Locked_IN_Backend.Services
             var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
             if (leader != null)
             {
-                await _hubContext.Clients.User(leader.UserId.ToString()).SendAsync("ReceiveJoinRequestStatus", new TeamJoinStatusDto
+                await _hubContext.Clients.User(leader.UserId.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
                 {
                     TeamId = teamId,
                     TeamName = request.Team.Name,

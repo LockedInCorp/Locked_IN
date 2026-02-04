@@ -231,12 +231,20 @@ public class TeamRepository : ITeamRepository
         
         var teamMap = teams.ToDictionary(t => t.Id);
 
-        var items = pagedResults.Select(r => new TeamSearchResult
+        var items = pagedResults.Select(r =>
         {
-            Team = teamMap[r.TeamId],
-            SearchRank = r.SearchRank,
-            TeamLeaderUsername = r.TeamLeaderUsername,
-            TeamMemberStatus = (TeamMemberStatus)(teamMap[r.TeamId].TeamMembers.FirstOrDefault(u => u.UserId == userId)?.MemberStatus.Id ?? (int)TeamMemberStatus.STATUS_NONE)
+            var team = teamMap[r.TeamId];
+            var currentUserMember = team.TeamMembers.FirstOrDefault(u => u.UserId == userId);
+            
+            return new TeamSearchResult
+            {
+                Team = team,
+                SearchRank = r.SearchRank,
+                TeamLeaderUsername = r.TeamLeaderUsername,
+                TeamMemberStatus = currentUserMember != null 
+                    ? (TeamMemberStatus)currentUserMember.MemberStatusId 
+                    : TeamMemberStatus.STATUS_NONE
+            };
         }).ToList();
 
         return new PagedResult<TeamSearchResult>

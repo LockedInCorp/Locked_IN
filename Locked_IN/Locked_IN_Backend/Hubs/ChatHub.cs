@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Locked_IN_Backend.DTOs.Chat;
+using Locked_IN_Backend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Locked_IN_Backend.Hubs;
 
@@ -7,7 +9,8 @@ namespace Locked_IN_Backend.Hubs;
 /// SignalR Hub for real-time chat communication.
 /// Uses Groups feature to manage chat rooms efficiently.
 /// </summary>
-public class ChatHub : Hub
+[Authorize]
+public class ChatHub : Hub<IChatHub>
 {
     /// <summary>
     /// Join a chat group when user connects to a chat room.
@@ -16,7 +19,7 @@ public class ChatHub : Hub
     public async Task JoinChatGroup(string chatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
-        await Clients.Group($"Chat_{chatId}").SendAsync("UserJoined", Context.ConnectionId);
+        await Clients.Group($"Chat_{chatId}").UserJoined(Context.ConnectionId);
     }
 
     /// <summary>
@@ -25,7 +28,7 @@ public class ChatHub : Hub
     public async Task LeaveChatGroup(string chatId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
-        await Clients.Group($"Chat_{chatId}").SendAsync("UserLeft", Context.ConnectionId);
+        await Clients.Group($"Chat_{chatId}").UserLeft(Context.ConnectionId);
     }
 
     /// <summary>
@@ -34,7 +37,7 @@ public class ChatHub : Hub
     /// </summary>
     public async Task SendMessageToGroup(string chatId, GetMessageDto getMessage)
     {
-        await Clients.Group($"Chat_{chatId}").SendAsync("ReceiveMessage", getMessage);
+        await Clients.Group($"Chat_{chatId}").ReceiveMessage(getMessage);
     }
 
     /// <summary>
@@ -42,7 +45,7 @@ public class ChatHub : Hub
     /// </summary>
     public async Task SendEditedMessageToGroup(string chatId, GetMessageDto getMessage)
     {
-        await Clients.Group($"Chat_{chatId}").SendAsync("MessageEdited", getMessage);
+        await Clients.Group($"Chat_{chatId}").MessageEdited(getMessage);
     }
 
     /// <summary>
@@ -50,7 +53,7 @@ public class ChatHub : Hub
     /// </summary>
     public async Task SendDeletedMessageToGroup(string chatId, int messageId)
     {
-        await Clients.Group($"Chat_{chatId}").SendAsync("MessageDeleted", messageId);
+        await Clients.Group($"Chat_{chatId}").MessageDeleted(messageId);
     }
 
     /// <summary>
@@ -58,7 +61,7 @@ public class ChatHub : Hub
     /// </summary>
     public async Task SendReadReceiptToGroup(string chatId, int userId, DateTime readAt)
     {
-        await Clients.Group($"Chat_{chatId}").SendAsync("MessageRead", new { UserId = userId, ReadAt = readAt });
+        await Clients.Group($"Chat_{chatId}").MessageRead(new { UserId = userId, ReadAt = readAt });
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

@@ -15,9 +15,9 @@ namespace Locked_IN_Backend.Controllers;
 public class ChatController : ControllerBase
 {
     private readonly IChatService _chatService;
-    private readonly IHubContext<ChatHub> _hubContext;
+    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
 
-    public ChatController(IChatService chatService, IHubContext<ChatHub> hubContext)
+    public ChatController(IChatService chatService, IHubContext<ChatHub, IChatHub> hubContext)
     {
         _chatService = chatService;
         _hubContext = hubContext;
@@ -100,7 +100,7 @@ public class ChatController : ControllerBase
 
         // Then broadcast read receipt via SignalR
         await _hubContext.Clients.Group($"Chat_{chatId}")
-            .SendAsync("MessageRead", new { UserId = userId, ReadAt = DateTime.UtcNow });
+            .MessageRead(new { UserId = userId, ReadAt = DateTime.UtcNow });
 
         return NoContent();
     }
