@@ -203,4 +203,5 @@ void RegisterServices()
     builder.Services.AddScoped<IMessageService, MessageService>();
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
     builder.Services.AddScoped<IJwtService, JwtService>();
+    builder.Services.AddScoped<IValidator<Locked_IN_Backend.DTOs.GameProfile.CreateGameProfileDto>, Locked_IN_Backend.DTOs.GameProfile.CreateGameProfileDtoValidator>();
 }
