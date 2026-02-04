@@ -136,7 +136,7 @@ namespace Locked_IN_Backend.Services
             {
                 TeamId = teamId,
                 TeamName = request.Team.Name,
-                Status = "Accepted"
+                Status = (int)TeamMemberStatus.STATUS_MEMBER
             });
         }
 
@@ -157,7 +157,7 @@ namespace Locked_IN_Backend.Services
             {
                 TeamId = teamId,
                 TeamName = request.Team.Name,
-                Status = "Declined"
+                Status = (int)TeamMemberStatus.STATUS_REJECTED
             });
         }
 
@@ -179,7 +179,7 @@ namespace Locked_IN_Backend.Services
                 {
                     TeamId = teamId,
                     TeamName = request.Team.Name,
-                    Status = "JoinRequestCancelled"
+                    Status = (int)TeamMemberStatus.STATUS_NONE
                 });
             }
         }
