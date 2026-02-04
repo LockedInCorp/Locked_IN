@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { authStorage } from '@/utils/auth/authStorage';
+import { persist } from '@/utils/auth/persistance';
 
 export const API_BASE_URL = 'http://localhost:5122/api';
 export const API_BASE_URL_HTTPS = 'https://localhost:7252/api';
@@ -24,7 +24,7 @@ export const apiClientHttps = axios.create({
 const setupRequestInterceptor = (client: typeof apiClient) => {
   client.interceptors.request.use(
     (config) => {
-      const token = authStorage.getToken();
+      const token = persist.getToken();
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -43,7 +43,7 @@ const setupResponseInterceptor = (client: typeof apiClient) => {
     },
     (error: AxiosError) => {
       if (error.response?.status === 401) {
-        authStorage.clear();
+        persist.clear();
         
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login';

@@ -54,7 +54,7 @@ const removeCookie = (name: string, options: ReturnType<typeof getCookieOptions>
   document.cookie = cookieString;
 };
 
-export const authStorage = {
+export const persist = {
   getToken: (): string | null => {
     if (typeof window === 'undefined') return null;
     return getCookie(TOKEN_KEY);
@@ -71,7 +71,7 @@ export const authStorage = {
   },
 
   hasToken: (): boolean => {
-    return authStorage.getToken() !== null;
+    return persist.getToken() !== null;
   },
 
   getUserData: (): StoredUserData | null => {
@@ -96,7 +96,7 @@ export const authStorage = {
   },
 
   clear: (): void => {
-    authStorage.removeToken();
-    authStorage.removeUserData();
+    persist.removeToken();
+    persist.removeUserData();
   },
 };

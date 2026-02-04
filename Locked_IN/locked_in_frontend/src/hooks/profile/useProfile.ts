@@ -7,7 +7,7 @@ import {
     getUserGameProfiles
 } from "@/api/api"
 import { extractAvatarFromResponse } from "@/utils/profile/avatarUtils"
-import { authStorage } from "@/utils/auth/authStorage"
+import { persist } from "@/utils/auth/persistance"
 import type { GameProfile } from "@/stores/authStore"
 
 export function useProfile() {
@@ -82,7 +82,7 @@ export function useProfile() {
                     avatarUrl: avatarUrl
                 };
                 setUser(updatedUser);
-                    authStorage.setUserData(updatedUser);
+                    persist.setUserData(updatedUser);
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load profile'
@@ -126,7 +126,7 @@ export function useProfile() {
                         nickname: updatedProfile.username
                     }
                     setUser(updatedUser)
-                    authStorage.setUserData(updatedUser)
+                    persist.setUserData(updatedUser)
                 }
             } else {
                 setProfileData({

@@ -4,7 +4,7 @@ import type { LoginRequest, UserProfileDto } from '@/api/types';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import { extractAvatarFromResponse } from '@/utils/profile/avatarUtils';
-import { authStorage } from '@/utils/auth/authStorage';
+import { persist } from '@/utils/auth/persistance';
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export function useLogin() {
     onSuccess: async (data) => {
       if (data) {
         if (data.token) {
-          authStorage.setToken(data.token);
+          persist.setToken(data.token);
         }
         
         const avatarUrl = await extractAvatarFromResponse(data as any)
@@ -27,7 +27,7 @@ export function useLogin() {
           avatarUrl: avatarUrl,
         };
         
-        authStorage.setUserData(userData);
+        persist.setUserData(userData);
         setUser(userData);
         
         resetLoginForm();
