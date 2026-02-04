@@ -52,8 +52,7 @@ export default function Friends() {
 
         setIsSaving(true)
         try {
-            const userId = parseInt(user.id)
-            await updateUserAvailability(userId, editingAvailability)
+            await updateUserAvailability(editingAvailability)
             setUserAvailability(editingAvailability)
             setHasChanges(false)
         } catch (err) {

@@ -1,4 +1,4 @@
-﻿import { apiClient } from '@/api/apiClient.ts';
+import { apiClient } from '@/api/apiClient.ts';
 import * as Types from './types';
 
 // Auth
@@ -81,11 +81,10 @@ export const updateUserProfile = async (
 }
 
 export const updateUserAvailability = async (
-    userId: number,
     availability: Record<string, string[]>
 ): Promise<Types.UserProfileResponse> => {
     try {
-        const response = await apiClient.put<Types.UserProfileResponse>(`/user/availability/${userId}`, { availability })
+        const response = await apiClient.put<Types.UserProfileResponse>(`/user/availability`, { availability })
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to update availability')

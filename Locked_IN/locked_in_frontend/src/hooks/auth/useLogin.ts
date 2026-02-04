@@ -3,8 +3,8 @@ import { loginUser } from '@/api/api';
 import type { LoginRequest, UserProfileDto } from '@/api/types';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
-import { getImageUrl, extractAvatarPath } from '@/utils/imageUtils';
-import { tokenStorage } from '@/utils/auth/tokenStorage';
+import { extractAvatarFromResponse } from '@/utils/profile/avatarUtils';
+import { tokenStorage } from '@/utils/auth/cookieStorage';
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -18,15 +18,17 @@ export function useLogin() {
           tokenStorage.setToken(data.token);
         }
         
-        const avatarPath = extractAvatarPath(data);
-        const avatarUrl = getImageUrl(avatarPath);
+        const avatarUrl = await extractAvatarFromResponse(data as any)
         
-        setUser({
+        const userData = {
           id: data.id.toString(),
           email: data.email,
           nickname: data.username,
           avatarUrl: avatarUrl,
-        });
+        };
+        
+        tokenStorage.setUserData(userData);
+        setUser(userData);
         
         resetLoginForm();
         

@@ -2,152 +2,185 @@ using System.Text.Json;
 using AutoMapper;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs.User;
-using Locked_IN_Backend.Interfaces;
-using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Interfaces.Services;
-using Microsoft.AspNetCore.Identity;
+using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Exceptions;
+using Locked_IN_Backend.Interfaces;
 
-namespace Locked_IN_Backend.Services
+namespace Locked_IN_Backend.Services;
+
+public class UserService : IUserService
 {
-    public class UserService : IUserService
+    private readonly IUserRepository _userRepository;
+    private readonly IFileUploadService _fileUploadService;
+    private readonly IMapper _mapper;
+
+    public UserService(
+        IUserRepository userRepository, 
+        IFileUploadService fileUploadService, 
+        IMapper mapper)
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IFileUploadService _fileUploadService;
-        private readonly IJwtService _jwtService;
-        private readonly IMapper _mapper;
+        _userRepository = userRepository;
+        _fileUploadService = fileUploadService;
+        _mapper = mapper;
+    }
 
-        public UserService(IUserRepository userRepository, IFileUploadService fileUploadService, IJwtService jwtService, IMapper mapper)
+    public async Task<UserProfileDto> GetUserProfileAsync(int userId)
+    {
+        var user = await _userRepository.GetUserById(userId);
+
+        if (user == null)
         {
-            _userRepository = userRepository;
-            _fileUploadService = fileUploadService;
-            _jwtService = jwtService;
-            _mapper = mapper;
+            throw new NotFoundException($"User with ID {userId} not found.");
         }
 
-        public async Task<UserProfileDto> GetUserProfileAsync(int userId)
-        {
-            var user = await _userRepository.GetUserById(userId);
+        return _mapper.Map<UserProfileDto>(user);
+    }
 
-            if (user == null)
+    public async Task<UserProfileDto> RegisterAsync(RegisterDto dto)
+    {
+        var existingUser = await _userRepository.FindByNameAsync(dto.Username) ?? await _userRepository.FindByEmailAsync(dto.Email);
+        if (existingUser != null)
+        {
+            throw new ConflictException("Username or Email is already taken.");
+        }
+
+        string? avatarUrl = null;
+
+        if (dto.Avatar != null)
+        {
+            try
             {
-                throw new NotFoundException("User not found.");
+                avatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.Avatar);
             }
-
-            return _mapper.Map<UserProfileDto>(user);
+            catch (Exception ex)
+            {
+                throw new BadRequestException($"Avatar upload failed: {ex.Message}");
+            }
         }
 
-        public async Task<UserProfileDto> RegisterAsync(RegisterDto dto)
+        var user = _mapper.Map<User>(dto);
+        user.AvatarUrl = avatarUrl;
+
+        var result = await _userRepository.CreateUserAsync(user, dto.Password);
+        
+        if (!result.Succeeded)
         {
-            string? avatarUrl = null;
-            if (dto.Avatar != null)
+            if (avatarUrl != null)
+            {
+                try 
+                {
+                    var parts = avatarUrl.Split('/');
+                    if (parts.Length >= 2)
+                    {
+                        await _fileUploadService.DeleteFileAsync(parts[0], parts[1]);
+                    }
+                }
+                catch 
+                { 
+                }
+            }
+            
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new BadRequestException(errors);
+        }
+
+        return _mapper.Map<UserProfileDto>(user);
+    }
+
+    public async Task<UserProfileDto> LoginAsync(LoginDto dto)
+    {
+        var user = await _userRepository.FindByNameAsync(dto.Username) ?? await _userRepository.FindByEmailAsync(dto.Username);
+
+        if (user == null)
+        {
+            throw new UnauthorizedException("Invalid username or password.");
+        }
+
+        var result = await _userRepository.PasswordSignInAsync(user, dto.Password, false, false);
+
+        if (!result.Succeeded)
+        {
+            throw new UnauthorizedException("Invalid username or password.");
+        }
+
+        return _mapper.Map<UserProfileDto>(user);
+    }
+
+    public async Task<UserProfileDto> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto)
+    {
+        var user = await _userRepository.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+        {
+            throw new NotFoundException("User not found.");
+        }
+
+        if (dto.Username != user.UserName)
+        {
+            var existingUser = await _userRepository.FindByNameAsync(dto.Username);
+            if (existingUser != null) throw new ConflictException("Username is already taken.");
+        }
+        
+        if (dto.Email != user.Email)
+        {
+            var existingEmail = await _userRepository.FindByEmailAsync(dto.Email);
+            if (existingEmail != null) throw new ConflictException("Email is already registered.");
+        }
+
+        user.UserName = dto.Username;
+        user.Email = dto.Email;
+
+        if (dto.AvatarFile != null)
+        {
+            if (!string.IsNullOrEmpty(user.AvatarUrl))
             {
                 try
                 {
-                    avatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.Avatar);
+                    var parts = user.AvatarUrl.Split('/');
+                    if (parts.Length >= 2)
+                    {
+                        await _fileUploadService.DeleteFileAsync(parts[0], parts[1]);
+                    }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    throw new BadRequestException($"Avatar upload failed: {ex.Message}");
                 }
             }
-
-            var user = _mapper.Map<User>(dto);
-            user.AvatarUrl = avatarUrl;
-
-            var result = await _userRepository.CreateUserAsync(user, dto.Password);
             
-            if (!result.Succeeded)
-            {
-                if (avatarUrl != null)
-                {
-                    var bucket = avatarUrl.Split("/")[0];
-                    var fileName = avatarUrl.Split("/")[1];
-                    await _fileUploadService.DeleteFileAsync(bucket, fileName);
-                }
-                
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new BadRequestException(errors);
-            }
-
-            var userProfile = await GetUserProfileAsync(user.Id);
-            userProfile.Token = _jwtService.GenerateToken(user);
-
-            return userProfile;
+            user.AvatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.AvatarFile);
         }
 
-        public async Task<UserProfileDto> LoginAsync(LoginDto dto)
+        var result = await _userRepository.UpdateUserAsync(user);
+
+        if (!result.Succeeded)
         {
-            var user = await _userRepository.FindByNameAsync(dto.Username) ?? await _userRepository.FindByEmailAsync(dto.Username);
-
-            if (user == null)
-            {
-                throw new UnauthorizedException("Invalid username or password.");
-            }
-
-            var result = await _userRepository.PasswordSignInAsync(user, dto.Password, false, false);
-
-            if (!result.Succeeded)
-            {
-                throw new UnauthorizedException("Invalid username or password.");
-            }
-
-            var userProfile = await GetUserProfileAsync(user.Id);
-            userProfile.Token = _jwtService.GenerateToken(user);
-            
-            return userProfile;
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new BadRequestException(errors);
         }
 
-        public async Task<UserProfileDto> UpdateUserProfileAsync(int userId, UpdateUserProfileDto dto)
+        return _mapper.Map<UserProfileDto>(user);
+    }
+
+    public async Task<UserProfileDto> UpdateAvailabilityAsync(int userId, UpdateAvailabilityDto dto)
+    {
+        var user = await _userRepository.GetUserById(userId);
+
+        if (user == null)
         {
-            var user = await _userRepository.FindByIdAsync(userId.ToString());
-
-            if (user == null)
-            {
-                throw new NotFoundException("User not found.");
-            }
-
-            user.UserName = dto.Username;
-            user.Email = dto.Email;
-            if (user.AvatarUrl != null && dto.AvatarFile != null)
-            {
-                var bucket = user.AvatarUrl.Split("/")[0];
-                var fileName = user.AvatarUrl.Split("/")[1];
-                await _fileUploadService.DeleteFileAsync(bucket, fileName);
-                user.AvatarUrl = await _fileUploadService.UploadUserAvatarAsync(dto.AvatarFile);
-            }
-
-            var result = await _userRepository.UpdateUserAsync(user);
-
-            if (!result.Succeeded)
-            {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new BadRequestException(errors);
-            }
-
-            return await GetUserProfileAsync(userId);
+            throw new NotFoundException("User not found.");
         }
 
-        public async Task<UserProfileDto> UpdateAvailabilityAsync(int userId, UpdateAvailabilityDto dto)
-        {
-            var user = await _userRepository.GetUserById(userId);
+        string jsonString = JsonSerializer.Serialize(dto.Availability);
+        user.Availability = jsonString;
 
-            if (user == null)
-            {
-                throw new NotFoundException("User not found.");
-            }
+        await _userRepository.UpdateUser(user);
 
-            string jsonString = JsonSerializer.Serialize(dto.Availability);
-            user.Availability = jsonString;
+        return _mapper.Map<UserProfileDto>(user);
+    }
 
-            await _userRepository.UpdateUser(user);
-
-            return await GetUserProfileAsync(userId);
-        }
-
-        public async Task LogoutAsync()
-        {
-            await _userRepository.SignOutAsync();
-        }
+    public async Task LogoutAsync()
+    {
+        await _userRepository.SignOutAsync();
     }
 }

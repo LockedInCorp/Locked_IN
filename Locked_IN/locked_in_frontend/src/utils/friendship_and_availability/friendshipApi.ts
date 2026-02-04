@@ -29,8 +29,12 @@ export interface PendingRequestsResponse {
 
 export const getFriendsList = async (userId: number): Promise<FriendshipResponse> => {
     try {
-        const response = await apiClient.get<FriendshipResponse>(`/friendship/list/${userId}`)
-        return response.data
+        const response = await apiClient.get<FriendshipDto[]>(`/friendship/list/${userId}`)
+        return {
+            success: true,
+            message: '',
+            data: response.data || []
+        }
     } catch (error: any) {
         const errorData = error.response?.data || { 
             success: false, 
@@ -42,8 +46,12 @@ export const getFriendsList = async (userId: number): Promise<FriendshipResponse
 
 export const getPendingRequests = async (userId: number): Promise<PendingRequestsResponse> => {
     try {
-        const response = await apiClient.get<PendingRequestsResponse>(`/friendship/pending-requests/${userId}`)
-        return response.data
+        const response = await apiClient.get<PendingFriendshipRequestDto[]>(`/friendship/pending-requests/${userId}`)
+        return {
+            success: true,
+            message: '',
+            data: response.data || []
+        }
     } catch (error: any) {
         const errorData = error.response?.data || { 
             success: false, 

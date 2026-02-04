@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { tokenStorage } from '@/utils/auth/tokenStorage';
+import { tokenStorage } from '@/utils/auth/cookieStorage';
 import { getUserProfile } from '@/api/api';
 import { getImageUrl, extractAvatarPath } from '@/utils/imageUtils';
 
@@ -29,10 +29,12 @@ export function useAuthInit() {
             setUser(updatedUserData);
           }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Failed to refresh user profile:', error);
         });
     } else if (token && !userData) {
       tokenStorage.removeToken();
+      setUser(null);
     }
   }, [setUser]);
 }
