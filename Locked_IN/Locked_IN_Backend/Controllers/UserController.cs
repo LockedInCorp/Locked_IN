@@ -38,10 +38,7 @@ public class UserController : ControllerBase
     /// <param name="dto">User registration data (multipart/form-data for avatar).</param>
     /// <returns>Registered user profile with token.</returns>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Register([FromForm] RegisterDto dto)
+    public async Task<ActionResult<UserProfileDto>> Register([FromForm] RegisterDto dto)
     {
         var validationResult = await _registerValidator.ValidateAsync(dto);
         if (!validationResult.IsValid)
@@ -59,10 +56,7 @@ public class UserController : ControllerBase
     /// <param name="dto">User login credentials.</param>
     /// <returns>Logged in user profile with token.</returns>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    public async Task<ActionResult<UserProfileDto>> Login([FromBody] LoginDto dto)
     {
         var validationResult = await _loginValidator.ValidateAsync(dto);
         if (!validationResult.IsValid)
@@ -79,8 +73,6 @@ public class UserController : ControllerBase
     /// </summary>
     [Authorize]
     [HttpPost("logout")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Logout()
     {
         await _userService.LogoutAsync();
@@ -93,9 +85,7 @@ public class UserController : ControllerBase
     /// <param name="userId">The ID of the user.</param>
     /// <returns>User profile data.</returns>
     [HttpGet("{userId}")]
-    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUserProfile(int userId)
+    public async Task<ActionResult<UserProfileDto>> GetUserProfile(int userId)
     {
         var result = await _userService.GetUserProfileAsync(userId);
         return Ok(result);
@@ -108,11 +98,7 @@ public class UserController : ControllerBase
     /// <returns>Updated profile.</returns>
     [Authorize]
     [HttpPut("profile")]
-    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> UpdateProfile([FromForm] UpdateUserProfileDto dto)
+    public async Task<ActionResult<UserProfileDto>> UpdateProfile([FromForm] UpdateUserProfileDto dto)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
@@ -135,10 +121,7 @@ public class UserController : ControllerBase
     /// <returns>Updated profile.</returns>
     [Authorize]
     [HttpPut("availability")]
-    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> UpdateAvailability([FromBody] UpdateAvailabilityDto dto)
+    public async Task<ActionResult<UserProfileDto>> UpdateAvailability([FromBody] UpdateAvailabilityDto dto)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();

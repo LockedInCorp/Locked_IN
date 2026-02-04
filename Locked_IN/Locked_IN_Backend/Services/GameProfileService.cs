@@ -1,113 +1,140 @@
+using AutoMapper;
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs.GameProfile;
+using Locked_IN_Backend.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Locked_IN_Backend.Services
+namespace Locked_IN_Backend.Services;
+
+public class GameProfileService : IGameProfileService
 {
-    public class GameProfileService : IGameProfileService
+    private readonly AppDbContext _context;
+    private readonly IMapper _mapper;
+
+    public GameProfileService(AppDbContext context, IMapper mapper)
     {
-        private readonly AppDbContext _context;
+        _context = context;
+        _mapper = mapper;
+    }
 
-        public GameProfileService(AppDbContext context)
+    public async Task<List<GameProfileDto>> GetUserFavoritesAsync(int userId)
+    {
+        var favorites = await _context.GameProfiles
+            .Include(gp => gp.Game)
+            .Where(gp => gp.UserId == userId && gp.Isfavorite)
+            .ToListAsync();
+
+        return _mapper.Map<List<GameProfileDto>>(favorites);
+    }
+
+    public async Task<GameProfileDto> AddGameToFavoritesAsync(int userId, int gameId)
+    {
+        var game = await _context.Games.FindAsync(gameId);
+        if (game == null) throw new NotFoundException($"Game with ID {gameId} not found.");
+
+        var profile = await _context.GameProfiles
+            .Include(gp => gp.Game)
+            .FirstOrDefaultAsync(gp => gp.UserId == userId && gp.GameId == gameId);
+
+        if (profile != null)
         {
-            _context = context;
-        }
-
-        public async Task<GameProfileResult> GetUserFavoritesAsync(int userId)
-        {
-            var favorites = await _context.GameProfiles
-                .Where(gp => gp.UserId == userId && gp.Isfavorite)
-                .Include(gp => gp.Game)
-                .Select(gp => new GameProfileDto
-                {
-                    Id = gp.Id,
-                    UserId = gp.UserId,
-                    GameId = gp.GameId,
-                    GameName = gp.Game.Name,
-                    IsFavorite = gp.Isfavorite,
-                    Rank = gp.Rank.ToString()
-                })
-                .ToListAsync();
-
-            return new GameProfileResult(true, "Favorites retrieved successfully.", favorites);
-        }
-
-        public async Task<GameProfileResult> AddGameToFavoritesAsync(int userId, int gameId)
-        {
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null) return new GameProfileResult(false, "User not found.");
-
-            var game = await _context.Games.FindAsync(gameId);
-            if (game == null) return new GameProfileResult(false, "Game not found.");
-
-            var profile = await _context.GameProfiles
-                .FirstOrDefaultAsync(gp => gp.UserId == userId && gp.GameId == gameId);
-
-            if (profile != null)
+            if (profile.Isfavorite)
             {
-                if (profile.Isfavorite)
-                {
-                    return new GameProfileResult(false, "Game is already in favorites.");
-                }
-                
-                profile.Isfavorite = true;
-                _context.GameProfiles.Update(profile);
+                throw new ConflictException("Game is already in favorites.");
             }
-            else
-            {
-                profile = new GameProfile
-                {
-                    UserId = userId,
-                    GameId = gameId,
-                    Isfavorite = true,
-                    ExperienceTagId = 1, 
-                    GameExpId = 1,       
-                    Rank = null
-                };
-                _context.GameProfiles.Add(profile);
-            }
-
-            await _context.SaveChangesAsync();
-
-            return new GameProfileResult(true, "Game added to favorites.", new GameProfileDto
-            {
-                Id = profile.Id,
-                UserId = profile.UserId,
-                GameId = profile.GameId,
-                GameName = game.Name,
-                IsFavorite = profile.Isfavorite
-            });
-        }
-
-        public async Task<GameProfileResult> RemoveGameFromFavoritesAsync(int userId, int gameId)
-        {
-            var profile = await _context.GameProfiles
-                .Include(gp => gp.Game)
-                .FirstOrDefaultAsync(gp => gp.UserId == userId && gp.GameId == gameId);
-
-            if (profile == null)
-            {
-                return new GameProfileResult(false, "Game profile not found.");
-            }
-
-            if (!profile.Isfavorite)
-            {
-                return new GameProfileResult(false, "Game is not in favorites.");
-            }
-
-            profile.Isfavorite = false;
+            
+            profile.Isfavorite = true;
             _context.GameProfiles.Update(profile);
-            await _context.SaveChangesAsync();
-
-            return new GameProfileResult(true, "Game removed from favorites.", new GameProfileDto
-            {
-                Id = profile.Id,
-                UserId = profile.UserId,
-                GameId = profile.GameId,
-                GameName = profile.Game.Name,
-                IsFavorite = profile.Isfavorite
-            });
         }
+        else
+        {
+            profile = new GameProfile
+            {
+                UserId = userId,
+                GameId = gameId,
+                Isfavorite = true,
+                ExperienceTagId = 1, 
+                GameExpId = 1,       
+                Rank = null
+            };
+            await _context.GameProfiles.AddAsync(profile);
+            
+            profile.Game = game;
+        }
+
+        await _context.SaveChangesAsync();
+        return _mapper.Map<GameProfileDto>(profile);
+    }
+
+    public async Task<GameProfileDto> RemoveGameFromFavoritesAsync(int userId, int gameId)
+    {
+        var profile = await _context.GameProfiles
+            .Include(gp => gp.Game)
+            .FirstOrDefaultAsync(gp => gp.UserId == userId && gp.GameId == gameId);
+
+        if (profile == null)
+        {
+            throw new NotFoundException("Game profile not found.");
+        }
+
+        if (!profile.Isfavorite)
+        {
+            throw new ConflictException("Game is not in favorites.");
+        }
+
+        profile.Isfavorite = false;
+        _context.GameProfiles.Update(profile);
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<GameProfileDto>(profile);
+    }
+
+    public async Task<GameProfileDto> CreateGameProfileAsync(int userId, CreateGameProfileDto dto)
+    {
+        var existingProfile = await _context.GameProfiles
+            .FirstOrDefaultAsync(gp => gp.UserId == userId && gp.GameId == dto.GameId);
+
+        if (existingProfile != null)
+        {
+            throw new ConflictException("Profile for this game already exists.");
+        }
+
+        var game = await _context.Games.FindAsync(dto.GameId);
+        if (game == null) throw new NotFoundException($"Game with ID {dto.GameId} not found.");
+
+        var profile = _mapper.Map<GameProfile>(dto);
+        profile.UserId = userId;
+
+        await _context.GameProfiles.AddAsync(profile);
+        await _context.SaveChangesAsync();
+
+        await _context.Entry(profile).Reference(p => p.Game).LoadAsync();
+
+        return _mapper.Map<GameProfileDto>(profile);
+    }
+
+    public async Task DeleteGameProfileAsync(int userId, int gameId)
+    {
+        var profile = await _context.GameProfiles
+            .FirstOrDefaultAsync(gp => gp.UserId == userId && gp.GameId == gameId);
+
+        if (profile == null)
+        {
+            throw new NotFoundException("Game profile not found.");
+        }
+
+        _context.GameProfiles.Remove(profile);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task<List<GameProfileDto>> GetUserGameProfilesAsync(int userId)
+    {
+        var profiles = await _context.GameProfiles
+            .Include(gp => gp.Game)
+            .Where(gp => gp.UserId == userId)
+            .ToListAsync();
+
+        return _mapper.Map<List<GameProfileDto>>(profiles);
     }
 }

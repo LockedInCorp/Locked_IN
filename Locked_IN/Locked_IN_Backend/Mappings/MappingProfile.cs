@@ -8,6 +8,7 @@ using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Data.Enums;
 using System.Text.Json;
+using Locked_IN_Backend.DTOs.GameProfile;
 
 namespace Locked_IN_Backend.Mappings;
 
@@ -116,5 +117,20 @@ public class MappingProfile : Profile
                     : new List<string>()))
             .ForMember(dest => dest.SearchRank, opt => opt.Ignore())
             .ForMember(dest => dest.TeamLeaderUsername, opt => opt.Ignore());
+        
+        CreateMap<GameProfile, GameProfileDto>()
+            .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game != null ? src.Game.Name : string.Empty))
+            .ForMember(dest => dest.IsFavorite, opt => opt.MapFrom(src => src.Isfavorite))
+            .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank.ToString()));
+
+        CreateMap<CreateGameProfileDto, GameProfile>()
+            .ForMember(dest => dest.Isfavorite, opt => opt.MapFrom(src => src.IsFavorite))
+            .ForMember(dest => dest.ExperienceTagId, opt => opt.MapFrom(src => src.ExperienceTagId))
+            .ForMember(dest => dest.GameExpId, opt => opt.MapFrom(src => src.GameExpId))
+            .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank))
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.UserId, opt => opt.Ignore())
+            .ForMember(dest => dest.Game, opt => opt.Ignore())
+            .ForMember(dest => dest.ExperienceTag, opt => opt.Ignore());
     }
 }
