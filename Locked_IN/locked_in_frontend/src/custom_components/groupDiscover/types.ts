@@ -1,7 +1,7 @@
 import type { TeamMemberStatus } from "@/api/types"
 
 export interface GroupCard {
-    id: string
+    id: number
     title: string
     game: string
     teamLeaderUsername: string

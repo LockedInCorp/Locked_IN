@@ -19,7 +19,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
     const queryClient = useQueryClient()
     
     const joinMutation = useMutation({
-        mutationFn: () => requestToJoinTeam(parseInt(group.id), parseInt(user?.id || '0')),
+        mutationFn: () => requestToJoinTeam(group.id, parseInt(user?.id || '0')),
         onSuccess: () => {
             onUpdate?.()
             queryClient.invalidateQueries({ queryKey: ['teams'] })
@@ -27,7 +27,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
     })
     
     const cancelMutation = useMutation({
-        mutationFn: () => cancelJoinRequest(parseInt(group.id), parseInt(user?.id || '0')),
+        mutationFn: () => cancelJoinRequest(group.id, parseInt(user?.id || '0')),
         onSuccess: () => {
             onUpdate?.()
             queryClient.invalidateQueries({ queryKey: ['teams'] })
