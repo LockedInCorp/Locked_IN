@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import type { ChatType } from "@/api/types"
 
 export type Message = {
     id: number
@@ -7,19 +8,17 @@ export type Message = {
     isCurrentUser: boolean
 }
 
-interface GroupViewState {
-    // Selected group
+interface ChatViewState {
     selectedGroupId: string | null
+    chatType: ChatType | null
     
-    // Chat messages
     messages: Message[]
     
-    // UI state
     membersExpanded: boolean
     requestsExpanded: boolean
     
-    // Actions
     setSelectedGroupId: (id: string | null) => void
+    setChatType: (type: ChatType | null) => void
     setMessages: (messages: Message[]) => void
     addMessage: (message: Message) => void
     setMembersExpanded: (expanded: boolean) => void
@@ -35,15 +34,15 @@ const initialMessages: Message[] = [
     { id: 4, sender: "Aaron", content: "And make it better!", isCurrentUser: false },
 ]
 
-export const useGroupViewStore = create<GroupViewState>((set) => ({
-    // Initial state
+export const useChatViewStore = create<ChatViewState>((set) => ({
     selectedGroupId: null,
+    chatType: null,
     messages: initialMessages,
     membersExpanded: true,
     requestsExpanded: true,
     
-    // Actions
     setSelectedGroupId: (id) => set({ selectedGroupId: id }),
+    setChatType: (type) => set({ chatType: type }),
     setMessages: (messages) => set({ messages }),
     addMessage: (message) => set((state) => ({
         messages: [...state.messages, message]
@@ -57,4 +56,3 @@ export const useGroupViewStore = create<GroupViewState>((set) => ({
         requestsExpanded: !state.requestsExpanded
     }))
 }))
-

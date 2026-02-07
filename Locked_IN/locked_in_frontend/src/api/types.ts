@@ -76,6 +76,13 @@ export interface PreferenceTag {
 }
 
 
+export const ChatType = {
+    Direct: "Direct",
+    Team: "Team"
+} as const satisfies Record<string, string>
+
+export type ChatType = typeof ChatType[keyof typeof ChatType]
+
 export interface UserChatDto {
     id: number;
     chatName?: string;
@@ -85,6 +92,7 @@ export interface UserChatDto {
     unreadMessageCount: number;
     chatIconUrl?: string;
     creationTimestamp: string | Date;
+    chatType?: ChatType;
 }
 
 export interface ChatMessageDto {

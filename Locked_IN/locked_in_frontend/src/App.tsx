@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom"
-import { GroupView } from "@/pages/GroupView"
+import { ChatView } from "@/pages/ChatView"
 import GroupCreation from "@/pages/GroupCreation"
 import GroupEdit from "@/pages/GroupEdit"
 import GroupDiscover from "@/pages/GroupDiscover"
@@ -22,8 +22,8 @@ function App() {
             <main className="flex flex-1 min-h-0 overflow-hidden">
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/my-groups" element={<GroupView />} />
-                    <Route path="/my-groups/:chatId" element={<GroupView />} />
+                    <Route path="/my-groups" element={<ChatView />} />
+                    <Route path="/my-groups/:chatId" element={<ChatView />} />
                     <Route path="/groups" element={<GroupDiscover />} />
                     <Route path="/groups/new" element={<GroupCreation />} />
                     <Route path="/groups/edit/:id" element={<GroupEdit />} />
