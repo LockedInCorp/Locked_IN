@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-interface RegisterState {
+interface GameProfilesState {
     expandedGames: Set<string>
     selectedGame: string
     customGame: string
@@ -9,10 +9,10 @@ interface RegisterState {
     toggleExpandedGame: (gameName: string) => void
     setSelectedGame: (game: string) => void
     setCustomGame: (game: string) => void
-    resetRegisterUI: () => void
+    resetGameProfilesUI: () => void
 }
 
-export const useRegisterStore = create<RegisterState>((set, get) => ({
+export const useGameProfilesStore = create<GameProfilesState>((set, get) => ({
     expandedGames: new Set(),
     selectedGame: "",
     customGame: "",
@@ -29,10 +29,9 @@ export const useRegisterStore = create<RegisterState>((set, get) => ({
     },
     setSelectedGame: (game) => set({ selectedGame: game }),
     setCustomGame: (game) => set({ customGame: game }),
-    resetRegisterUI: () => set({
+    resetGameProfilesUI: () => set({
         expandedGames: new Set(),
         selectedGame: "",
         customGame: ""
     })
 }))
-

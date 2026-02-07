@@ -1,0 +1,101 @@
+# =========================
+# Node / Frontend Essentials
+# =========================
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build output
+dist/
+build/
+out/
+tmp/
+temp/
+.cache/
+coverage/
+*.log
+
+# Compiled source
+*.tsbuildinfo
+*.map
+
+# =========================
+# Environment & Local Config
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# Webpack / Vite / Parcel
+# =========================
+.vite/
+parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+storybook-static/
+*.cache-loader/
+
+# =========================
+# Testing
+# =========================
+/coverage/
+.nyc_output/
+jest-html-reporters-*.html
+
+# =========================
+# OS / Editor Files
+# =========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# =========================
+# JetBrains IDE (WebStorm)
+# =========================
+.idea/
+# Uncomment if you prefer to keep project-specific settings:
+# !.idea/codeStyles/
+# !.idea/runConfigurations/
+
+# =========================
+# Optional (depending on tools)
+# =========================
+
+# Yarn / npm / pnpm logs
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
+pnpm-debug.log*
+
+# Lock files (optional — only if your team uses one package manager)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# TypeScript
+
+# ESLint / Prettier cache
+.eslintcache
+.prettier-cache/
+
+# VSCode (if teammates use it)
+.vscode/
+
+# =========================
+# End of file
+# =========================

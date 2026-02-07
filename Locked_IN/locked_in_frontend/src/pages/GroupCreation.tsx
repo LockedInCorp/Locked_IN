@@ -65,7 +65,7 @@ export default function GroupCreation() {
             alert("Team created successfully!")
             resetForm()
             setPreviewImage(null)
-            navigate('/discover') // Or wherever appropriate
+            navigate('/groups')
         } catch (error: any) {
             alert(error.message || "Failed to create team")
         } finally {
