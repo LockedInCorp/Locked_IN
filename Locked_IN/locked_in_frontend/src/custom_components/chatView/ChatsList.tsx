@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { getUserChats } from "@/api/api"
 import type {UserChatDto} from "@/api/types"
+import { useChatViewStore } from "@/stores/chatViewStore"
 import { getImageUrl } from "@/utils/imageUtils"
 
-export function GroupsList() {
+export function ChatsList() {
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId: string }>();
+    const { setChatType } = useChatViewStore();
     const [chats, setChats] = useState<UserChatDto[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -34,8 +36,9 @@ export function GroupsList() {
         navigate("/groups/new");
     }
 
-    const handleChatClick = (id: number) => {
-        navigate(`/my-groups/${id}`);
+    const handleChatClick = (chat: UserChatDto) => {
+        setChatType(chat.chatType || null);
+        navigate(`/my-groups/${chat.id}`);
     }
 
     if (loading) {
@@ -46,7 +49,7 @@ export function GroupsList() {
         <div className="flex flex-col h-full bg-background">
             {/* Header Section - Fixed */}
             <div className="px-6 pt-6 pb-4 flex-shrink-0">
-                <h2 className="text-2xl font-bold text-primary mb-6">Your Groups</h2>
+                <h2 className="text-2xl font-bold text-primary mb-6">Your Chats</h2>
 
                 {/* Search Bar */}
                 <div className="relative mb-4">
@@ -71,8 +74,8 @@ export function GroupsList() {
                         {chats.map((chat) => (
                             <div
                                 key={chat.id}
-                                onClick={() => handleChatClick(chat.id)}
-                                className={`flex items-center gap-3 p-4 rounded-xl transition-colors cursor-pointer ${
+                                onClick={() => handleChatClick(chat)}
+                                className={`flex items-center gap-3 p-4 rounded-xl transition-colors cursor-pointer relative ${
                                     chatId === chat.id.toString() 
                                     ? "bg-primary/20 hover:bg-primary/30" 
                                     : "bg-muted hover:bg-muted/80"
@@ -88,11 +91,11 @@ export function GroupsList() {
                                             }
                                         }}
                                     />
-                                    <AvatarFallback>G</AvatarFallback>
+                                    <AvatarFallback>{chat.chatName?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <h3 className="font-semibold text-foreground truncate">{chat.chatName || "Group name"}</h3>
+                                        <h3 className="font-semibold text-foreground truncate">{chat.chatName || "Chat"}</h3>
                                         <span className="text-xs text-muted-foreground">
                                             {chat.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleDateString() : ""}
                                         </span>
@@ -103,7 +106,7 @@ export function GroupsList() {
                                     </p>
                                 </div>
                                 {chat.unreadMessageCount > 0 && (
-                                    <div className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                    <div className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center flex-shrink-0">
                                         {chat.unreadMessageCount}
                                     </div>
                                 )}
@@ -112,7 +115,7 @@ export function GroupsList() {
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center mt-20 text-center text-muted-foreground">
-                        <p className="text-lg mb-4">You don't have any groups yet.</p>
+                        <p className="text-lg mb-4">You don't have any chats yet.</p>
                         <Button
                             onClick={handleCreateGroup}
                             className="bg-primary text-primary-foreground hover:bg-primary/90"

@@ -5,42 +5,117 @@ import { useEffect, useState } from "react"
 import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { useGroupViewStore } from "@/stores/groupViewStore"
-import { getGroupDetails } from "@/api/api"
-import type {GroupDetailsDto} from "@/api/types"
+import { useChatViewStore } from "@/stores/chatViewStore"
+import { getGroupDetails, getUserChats } from "@/api/api"
+import type {GroupDetailsDto, UserChatDto} from "@/api/types"
+import { ChatType } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils"
 
-export function GroupInfo() {
+export function ChatInfo() {
     const navigate = useNavigate()
     const { chatId } = useParams<{ chatId: string }>()
-    const { selectedGroupId, membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useGroupViewStore()
+    const { selectedGroupId, chatType, membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useChatViewStore()
     const [group, setGroup] = useState<GroupDetailsDto | null>(null)
+    const [friendChat, setFriendChat] = useState<UserChatDto | null>(null)
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        if (!chatId) return
+        if (!chatId) {
+            setGroup(null)
+            setFriendChat(null)
+            return
+        }
 
-        const fetchGroupInfo = async () => {
+        const fetchChatInfo = async () => {
             setLoading(true)
+            setGroup(null)
+            setFriendChat(null)
             try {
-                const data = await getGroupDetails(chatId)
-                setGroup(data)
+                if (chatType === ChatType.Team) {
+                    const data = await getGroupDetails(chatId)
+                    setGroup(data)
+                    setFriendChat(null)
+                } else if (chatType === ChatType.Direct) {
+                    const chats = await getUserChats()
+                    const chat = chats.find(c => c.id.toString() === chatId)
+                    setFriendChat(chat || null)
+                    setGroup(null)
+                } else {
+                    const chats = await getUserChats()
+                    const chat = chats.find(c => c.id.toString() === chatId)
+                    if (chat?.chatType === ChatType.Team) {
+                        const data = await getGroupDetails(chatId)
+                        setGroup(data)
+                        setFriendChat(null)
+                    } else {
+                        setFriendChat(chat || null)
+                        setGroup(null)
+                    }
+                }
             } catch (error) {
-                console.error("Failed to fetch group info:", error)
+                console.error("Failed to fetch chat info:", error)
             } finally {
                 setLoading(false)
             }
         }
 
-        fetchGroupInfo()
-    }, [chatId])
+        fetchChatInfo()
+    }, [chatId, chatType])
 
     const handleEdit = () => {
         const groupId = selectedGroupId || "1"
         navigate(`/groups/edit/${groupId}`)
     }
 
+    const handleViewProfile = () => {
+        // TODO: Implement navigation to friend's profile
+        // navigate(`/profile/${friendChat?.id}`)
+    }
+
     if (loading) return <div className="p-6 text-center text-muted-foreground">Loading info...</div>
+    
+    const isGroupChat = chatType === ChatType.Team || (chatType === null && group !== null)
+    
+    if (isGroupChat && !group) return <div className="p-6 text-center text-muted-foreground">No group info available</div>
+    if (!isGroupChat && !friendChat) return <div className="p-6 text-center text-muted-foreground">No chat info available</div>
+    
+    if (!isGroupChat && friendChat) {
+        return (
+            <div className="flex flex-col h-full bg-background overflow-y-auto">
+                {/* Friend Header */}
+                <div className="px-6 py-6 border-b border-border">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Avatar className="h-16 w-16">
+                            <AvatarImage 
+                                src={getImageUrl(friendChat.chatIconUrl)} 
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes("/assets/sunset-silhouette-gaming.jpg")) {
+                                        target.src = "/assets/sunset-silhouette-gaming.jpg";
+                                    }
+                                }}
+                            />
+                            <AvatarFallback>{friendChat.chatName?.charAt(0).toUpperCase() || "F"}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <h2 className="text-xl font-semibold text-foreground">{friendChat.chatName || "Friend"}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Action Button */}
+                <div className="px-6 py-4 border-t border-border mt-auto">
+                    <Button 
+                        onClick={handleViewProfile}
+                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                        View profile
+                    </Button>
+                </div>
+            </div>
+        )
+    }
+
     if (!group) return <div className="p-6 text-center text-muted-foreground">No group info available</div>
 
     return (

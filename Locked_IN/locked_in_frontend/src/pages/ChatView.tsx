@@ -1,14 +1,14 @@
 "use client"
 import { useParams } from "react-router-dom"
 import { useEffect } from "react"
-import { useGroupViewStore } from "@/stores/groupViewStore.ts"
-import { GroupsList } from "../custom_components/groupView/GroupsList.tsx"
-import { ChatArea } from "../custom_components/groupView/ChatArea.tsx"
-import { GroupInfo } from "../custom_components/groupView/GroupInfo.tsx"
+import { useChatViewStore } from "@/stores/chatViewStore.ts"
+import { ChatsList } from "../custom_components/chatView/ChatsList.tsx"
+import { ChatArea } from "../custom_components/chatView/ChatArea.tsx"
+import { ChatInfo } from "../custom_components/chatView/ChatInfo.tsx"
 
-export function GroupView() {
+export function ChatView() {
     const { chatId } = useParams<{ chatId: string }>()
-    const { setSelectedGroupId } = useGroupViewStore()
+    const { setSelectedGroupId } = useChatViewStore()
 
     useEffect(() => {
         setSelectedGroupId(chatId || null)
@@ -18,8 +18,8 @@ export function GroupView() {
         <>
             {/* Left Panel - Groups List */}
             <div className="w-[440px] border-r border-border flex-shrink-0">
-                <GroupsList/>
-            </div>
+                <ChatsList/>
+            </div> 
 
             {/* Center Panel - Chat Area */}
             <div className="flex-1 flex flex-col min-w-0">
@@ -32,7 +32,7 @@ export function GroupView() {
 
             {/* Right Panel - Group Info */}
             <div className="w-[320px] border-l border-border flex-shrink-0 h-full flex flex-col">
-                {chatId ? <GroupInfo/> : (
+                {chatId ? <ChatInfo/> : (
                     <div className="flex-1 flex items-center justify-center text-muted-foreground">
                         Select a chat to see group info
                     </div>

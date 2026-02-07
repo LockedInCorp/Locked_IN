@@ -6,12 +6,12 @@ import { useParams } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useGroupViewStore } from "@/stores/groupViewStore"
+import { useChatViewStore } from "@/stores/chatViewStore"
 import { getChatMessages, getGroupDetails } from "@/api/api"
 
 export function ChatArea() {
     const { chatId } = useParams<{ chatId: string }>()
-    const { messages, setMessages } = useGroupViewStore()
+    const { messages, setMessages } = useChatViewStore()
     const [groupName, setGroupName] = useState("Loading...")
     const [groupIcon, setGroupIcon] = useState("/diverse-group-avatars.png")
 
