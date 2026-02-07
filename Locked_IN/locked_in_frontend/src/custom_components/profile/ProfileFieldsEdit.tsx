@@ -3,12 +3,13 @@
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { useNavigate } from "react-router-dom"
 import type { GameProfile } from "./ProfileFields"
 import { useProfileStore } from "@/stores/profileStore"
 import { useEffect, useState } from "react"
-import { getExperienceTags, getPreferenceTags, searchGamesByName } from "@/api/api"
+import { getExperienceTags, getPreferenceTags } from "@/api/api"
 
 type ProfileFieldsEditProps = {
     nickname: string
@@ -23,14 +24,11 @@ export default function ProfileFieldsEdit({
     onNicknameChange,
     onGameProfilesChange
 }: ProfileFieldsEditProps) {
+    const navigate = useNavigate()
     const {
         expandedGames,
-        selectedGame,
-        customGame,
         toggleExpandedGame,
-        setExpandedGames,
-        setSelectedGame,
-        setCustomGame
+        setExpandedGames
     } = useProfileStore()
 
     const [availableGamesDict, setAvailableGamesDict] = useState<Record<number, string>>({})
@@ -52,24 +50,6 @@ export default function ProfileFieldsEdit({
         }
         fetchTags()
     }, [])
-
-    const handleAddGame = (gameId: number, gameName: string) => {
-        if (!gameProfiles.some(p => p.gameId === gameId)) {
-            const newProfile: GameProfile = {
-                gameId: gameId,
-                preferences: [],
-                experience: 0,
-                inGameNickname: "",
-                ranking: "",
-                role: ""
-            }
-            onGameProfilesChange([...gameProfiles, newProfile])
-            setSelectedGame("")
-            setAvailableGamesDict(prev => ({ ...prev, [gameId]: gameName }))
-            // Auto-expand the newly added game
-            toggleExpandedGame(gameId)
-        }
-    }
 
     const handleRemoveGame = (gameId: number) => {
         onGameProfilesChange(gameProfiles.filter(profile => profile.gameId !== gameId))
@@ -99,23 +79,6 @@ export default function ProfileFieldsEdit({
         handleUpdateGameProfile(gameId, { preferences: newPreferences })
     }
 
-    const handleSearchGames = async (term: string) => {
-        setCustomGame(term)
-        if (term.length > 2) {
-            try {
-                const games = await searchGamesByName(term)
-                const newGamesDict = games.reduce((acc, g) => ({ ...acc, [g.id]: g.name }), {})
-                setAvailableGamesDict(prev => ({ ...prev, ...newGamesDict }))
-            } catch (error) {
-                console.error("Failed to search games", error)
-            }
-        }
-    }
-
-    const availableGamesFiltered = Object.entries(availableGamesDict)
-        .map(([id, name]) => ({ id: Number(id), name }))
-        .filter(game => !gameProfiles.some(p => p.gameId === game.id))
-
     return (
         <div className="space-y-6">
             {/* Nickname */}
@@ -131,45 +94,16 @@ export default function ProfileFieldsEdit({
 
             {/* Game Profiles */}
             <div className="space-y-3">
-                <Label className="text-sm text-muted-foreground">Game Profiles</Label>
-                
-                {/* Add new game section */}
-                <div className="space-y-2">
-                    {/* Search/Custom game input */}
-                    <div className="flex gap-2">
-                        <Input
-                            type="text"
-                            value={customGame}
-                            onChange={(e) => handleSearchGames(e.target.value)}
-                            placeholder="Search games..."
-                            className="flex-1 border-border bg-card text-foreground placeholder:text-muted-foreground"
-                        />
-                    </div>
-                    
-                    {/* Dropdown to select games from search results */}
-                    <Select value={selectedGame} onValueChange={(value) => {
-                        const gameId = Number(value)
-                        const gameName = availableGamesDict[gameId]
-                        setSelectedGame(value)
-                        handleAddGame(gameId, gameName)
-                    }}>
-                        <SelectTrigger className="w-full border-border bg-card text-foreground">
-                            <SelectValue placeholder="Select a game to add" />
-                        </SelectTrigger>
-                        <SelectContent className="border-border bg-card">
-                            {availableGamesFiltered.length > 0 ? (
-                                availableGamesFiltered.map((game) => (
-                                    <SelectItem key={game.id} value={game.id.toString()} className="text-foreground">
-                                        {game.name}
-                                    </SelectItem>
-                                ))
-                            ) : (
-                                <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                                    {customGame.length > 2 ? "No results found" : "Type to search games"}
-                                </div>
-                            )}
-                        </SelectContent>
-                    </Select>
+                <div className="flex items-center justify-between">
+                    <Label className="text-sm text-muted-foreground">Game Profiles</Label>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate("/profile/game-profiles")}
+                        className="border-border bg-card text-foreground hover:bg-muted cursor-pointer"
+                    >
+                        Change game profiles
+                    </Button>
                 </div>
 
                 {/* Game profiles list */}

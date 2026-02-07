@@ -7,15 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import type { GameProfile } from "../profile/ProfileFields"
-import { useRegisterStore } from "@/stores/registerStore"
+import type { GameProfile } from "./ProfileFields"
+import { useGameProfilesStore } from "@/stores/gameProfilesStore"
 import { searchGamesByName, getPreferenceTags, getExperienceTags } from "@/api/api"
 
-type RegisterPart2Props = {
+type GameProfilesEditingProps = {
     gameProfiles: GameProfile[]
     onGameProfilesChange: (profiles: GameProfile[]) => void
-    onNext: () => void
-    onBack: () => void
+    onSave: () => void
     isLoading?: boolean
     errors?: {
         [gameName: string]: {
@@ -25,23 +24,21 @@ type RegisterPart2Props = {
     }
 }
 
-export default function RegisterPart2({
+export default function GameProfilesEditing({
     gameProfiles,
     onGameProfilesChange,
-    onNext,
-    onBack,
+    onSave,
     isLoading = false,
     errors = {}
-}: RegisterPart2Props) {
+}: GameProfilesEditingProps) {
     const {
         expandedGames,
         selectedGame,
-        customGame,
         toggleExpandedGame,
         setExpandedGames,
         setSelectedGame,
         setCustomGame
-    } = useRegisterStore()
+    } = useGameProfilesStore()
 
     const [availableGames, setAvailableGames] = useState<string[]>([])
     const [gamePreferences, setGamePreferences] = useState<string[]>([])
@@ -88,7 +85,6 @@ export default function RegisterPart2({
             onGameProfilesChange([...gameProfiles, newProfile])
             setCustomGame("")
             setSelectedGame("")
-            // Auto-expand the newly added game
             toggleExpandedGame(trimmedGame)
         }
     }
@@ -128,9 +124,6 @@ export default function RegisterPart2({
         )
     }
 
-    //
-    // TODO: Probably delete this
-    //
     if (dataError) {
         return (
             <div className="space-y-6">
@@ -148,6 +141,8 @@ export default function RegisterPart2({
 
     return (
         <div className="space-y-6">
+            {/* Title */}
+            <h2 className="text-2xl font-bold text-primary">Game Profiles</h2>
             {/* Subtitle */}
             <p className="text-sm text-muted-foreground">Choose games you play.</p>
 
@@ -180,35 +175,6 @@ export default function RegisterPart2({
                         )}
                     </SelectContent>
                 </Select>
-            </div>
-
-            {/* Add new game input */}
-            <div className="space-y-2">
-                <Label htmlFor="add-game" className="text-sm text-muted-foreground">Add new game</Label>
-                <div className="flex gap-2">
-                    <Input
-                        id="add-game"
-                        type="text"
-                        value={customGame}
-                        onChange={(e) => setCustomGame(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault()
-                                handleAddGame(customGame)
-                            }
-                        }}
-                        placeholder="ex. Terraria, Overwatch"
-                        className="flex-1 border-border bg-card text-foreground placeholder:text-muted-foreground"
-                    />
-                    <Button
-                        type="button"
-                        onClick={() => handleAddGame(customGame)}
-                        disabled={!customGame.trim() || gameProfiles.some(p => p.gameName === customGame.trim())}
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Add
-                    </Button>
-                </div>
             </div>
 
             {/* Game profiles list */}
@@ -346,24 +312,15 @@ export default function RegisterPart2({
                 </div>
             )}
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-4">
+            {/* Save Button */}
+            <div className="flex justify-end pt-4">
                 <Button
                     type="button"
-                    onClick={onBack}
-                    disabled={isLoading}
-                    variant="outline"
-                    className="border-border bg-card text-foreground hover:bg-muted cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    Back
-                </Button>
-                <Button
-                    type="button"
-                    onClick={onNext}
+                    onClick={onSave}
                     disabled={isLoading}
                     className="bg-primary px-8 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isLoading ? "Registering..." : "Finish"}
+                    {isLoading ? "Saving..." : "Save"}
                 </Button>
             </div>
         </div>

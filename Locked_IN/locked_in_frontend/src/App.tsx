@@ -8,6 +8,7 @@ import Profile from "@/pages/Profile"
 import Register from "@/pages/Register"
 import Login from "@/pages/Login"
 import Friends from "@/pages/Friends"
+import GameProfilesEditingPage from "@/pages/GameProfilesEditing"
 import { Header } from "@/custom_components/header/Header"
 import { useAuthInit } from "@/hooks/auth/useAuthInit"
 
@@ -27,6 +28,7 @@ function App() {
                     <Route path="/groups/new" element={<GroupCreation />} />
                     <Route path="/groups/edit/:id" element={<GroupEdit />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/game-profiles" element={<GameProfilesEditingPage />} />
                     <Route path="/friends" element={<Friends />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />

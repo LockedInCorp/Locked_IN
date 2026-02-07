@@ -2,8 +2,9 @@ import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { validateEmailFormat, validateNicknameFormat, validatePasswordFormat, parseBackendError, type Part1Errors, type Part2Errors } from "@/utils/validation"
-import { searchGamesByName, addGameProfile, registerUser } from "@/api/api"
-import type { GameProfile } from "@/stores/authStore"
+import { registerUser, loginUser } from "@/api/api"
+import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
+import { persist } from "@/utils/auth/persistance"
 
 export function useRegister() {
     const navigate = useNavigate()
@@ -11,28 +12,22 @@ export function useRegister() {
     const [part1Errors, setPart1Errors] = useState<Part1Errors>({})
     const [part2Errors, setPart2Errors] = useState<Part2Errors>({})
     const [isSubmittingPart1, setIsSubmittingPart1] = useState(false)
-    const [isSubmittingPart2, setIsSubmittingPart2] = useState(false)
-    const [showSuccessModal, setShowSuccessModal] = useState(false)
-    const [registeredUserId, setRegisteredUserId] = useState<number | null>(null)
 
     const {
-        registerStep,
         registerEmail,
         registerNickname,
         registerPassword,
         registerRepeatPassword,
         registerAvatarFile,
         registerAvatarPreview,
-        registerGameProfiles,
-        setRegisterStep,
         setRegisterEmail,
         setRegisterNickname,
         setRegisterPassword,
         setRegisterRepeatPassword,
         setRegisterAvatarFile,
         setRegisterAvatarPreview,
-        setRegisterGameProfiles,
-        resetRegisterForm
+        resetRegisterForm,
+        setUser
     } = useAuthStore()
 
 
@@ -158,9 +153,31 @@ export function useRegister() {
 
             const userId = responseData.id || (responseData as any).userId
             if (userId !== undefined && userId !== null) {
-                setRegisteredUserId(Number(userId))
-                setRegisterStep(2)
-                navigate("/register?step=2", { replace: true })
+                try {
+                    const loginData = await loginUser({
+                        username: registerEmail,
+                        password: registerPassword
+                    })
+
+                    if (loginData) {
+                        const avatarUrl = getImageUrl(extractAvatarPath(loginData as any))
+                        
+                        const userData = {
+                            id: loginData.id.toString(),
+                            email: loginData.email,
+                            nickname: loginData.username,
+                            avatarUrl: avatarUrl,
+                        }
+                        
+                        persist.setUserData(userData)
+                        setUser(userData)
+                        resetRegisterForm()
+                        
+                        navigate("/profile/game-profiles")
+                    }
+                } catch (loginError: any) {
+                    setErrorMessage('Registration succeeded but auto-login failed. Please log in manually.')
+                }
             } else {
                 setErrorMessage('Registration succeeded but user ID not found')
             }
@@ -179,147 +196,21 @@ export function useRegister() {
         }
     }
 
-    const handleBack = () => {
-        setErrorMessage(null)
-        setPart1Errors({})
-        setRegisterStep(1)
-        navigate("/register?step=1", { replace: true })
-    }
-
-    const validatePart2 = (): boolean => {
-        const errors: Part2Errors = {}
-
-        registerGameProfiles.forEach(profile => {
-            const profileErrors: {
-                inGameNickname?: string
-                experience?: string
-            } = {}
-
-            if (!profile.inGameNickname?.trim()) {
-                profileErrors.inGameNickname = "In-game nickname is required"
-            }
-
-            if (!profile.experience) {
-                profileErrors.experience = "Please select your experience level"
-            }
-
-            if (Object.keys(profileErrors).length > 0) {
-                errors[profile.gameName] = profileErrors
-            }
-        })
-
-        setPart2Errors(errors)
-        return Object.keys(errors).length === 0
-    }
-
-    const handleGameProfilesChange = (profiles: GameProfile[]) => {
-        setRegisterGameProfiles(profiles)
-        
-        const newErrors: Part2Errors = {}
-        Object.keys(part2Errors).forEach(gameName => {
-            const profile = profiles.find(p => p.gameName === gameName)
-            if (!profile) {
-                return
-            }
-            
-            const gameErrors: { inGameNickname?: string; experience?: string } = {}
-            if (part2Errors[gameName]?.inGameNickname && !profile.inGameNickname?.trim()) {
-                gameErrors.inGameNickname = part2Errors[gameName].inGameNickname
-            }
-            if (part2Errors[gameName]?.experience && !profile.experience) {
-                gameErrors.experience = part2Errors[gameName].experience
-            }
-            
-            if (Object.keys(gameErrors).length > 0) {
-                newErrors[gameName] = gameErrors
-            }
-        })
-        setPart2Errors(newErrors)
-    }
-
-    const handleNextPart2 = async () => {
-        setErrorMessage(null)
-
-        if (!registeredUserId) {
-            setErrorMessage('User ID not found. Please go back and register again.')
-            return
-        }
-
-        if (!validatePart2()) {
-            return
-        }
-
-        if (registerGameProfiles.length === 0) {
-            resetRegisterForm()
-            setShowSuccessModal(true)
-            setTimeout(() => {
-                setShowSuccessModal(false)
-                navigate('/login')
-            }, 5000)
-            return
-        }
-
-        setIsSubmittingPart2(true)
-        try {
-            const allGames = await searchGamesByName('')
-            
-            for (const profile of registerGameProfiles) {
-                const game = allGames.find(g => g.name.toLowerCase() === profile.gameName.toLowerCase())
-                
-                if (!game) {
-                    console.warn(`Game "${profile.gameName}" not found in database, skipping...`)
-                    continue
-                }
-
-                try {
-                    await addGameProfile(registeredUserId, game.id)
-                } catch (error) {
-                    console.error(`Failed to add game profile for "${profile.gameName}":`, error)
-                }
-            }
-
-            resetRegisterForm()
-            setShowSuccessModal(true)
-            setTimeout(() => {
-                setShowSuccessModal(false)
-                navigate('/login')
-            }, 5000)
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Failed to add game profiles. Please try again."
-            setErrorMessage(errorMessage)
-        } finally {
-            setIsSubmittingPart2(false)
-        }
-    }
-
-    const handleCloseSuccessModal = () => {
-        setShowSuccessModal(false)
-        navigate('/login')
-    }
 
     return {
         errorMessage,
         part1Errors,
-        part2Errors,
         isSubmittingPart1,
-        isSubmittingPart2,
-        showSuccessModal,
-        handleCloseSuccessModal,
-        registerStep,
         registerEmail,
         registerNickname,
         registerPassword,
         registerRepeatPassword,
         registerAvatarPreview,
-        registerGameProfiles,
         handleAvatarChange,
         handleEmailChange,
         handleNicknameChange,
         handlePasswordChange,
         handleRepeatPasswordChange,
         handleNextPart1,
-        handleBack,
-        handleGameProfilesChange,
-        handleNextPart2,
     }
 }

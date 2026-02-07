@@ -186,7 +186,7 @@ export default function RegisterPart1({
                     disabled={isLoading}
                     className="bg-primary px-8 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isLoading ? "Registering..." : "Next"}
+                    {isLoading ? "Registering..." : "Finish"}
                 </Button>
             </div>
 
