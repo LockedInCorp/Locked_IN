@@ -24,6 +24,7 @@ interface AuthState {
     registerGameProfiles: GameProfile[]
     
     isLoggedIn: boolean
+    isInitialized: boolean
     user: {
         id: string
         email: string
@@ -48,6 +49,7 @@ interface AuthState {
     login: (email: string, password: string) => Promise<void>
     logout: () => void
     setUser: (user: { id: string; email: string; nickname: string; avatarUrl?: string } | null) => void
+    setInitialized: (initialized: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -65,6 +67,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     registerGameProfiles: [],
     
     isLoggedIn: false,
+    isInitialized: false,
     user: null,
     
     setLoginEmail: (email) => set({ loginEmail: email }),
@@ -124,6 +127,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         loginPassword: ""
     }),
     
-    setUser: (user) => set({ user, isLoggedIn: user !== null })
+    setUser: (user) => set({ user, isLoggedIn: user !== null }),
+    setInitialized: (initialized) => set({ isInitialized: initialized })
 }))
 

@@ -11,13 +11,15 @@ type ProfileHeaderProps = {
     avatarFallback?: string
     isEditing?: boolean
     onAvatarChange?: (file: File | null) => void
+    title?: string
 }
 
 export default function ProfileHeader({ 
     avatarUrl = "/assets/diverse-user-avatars.png",
     avatarFallback = "U",
     isEditing = false,
-    onAvatarChange
+    onAvatarChange,
+    title = "My Profile"
 }: ProfileHeaderProps) {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -62,7 +64,7 @@ export default function ProfileHeader({
                     </>
                 )}
             </div>
-            <h2 className="text-2xl font-semibold text-foreground">My Profile</h2>
+            <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
         </div>
     )
 }

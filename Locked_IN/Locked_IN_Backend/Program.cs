@@ -171,9 +171,6 @@ app.Run();
 void RegisterValidationServices()
 {
     builder.Services.AddScoped<IValidator<SendFriendRequestDto>, SendFriendRequestValidator>();
-    builder.Services.AddScoped<IValidator<FriendshipActionDto>, FriendshipActionValidator>();
-    builder.Services.AddScoped<IValidator<BlockUserDto>, BlockUserValidator>();
-    builder.Services.AddScoped<IValidator<UnblockUserDto>, UnblockUserValidator>();
     builder.Services.AddScoped<IValidator<AdvancedSearchDto>, AdvancedSearchDtoValidator>();
     builder.Services.AddScoped<IValidator<JoinRequestDto>, JoinRequestDtoValidator>();
     builder.Services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
@@ -191,6 +188,7 @@ void RegisterServices()
     builder.Services.AddScoped<IChatParticipantRepository, ChatParticipantRepository>();
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
+    builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
     builder.Services.AddScoped<ITeamService, TeamService>();
     builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
     builder.Services.AddScoped<IGameService, GameService>();

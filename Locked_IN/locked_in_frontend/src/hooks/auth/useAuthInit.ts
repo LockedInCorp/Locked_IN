@@ -5,7 +5,7 @@ import { getUserProfile } from '@/api/api';
 import { getImageUrl, extractAvatarPath } from '@/utils/imageUtils';
 
 export function useAuthInit() {
-  const { setUser } = useAuthStore();
+  const { setUser, setInitialized } = useAuthStore();
 
   useEffect(() => {
     const userData = persist.getUserData();
@@ -27,12 +27,16 @@ export function useAuthInit() {
             persist.setUserData(updatedUserData);
             setUser(updatedUserData);
           }
+          setInitialized(true);
         })
         .catch((error) => {
           console.error('Failed to refresh user profile:', error);
           persist.clearUserData();
           setUser(null);
+          setInitialized(true);
         });
+    } else {
+      setInitialized(true);
     }
-  }, [setUser]);
+  }, [setUser, setInitialized]);
 }

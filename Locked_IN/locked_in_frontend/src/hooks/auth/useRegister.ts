@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
-import { validateEmailFormat, validateNicknameFormat, validatePasswordFormat, parseBackendError, type Part1Errors, type Part2Errors } from "@/utils/validation"
+import { validateEmailFormat, validateNicknameFormat, validatePasswordFormat, parseBackendError, type Part1Errors} from "@/utils/validation"
 import { registerUser, loginUser } from "@/api/api"
 import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
 import { persist } from "@/utils/auth/persistance"
@@ -10,7 +10,6 @@ export function useRegister() {
     const navigate = useNavigate()
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [part1Errors, setPart1Errors] = useState<Part1Errors>({})
-    const [part2Errors, setPart2Errors] = useState<Part2Errors>({})
     const [isSubmittingPart1, setIsSubmittingPart1] = useState(false)
 
     const {
