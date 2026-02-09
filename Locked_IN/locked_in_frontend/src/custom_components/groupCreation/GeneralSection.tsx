@@ -52,14 +52,12 @@ export default function GeneralSection({
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [error, setError] = useState<string | null>(null)
 
-    // Game selection state
     const [searchTerm, setSearchTerm] = useState(gameName)
     const [searchResults, setSearchResults] = useState<GameDto[]>([])
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
 
-    // Update search term when game prop changes (e.g. initial load)
     useEffect(() => {
         setSearchTerm(gameName)
     }, [gameName])
