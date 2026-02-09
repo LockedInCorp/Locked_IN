@@ -87,7 +87,11 @@ public class MappingProfile : Profile
         CreateMap<Chat, GetChatDetails>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.ChatName, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.ChatIconUrl, opt => opt.MapFrom(src => src.Team != null ? src.Team.IconUrl : string.Empty));
+            .ForMember(dest => dest.ChatIconUrl,
+                opt => opt.MapFrom(src => src.Team != null ? src.Team.IconUrl : string.Empty))
+            .ForMember(dest => dest.ChatType, opt => opt.MapFrom(src => src.Type))
+            .ForMember(dest => dest.TeamId, opt => opt.MapFrom(src => src.TeamId))
+            .ForMember(dest => dest.ParticipantCount, opt => opt.MapFrom(src => src.Chatparticipants.Count));
 
         CreateMap<Message, GetMessageDto>()
             .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.ChatparticipantChatparticipant != null ? src.ChatparticipantChatparticipant.UserId : 0))

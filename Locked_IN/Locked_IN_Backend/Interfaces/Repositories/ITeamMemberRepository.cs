@@ -9,6 +9,7 @@ public interface ITeamMemberRepository
     Task AddTeamMemberAsync(TeamMember teamMember);
     Task UpdateTeamMemberAsync(TeamMember teamMember);
     Task DeleteTeamMemberAsync(TeamMember teamMember);
+    Task SaveChangesAsync();
 
     Task<int> GetActiveMemberCountAsync(int teamId);
     Task<TeamMember?> GetTeamMemberAsync(int teamId, int userId);

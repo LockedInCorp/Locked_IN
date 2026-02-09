@@ -177,7 +177,7 @@ export const getChatMessages = async (chatId: string): Promise<Types.ChatMessage
 
 export const getGroupDetails = async (chatId: string): Promise<Types.GroupDetailsDto> => {
     try {
-        const response = await apiClient.get<Types.GroupDetailsDto>(`/chat/${chatId}/group-details`)
+        const response = await apiClient.get<Types.GroupDetailsDto>(`/chat/${chatId}`)
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch group details')

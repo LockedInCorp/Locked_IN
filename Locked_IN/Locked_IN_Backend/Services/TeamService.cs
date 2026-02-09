@@ -75,46 +75,58 @@ public class TeamService : ITeamService
 
     public async Task<GetTeamDto> CreateTeamAsync(CreateTeamDto dto, int creatorId)
     {
-        var team = _mapper.Map<Team>(dto);
+        using var transaction = await _teamRepository.BeginTransactionAsync();
 
-        if (dto.PreviewImage != null)
+        try
         {
-            team.IconUrl = await _fileUploadService.UploadTeamIconAsync(dto.PreviewImage);
-        }
+            var team = _mapper.Map<Team>(dto);
 
-        team.TeamMembers.Add(new TeamMember
-        {
-            UserId = creatorId,
-            Isleader = true,
-            MemberStatusId = (int)TeamMemberStatus.STATUS_LEADER,
-            Jointimestamp = DateTime.UtcNow
-        });
-
-        if (dto.Tags is { Count: > 0 })
-        {
-            foreach (var tagId in dto.Tags)
+            if (dto.PreviewImage != null)
             {
-                team.TeamPreferencetagRelations.Add(new TeamPreferencetagRelation
-                {
-                    PreferenceTagId = tagId
-                });
+                team.IconUrl = await _fileUploadService.UploadTeamIconAsync(dto.PreviewImage);
             }
-        }
 
-        if (dto.CommunicationService.HasValue)
-        {
-            team.TeamCommunicationService = new TeamCommunicationService
+            team.TeamMembers.Add(new TeamMember
             {
-                CommunicationServiceId = dto.CommunicationService.Value,
-                Link = dto.CommunicationServiceLink ?? string.Empty
-            };
+                UserId = creatorId,
+                Isleader = true,
+                MemberStatusId = (int)TeamMemberStatus.STATUS_LEADER,
+                Jointimestamp = DateTime.UtcNow
+            });
+
+            if (dto.Tags is { Count: > 0 })
+            {
+                foreach (var tagId in dto.Tags)
+                {
+                    team.TeamPreferencetagRelations.Add(new TeamPreferencetagRelation
+                    {
+                        PreferenceTagId = tagId
+                    });
+                }
+            }
+
+            if (dto.CommunicationService.HasValue)
+            {
+                team.TeamCommunicationService = new TeamCommunicationService
+                {
+                    CommunicationServiceId = dto.CommunicationService.Value,
+                    Link = dto.CommunicationServiceLink ?? string.Empty
+                };
+            }
+
+            await _teamRepository.AddTeam(team);
+            await _teamRepository.SaveChangesAsync();
+
+            await _chatService.CreateTeamChatAsync(creatorId, team.Id, saveChanges: false);
+            await _teamRepository.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+            return _mapper.Map<GetTeamDto>(team);
         }
-
-        await _teamRepository.AddTeam(team);
-        await _teamRepository.SaveChangesAsync();
-
-        await _chatService.CreateTeamChatAsync(creatorId, team.Id);
-
-        return _mapper.Map<GetTeamDto>(team);
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }

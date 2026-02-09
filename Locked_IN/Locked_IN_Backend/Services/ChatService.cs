@@ -102,7 +102,7 @@ public class ChatService : IChatService
         return result;
     }
     
-    public async Task<GetChatDetails> CreateTeamChatAsync(int creatorId, int teamId)
+    public async Task<GetChatDetails> CreateTeamChatAsync(int creatorId, int teamId, bool saveChanges = true)
     {
         var team = await _teamRepository.GetTeamById(teamId);
         if (team == null)
@@ -135,7 +135,7 @@ public class ChatService : IChatService
         };
         
         await _chatRepository.AddChatAsync(chat);
-        await _chatRepository.SaveChangesAsync();
+        if (saveChanges) await _chatRepository.SaveChangesAsync();
         
         var participant = new Chatparticipant
         {
@@ -147,7 +147,7 @@ public class ChatService : IChatService
         };
         await _participantRepository.AddParticipantAsync(participant);
             
-        await _participantRepository.SaveChangesAsync();
+        if (saveChanges) await _participantRepository.SaveChangesAsync();
         var result = await GetChatByIdAsync(creatorId, chat.Id);
         return result;
     }
@@ -170,8 +170,9 @@ public class ChatService : IChatService
             }
             else if (participant.Chat.Type.Equals(nameof(ChatType.Team)) && participant.Chat.TeamId != null)
             {
-                chatDto.ChatName = participant.Chat.Team?.Name;
-                chatDto.ChatIconUrl = _teamRepository.GetTeamById(participant.Chat.TeamId ?? -1).Result?.IconUrl;
+                var team = participant.Chat.Team;
+                chatDto.ChatName = team?.Name;
+                chatDto.ChatIconUrl = team?.IconUrl;
             }
 
             var lastMessage = await _messageRepository.GetLastMessageAsync(participant.ChatId);
@@ -196,12 +197,25 @@ public class ChatService : IChatService
         {
             throw new ForbiddenException("You are not a participant in this chat.");
         }
-        var chat = await _chatRepository.GetChatByIdAsync(chatId);
+        var chat = participant.Chat;
         if (chat == null)
         {
             throw new NotFoundException("Chat not found.");
         }
         var chatDto = _mapper.Map<GetChatDetails>(chat);
+        if (participant.Chat.Type.Equals(nameof(ChatType.Direct)))
+        {
+            var otherParticipant = participant.Chat.Chatparticipants.FirstOrDefault(cp => cp.UserId != userId);
+            chatDto.ChatName = otherParticipant?.User.UserName;
+            chatDto.ChatIconUrl = _participantRepository.GetOtherParticipantsAsync(participant.ChatId, userId)
+                .Result.FirstOrDefault(p => p.UserId != userId)?.User.AvatarUrl;
+        }
+        else if (participant.Chat.Type.Equals(nameof(ChatType.Team)) && participant.Chat.TeamId != null)
+        {
+            chatDto.ChatName = participant.Chat.Team?.Name;
+            chatDto.ChatIconUrl = participant.Chat.Team?.IconUrl;
+            Console.WriteLine($"{chatDto.ChatIconUrl}, {chatDto.ChatName}, {chatId}, {chat.Team?.Name}");
+        }
         var messages = _messageRepository.GetChatMessagesAsync(chatId, 1, 50).Result;
         chatDto.MessageDtos = _mapper.Map<List<GetMessageDto>>(messages.OrderBy(m => m.SentAt));
         return chatDto;

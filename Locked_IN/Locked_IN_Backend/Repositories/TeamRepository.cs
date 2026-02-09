@@ -6,6 +6,8 @@ using Locked_IN_Backend.Misc;
 using Locked_IN_Backend.Misc.Enum;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.EntityFrameworkCore.Storage;
+
 namespace Locked_IN_Backend.Repositories;
 
 public class TeamRepository : ITeamRepository
@@ -47,6 +49,11 @@ public class TeamRepository : ITeamRepository
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
     }
     
 

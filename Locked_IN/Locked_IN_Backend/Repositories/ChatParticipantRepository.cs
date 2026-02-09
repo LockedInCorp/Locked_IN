@@ -18,6 +18,8 @@ public class ChatParticipantRepository : IChatParticipantRepository
     {
         return await _context.Chatparticipants
             .Include(cp => cp.Chat)
+                .ThenInclude(c => c.Team)
+            .Include(cp => cp.Chat)
                 .ThenInclude(c => c.Chatparticipants)
                     .ThenInclude(cp => cp.User)
             .Where(cp => cp.UserId == userId)
@@ -28,6 +30,7 @@ public class ChatParticipantRepository : IChatParticipantRepository
     {
         return await _context.Chatparticipants
             .Include(cp => cp.Chat)
+                .ThenInclude(c => c.Team)
             .Include(cp => cp.User)
             .FirstOrDefaultAsync(cp => cp.ChatId == chatId && cp.UserId == userId);
     }

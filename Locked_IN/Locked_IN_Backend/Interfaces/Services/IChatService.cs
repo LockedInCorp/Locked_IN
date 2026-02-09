@@ -6,7 +6,7 @@ namespace Locked_IN_Backend.Interfaces;
 public interface IChatService
 {
     Task<GetChatDetails> CreateDirectChatAsync(int creatorId, int targetUserId);
-    Task<GetChatDetails> CreateTeamChatAsync(int creatorId, int teamId);
+    Task<GetChatDetails> CreateTeamChatAsync(int creatorId, int teamId, bool saveChanges = true);
     
     Task<GetChatDetails> GetChatByIdAsync(int userId, int chatId);
     Task MarkChatAsReadAsync(int userId, int chatId);

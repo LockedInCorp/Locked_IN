@@ -66,7 +66,6 @@ public class ChatHub : Hub<IChatHub>
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        // Clean up groups when user disconnects
         await base.OnDisconnectedAsync(exception);
     }
 }
