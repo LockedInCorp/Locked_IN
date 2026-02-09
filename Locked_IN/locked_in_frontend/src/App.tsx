@@ -5,6 +5,7 @@ import GroupEdit from "@/pages/GroupEdit"
 import GroupDiscover from "@/pages/GroupDiscover"
 import Home from "@/pages/Home"
 import Profile from "@/pages/Profile"
+import FriendProfile from "@/pages/FriendProfile"
 import Register from "@/pages/Register"
 import Login from "@/pages/Login"
 import Friends from "@/pages/Friends"
@@ -30,6 +31,7 @@ function App() {
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/game-profiles" element={<GameProfilesEditingPage />} />
                     <Route path="/friends" element={<Friends />} />
+                    <Route path="/friend/:id" element={<FriendProfile />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
                 </Routes>
