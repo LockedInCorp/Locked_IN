@@ -1,223 +1,177 @@
-using Locked_IN_Backend.Data;
+using AutoMapper;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs.Friendship;
 using Locked_IN_Backend.Exceptions;
+using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Misc.Enum;
-using Microsoft.EntityFrameworkCore;
+using Locked_IN_Backend.Repositories;
 
-namespace Locked_IN_Backend.Services
+namespace Locked_IN_Backend.Services;
+
+public class FriendshipService : IFriendshipService
 {
-    public class FriendshipService : IFriendshipService
+    private readonly IFriendshipRepository _friendshipRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IMapper _mapper;
+
+    public FriendshipService(IFriendshipRepository friendshipRepository, IUserRepository userRepository, IMapper mapper)
     {
-        private readonly AppDbContext _context;
+        _friendshipRepository = friendshipRepository;
+        _userRepository = userRepository;
+        _mapper = mapper;
+    }
 
-        public FriendshipService(AppDbContext context)
+    public async Task SendFriendRequestAsync(int requesterId, int receiverId)
+    {
+        if (requesterId == receiverId) throw new BadRequestException("You cannot send a friend request to yourself.");
+
+        var receiver = await _userRepository.GetUserById(receiverId);
+        if (receiver == null) throw new NotFoundException("User not found.");
+
+        var existingFriendship = await _friendshipRepository.GetFriendshipBetweenUsersAsync(requesterId, receiverId);
+
+        if (existingFriendship != null)
         {
-            _context = context;
+            if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Blocked)
+                throw new ForbiddenException("Unable to send friend request."); 
+            
+            if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Accepted)
+                throw new ConflictException("You are already friends.");
+
+            if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Pending)
+                throw new ConflictException("A friend request is already pending.");
         }
 
-        private async Task<Friendship?> GetExistingFriendship(int user1Id, int user2Id)
+        var friendship = new Friendship
         {
-            return await _context.Friendships
-                .FirstOrDefaultAsync(f => (f.UserId == user1Id && f.User2Id == user2Id) ||
-                                          (f.UserId == user2Id && f.User2Id == user1Id));
+            UserId = requesterId,
+            User2Id = receiverId,
+            StatusId = (int)FriendshipStatusEnum.Pending,
+            RequestTimestamp = DateTime.UtcNow
+        };
+
+        await _friendshipRepository.AddFriendshipAsync(friendship);
+    }
+
+    public async Task AcceptFriendRequestAsync(int userId, int friendshipId)
+    {
+        var friendship = await _friendshipRepository.GetFriendshipByIdAsync(friendshipId);
+        if (friendship == null) throw new NotFoundException("Friend request not found.");
+
+        if (friendship.User2Id != userId) throw new ForbiddenException("You are not authorized to accept this request.");
+
+        if (friendship.StatusId != (int)FriendshipStatusEnum.Pending) throw new BadRequestException("Request is not pending.");
+
+        friendship.StatusId = (int)FriendshipStatusEnum.Accepted;
+        await _friendshipRepository.UpdateFriendshipAsync(friendship);
+    }
+
+    public async Task DeclineFriendRequestAsync(int userId, int friendshipId)
+    {
+        var friendship = await _friendshipRepository.GetFriendshipByIdAsync(friendshipId);
+        if (friendship == null) throw new NotFoundException("Friend request not found.");
+
+        if (friendship.User2Id != userId) throw new ForbiddenException("You are not authorized to decline this request.");
+
+        if (friendship.StatusId != (int)FriendshipStatusEnum.Pending) throw new BadRequestException("Request is not pending.");
+
+        await _friendshipRepository.DeleteFriendshipAsync(friendship);
+    }
+
+    public async Task CancelFriendRequestAsync(int userId, int friendshipId)
+    {
+        var friendship = await _friendshipRepository.GetFriendshipByIdAsync(friendshipId);
+        if (friendship == null) throw new NotFoundException("Friend request not found.");
+
+        if (friendship.UserId != userId) throw new ForbiddenException("You are not authorized to cancel this request.");
+
+        if (friendship.StatusId != (int)FriendshipStatusEnum.Pending) throw new BadRequestException("Request is not pending.");
+
+        await _friendshipRepository.DeleteFriendshipAsync(friendship);
+    }
+
+    public async Task RemoveFriendAsync(int userId, int friendId)
+    {
+        var friendship = await _friendshipRepository.GetFriendshipBetweenUsersAsync(userId, friendId);
+        
+        if (friendship == null || friendship.StatusId != (int)FriendshipStatusEnum.Accepted)
+        {
+            throw new NotFoundException("Friendship not found.");
         }
 
-        public async Task SendFriendRequestAsync(SendFriendRequestDto dto)
+        await _friendshipRepository.DeleteFriendshipAsync(friendship);
+    }
+
+    public async Task<List<FriendshipDto>> GetFriendsListAsync(int userId)
+    {
+        var friendships = await _friendshipRepository.GetAcceptedFriendshipsAsync(userId);
+        
+        return friendships.Select(f => {
+            var isUser1 = f.UserId == userId;
+            var friend = isUser1 ? f.User2 : f.User;
+            
+            return new FriendshipDto
+            {
+                FriendshipId = f.Id,
+                FriendId = friend.Id,
+                FriendUsername = friend.UserName,
+                FriendAvatarUrl = friend.AvatarUrl,
+                Status = f.Status.StatusName,
+                Since = f.RequestTimestamp
+            };
+        }).ToList();
+    }
+
+    public async Task<List<PendingFriendshipRequestDto>> GetPendingRequestsAsync(int userId)
+    {
+        var requests = await _friendshipRepository.GetPendingIncomingRequestsAsync(userId);
+        return _mapper.Map<List<PendingFriendshipRequestDto>>(requests);
+    }
+
+    public async Task<string> GetFriendshipStatusAsync(int userId1, int userId2)
+    {
+        var friendship = await _friendshipRepository.GetFriendshipBetweenUsersAsync(userId1, userId2);
+        return friendship?.Status.StatusName ?? "None";
+    }
+
+    public async Task BlockUserAsync(int blockerId, int userToBlockId)
+    {
+        if (blockerId == userToBlockId) throw new BadRequestException("Cannot block yourself.");
+
+        var friendship = await _friendshipRepository.GetFriendshipBetweenUsersAsync(blockerId, userToBlockId);
+
+        if (friendship != null)
         {
-            var existingFriendship = await GetExistingFriendship(dto.RequesterId, dto.ReceiverId);
-
-            if (existingFriendship != null)
+            friendship.StatusId = (int)FriendshipStatusEnum.Blocked;
+            friendship.UserId = blockerId; 
+            friendship.User2Id = userToBlockId;
+            await _friendshipRepository.UpdateFriendshipAsync(friendship);
+        }
+        else
+        {
+            friendship = new Friendship
             {
-                if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Accepted)
-                {
-                    throw new ConflictException("You are already friends with this user.");
-                }
-                if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Pending)
-                {
-                    throw new ConflictException("A friend request is already pending.");
-                }
-                if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Blocked)
-                {
-                    string blockedMessage = existingFriendship.UserId == dto.RequesterId 
-                        ? "You have blocked this user." 
-                        : "This user has blocked you.";
-                    throw new ForbiddenException($"Cannot send request. {blockedMessage}");
-                }
-            }
-
-            var newFriendship = new Friendship
-            {
-                UserId = dto.RequesterId,
-                User2Id = dto.ReceiverId,
-                StatusId = (int)FriendshipStatusEnum.Pending,
+                UserId = blockerId,
+                User2Id = userToBlockId,
+                StatusId = (int)FriendshipStatusEnum.Blocked,
                 RequestTimestamp = DateTime.UtcNow
             };
-
-            _context.Friendships.Add(newFriendship);
-            await _context.SaveChangesAsync();
+            await _friendshipRepository.AddFriendshipAsync(friendship);
         }
+    }
 
-        public async Task AcceptFriendRequestAsync(FriendshipActionDto dto)
+    public async Task UnblockUserAsync(int blockerId, int userToUnblockId)
+    {
+        var friendship = await _friendshipRepository.GetFriendshipBetweenUsersAsync(blockerId, userToUnblockId);
+
+        if (friendship == null || friendship.StatusId != (int)FriendshipStatusEnum.Blocked)
         {
-            var friendship = await _context.Friendships.FindAsync(dto.FriendshipId);
-
-            if (friendship == null)
-            {
-                throw new NotFoundException("Friend request not found.");
-            }
-
-            if (friendship.User2Id != dto.CurrentUserId)
-            {
-                throw new ForbiddenException("Unauthorized to accept this request.");
-            }
-
-            if (friendship.StatusId != (int)FriendshipStatusEnum.Pending)
-            {
-                throw new ConflictException("This request is no longer pending.");
-            }
-
-            friendship.StatusId = (int)FriendshipStatusEnum.Accepted;
-            friendship.RequestTimestamp = DateTime.UtcNow; 
-            
-            _context.Friendships.Update(friendship);
-            await _context.SaveChangesAsync();
+            throw new NotFoundException("Block record not found.");
         }
-
-        public async Task DeclineFriendRequestAsync(FriendshipActionDto dto)
+        
+        if (friendship.UserId == blockerId)
         {
-            var friendship = await _context.Friendships.FindAsync(dto.FriendshipId);
-
-            if (friendship == null)
-            {
-                throw new NotFoundException("Friend request not found.");
-            }
-
-            if (friendship.User2Id != dto.CurrentUserId)
-            {
-                throw new ForbiddenException("Unauthorized to decline this request.");
-            }
-
-            if (friendship.StatusId != (int)FriendshipStatusEnum.Pending)
-            {
-                throw new ConflictException("This request is no longer pending.");
-            }
-
-            _context.Friendships.Remove(friendship);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task CancelFriendRequestAsync(FriendshipActionDto dto)
-        {
-            var friendship = await _context.Friendships.FindAsync(dto.FriendshipId);
-
-            if (friendship == null)
-            {
-                throw new NotFoundException("Friend request not found.");
-            }
-
-            if (friendship.UserId != dto.CurrentUserId)
-            {
-                throw new ForbiddenException("Unauthorized to cancel this request.");
-            }
-
-            if (friendship.StatusId != (int)FriendshipStatusEnum.Pending)
-            {
-                throw new ConflictException("This request is no longer pending.");
-            }
-            
-            _context.Friendships.Remove(friendship);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<List<FriendshipDto>> GetFriendsListAsync(int userId)
-        {
-            return await _context.Friendships
-                .Where(f => (f.UserId == userId || f.User2Id == userId) && f.StatusId == (int)FriendshipStatusEnum.Accepted)
-                .Include(f => f.User)
-                .Include(f => f.User2)
-                .Select(f => new FriendshipDto
-                {
-                    FriendshipId = f.Id,
-                    FriendId = f.UserId == userId ? f.User2Id : f.UserId,
-                    FriendUsername = f.UserId == userId ? f.User2.UserName : f.User.UserName,
-                    Status = f.Status.StatusName,
-                    Since = f.RequestTimestamp
-                })
-                .ToListAsync();
-        }
-
-        public async Task<List<PendingFriendshipRequestDto>> GetPendingRequestsAsync(int userId)
-        {
-            return await _context.Friendships
-                .Where(f => f.User2Id == userId && f.StatusId == (int)FriendshipStatusEnum.Pending)
-                .Include(f => f.User)
-                .Select(f => new PendingFriendshipRequestDto
-                {
-                    FriendshipId = f.Id,
-                    RequesterId = f.UserId,
-                    RequesterUsername = f.User.UserName,
-                    RequestTimestamp = f.RequestTimestamp
-                })
-                .ToListAsync();
-        }
-
-        public async Task<string> GetFriendshipStatusAsync(int userId1, int userId2)
-        {
-            var friendship = await _context.Friendships
-                .Include(f => f.Status)
-                .FirstOrDefaultAsync(f => (f.UserId == userId1 && f.User2Id == userId2) ||
-                                          (f.UserId == userId2 && f.User2Id == userId1));
-            
-            return friendship?.Status.StatusName ?? "None";
-        }
-
-        public async Task BlockUserAsync(BlockUserDto dto)
-        {
-            var existingFriendship = await GetExistingFriendship(dto.BlockerId, dto.UserToBlockId);
-
-            if (existingFriendship != null)
-            {
-                if (existingFriendship.StatusId == (int)FriendshipStatusEnum.Blocked)
-                {
-                    throw new ConflictException("This user relationship is already blocked.");
-                }
-
-                existingFriendship.StatusId = (int)FriendshipStatusEnum.Blocked;
-                existingFriendship.UserId = dto.BlockerId;
-                existingFriendship.User2Id = dto.UserToBlockId;
-                existingFriendship.RequestTimestamp = DateTime.UtcNow;
-                _context.Friendships.Update(existingFriendship);
-            }
-            else
-            {
-                var newBlock = new Friendship
-                {
-                    UserId = dto.BlockerId,
-                    User2Id = dto.UserToBlockId,
-                    StatusId = (int)FriendshipStatusEnum.Blocked,
-                    RequestTimestamp = DateTime.UtcNow
-                };
-                _context.Friendships.Add(newBlock);
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UnblockUserAsync(UnblockUserDto dto)
-        {
-            var friendship = await _context.Friendships
-                .FirstOrDefaultAsync(f => f.UserId == dto.BlockerId && 
-                                          f.User2Id == dto.UserToUnblockId && 
-                                          f.StatusId == (int)FriendshipStatusEnum.Blocked);
-
-            if (friendship == null)
-            {
-                throw new NotFoundException("No active block found from you to this user.");
-            }
-
-            _context.Friendships.Remove(friendship);
-            await _context.SaveChangesAsync();
+            await _friendshipRepository.DeleteFriendshipAsync(friendship);
         }
     }
 }

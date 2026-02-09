@@ -1,189 +1,152 @@
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 using FluentValidation;
 using Locked_IN_Backend.DTOs.Friendship;
 using Locked_IN_Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Locked_IN_Backend.Controllers
+namespace Locked_IN_Backend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class FriendshipController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class FriendshipController : ControllerBase
+    private readonly IFriendshipService _friendshipService;
+    private readonly IValidator<SendFriendRequestDto> _sendRequestValidator;
+
+    public FriendshipController(
+        IFriendshipService friendshipService,
+        IValidator<SendFriendRequestDto> sendRequestValidator)
     {
-        private readonly IFriendshipService _friendshipService;
-        private readonly IValidator<SendFriendRequestDto> _sendFriendRequestValidator;
-        private readonly IValidator<FriendshipActionDto> _friendshipActionValidator;
-        private readonly IValidator<BlockUserDto> _blockUserValidator;
-        private readonly IValidator<UnblockUserDto> _unblockUserValidator;
+        _friendshipService = friendshipService;
+        _sendRequestValidator = sendRequestValidator;
+    }
 
-        public FriendshipController(
-            IFriendshipService friendshipService,
-            IValidator<SendFriendRequestDto> sendFriendRequestValidator,
-            IValidator<FriendshipActionDto> friendshipActionValidator,
-            IValidator<BlockUserDto> blockUserValidator,
-            IValidator<UnblockUserDto> unblockUserValidator)
+    /// <summary>
+    /// Send a new friend request
+    /// </summary>
+    [Authorize]
+    [HttpPost("request")]
+    public async Task<IActionResult> SendRequest([FromBody] SendFriendRequestDto dto)
+    {
+        var requesterId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+
+        var validationResult = await _sendRequestValidator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
         {
-            _friendshipService = friendshipService;
-            _sendFriendRequestValidator = sendFriendRequestValidator;
-            _friendshipActionValidator = friendshipActionValidator;
-            _blockUserValidator = blockUserValidator;
-            _unblockUserValidator = unblockUserValidator;
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
         }
 
-        /// <summary>
-        /// Send a new friend request
-        /// </summary>
-        /// <param name="requesterId">The ID of the user sending the request</param>
-        /// <param name="dto">DTO containing the Receiver ID</param>
-        /// <returns>Result message</returns>
-        [HttpPost("send/{requesterId}")]
-        public async Task<IActionResult> SendRequest(int requesterId, [FromBody] SendFriendRequestDto dto)
-        {
-            dto.RequesterId = requesterId;
-            var validationResult = await _sendFriendRequestValidator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
-            }
+        await _friendshipService.SendFriendRequestAsync(requesterId, dto.ReceiverId);
+        return Ok(new { Message = "Friend request sent successfully." });
+    }
 
-            await _friendshipService.SendFriendRequestAsync(dto);
-            return Ok(new { message = "Friend request sent successfully." });
-        }
+    /// <summary>
+    /// Accept a pending friend request
+    /// </summary>
+    [Authorize]
+    [HttpPut("requests/{friendshipId}/accept")]
+    public async Task<IActionResult> AcceptRequest(int friendshipId)
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await _friendshipService.AcceptFriendRequestAsync(currentUserId, friendshipId);
+        return Ok(new { Message = "Friend request accepted." });
+    }
 
-        /// <summary>
-        /// Accept a pending friend request
-        /// </summary>
-        /// <param name="friendshipId">The ID of the friendship record (request)</param>
-        /// <param name="currentUserId">The ID of the user accepting the request (must be the receiver)</param>
-        /// <returns>Result message</returns>
-        [HttpPost("{friendshipId}/accept/{currentUserId}")]
-        public async Task<IActionResult> AcceptRequest(int friendshipId, int currentUserId)
-        {
-            var dto = new FriendshipActionDto { FriendshipId = friendshipId, CurrentUserId = currentUserId };
-            var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
-            }
+    /// <summary>
+    /// Decline a pending friend request
+    /// </summary>
+    [Authorize]
+    [HttpPut("requests/{friendshipId}/decline")]
+    public async Task<IActionResult> DeclineRequest(int friendshipId)
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await _friendshipService.DeclineFriendRequestAsync(currentUserId, friendshipId);
+        return Ok(new { Message = "Friend request declined." });
+    }
 
-            await _friendshipService.AcceptFriendRequestAsync(dto);
-            return Ok(new { message = "Friend request accepted." });
-        }
+    /// <summary>
+    /// Cancel an outgoing (pending) friend request
+    /// </summary>
+    [Authorize]
+    [HttpDelete("requests/{friendshipId}/cancel")]
+    public async Task<IActionResult> CancelRequest(int friendshipId)
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await _friendshipService.CancelFriendRequestAsync(currentUserId, friendshipId);
+        return Ok(new { Message = "Friend request cancelled." });
+    }
 
-        /// <summary>
-        /// Decline a pending friend request
-        /// </summary>
-        /// <param name="friendshipId">The ID of the friendship record (request)</param>
-        /// <param name="currentUserId">The ID of the user declining the request (must be the receiver)</param>
-        /// <returns>Result message</returns>
-        [HttpPost("{friendshipId}/decline/{currentUserId}")]
-        public async Task<IActionResult> DeclineRequest(int friendshipId, int currentUserId)
-        {
-            var dto = new FriendshipActionDto { FriendshipId = friendshipId, CurrentUserId = currentUserId };
-            var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
-            }
+    /// <summary>
+    /// Remove a user from friends
+    /// </summary>
+    [Authorize]
+    [HttpDelete("remove/{friendId}")]
+    public async Task<IActionResult> RemoveFriend(int friendId)
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await _friendshipService.RemoveFriendAsync(currentUserId, friendId);
+        return Ok(new { Message = "User removed from friends." });
+    }
 
-            await _friendshipService.DeclineFriendRequestAsync(dto);
-            return Ok(new { message = "Friend request declined and removed." });
-        }
+    /// <summary>
+    /// Get the list of accepted friends
+    /// </summary>
+    [Authorize]
+    [HttpGet("list")]
+    public async Task<ActionResult<List<FriendshipDto>>> GetFriendsList()
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        var result = await _friendshipService.GetFriendsListAsync(currentUserId);
+        return Ok(result);
+    }
 
-        /// <summary>
-        /// Cancel an outgoing (pending) friend request
-        /// </summary>
-        /// <param name="friendshipId">The ID of the friendship record (request)</param>
-        /// <param name="currentUserId">The ID of the user cancelling the request (must be the sender)</param>
-        /// <returns>Result message</returns>
-        [HttpDelete("{friendshipId}/cancel/{currentUserId}")]
-        public async Task<IActionResult> CancelRequest(int friendshipId, int currentUserId)
-        {
-            var dto = new FriendshipActionDto { FriendshipId = friendshipId, CurrentUserId = currentUserId };
-            var validationResult = await _friendshipActionValidator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
-            }
-
-            await _friendshipService.CancelFriendRequestAsync(dto);
-            return Ok(new { message = "Friend request cancelled." });
-        }
-
-        /// <summary>
-        /// Get the list of accepted friends for a user
-        /// </summary>
-        /// <param name="userId">The ID of the user</param>
-        /// <returns>A list of friends</returns>
-        [HttpGet("list/{userId}")]
-        public async Task<IActionResult> GetFriendsList(int userId)
-        {
-            var result = await _friendshipService.GetFriendsListAsync(userId);
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Get pending incoming friend requests for a user
-        /// </summary>
-        /// <param name="userId">The ID of the user</param>
-        /// <returns>A list of pending requests</returns>
-        [HttpGet("pending-requests/{userId}")]
-        public async Task<IActionResult> GetPendingRequests(int userId)
-        {
-            var result = await _friendshipService.GetPendingRequestsAsync(userId);
-            return Ok(result);
-        }
-        
-        /// <summary>
-        /// Checks the friendship status between two users
-        /// </summary>
-        /// <param name="userId1">The ID of the first user</param>
-        /// <param name="userId2">The ID of the second user</param>
-        /// <returns>The friendship status (e.g., Accepted, Pending, None)</returns>
-        [HttpGet("status/{userId1}/{userId2}")]
-        public async Task<IActionResult> GetStatus(int userId1, int userId2)
-        {
-            var status = await _friendshipService.GetFriendshipStatusAsync(userId1, userId2);
-            return Ok(new { status = status });
-        }
-        
-        /// <summary>
-        /// Block another user
-        /// </summary>
-        /// <param name="blockerId">The ID of the user initiating the block</param>
-        /// <param name="userToBlockId">The ID of the user to be blocked</param>
-        /// <returns>Result message</returns>
-        [HttpPost("block/{blockerId}/{userToBlockId}")]
-        public async Task<IActionResult> BlockUser(int blockerId, int userToBlockId)
-        {
-            var dto = new BlockUserDto { BlockerId = blockerId, UserToBlockId = userToBlockId };
-            var validationResult = await _blockUserValidator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
-            }
-
-            await _friendshipService.BlockUserAsync(dto);
-            return Ok(new { message = "User successfully blocked." });
-        }
-        
-        /// <summary>
-        /// Unblock another user
-        /// </summary>
-        /// <param name="blockerId">The ID of the user initiating the unblock</param>
-        /// <param name="userToUnblockId">The ID of the user to be unblocked</param>
-        /// <returns>Result message</returns>
-        [HttpDelete("unblock/{blockerId}/{userToUnblockId}")]
-        public async Task<IActionResult> UnblockUser(int blockerId, int userToUnblockId)
-        {
-            var dto = new UnblockUserDto { BlockerId = blockerId, UserToUnblockId = userToUnblockId };
-            var validationResult = await _unblockUserValidator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(new { message = validationResult.Errors.First().ErrorMessage });
-            }
-
-            await _friendshipService.UnblockUserAsync(dto);
-            return Ok(new { message = "User successfully unblocked." });
-        }
+    /// <summary>
+    /// Get pending incoming friend requests
+    /// </summary>
+    [Authorize]
+    [HttpGet("pending-requests")]
+    public async Task<ActionResult<List<PendingFriendshipRequestDto>>> GetPendingRequests()
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        var result = await _friendshipService.GetPendingRequestsAsync(currentUserId);
+        return Ok(result);
+    }
+    
+    /// <summary>
+    /// Checks the friendship status between current user and another
+    /// </summary>
+    [Authorize]
+    [HttpGet("status/{targetUserId}")]
+    public async Task<IActionResult> GetStatus(int targetUserId)
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        var status = await _friendshipService.GetFriendshipStatusAsync(currentUserId, targetUserId);
+        return Ok(new { status = status });
+    }
+    
+    /// <summary>
+    /// Block another user
+    /// </summary>
+    [Authorize]
+    [HttpPost("block/{userToBlockId}")]
+    public async Task<IActionResult> BlockUser(int userToBlockId)
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await _friendshipService.BlockUserAsync(currentUserId, userToBlockId);
+        return Ok(new { Message = "User successfully blocked." });
+    }
+    
+    /// <summary>
+    /// Unblock another user
+    /// </summary>
+    [Authorize]
+    [HttpDelete("unblock/{userToUnblockId}")]
+    public async Task<IActionResult> UnblockUser(int userToUnblockId)
+    {
+        var currentUserId = int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await _friendshipService.UnblockUserAsync(currentUserId, userToUnblockId);
+        return Ok(new { Message = "User successfully unblocked." });
     }
 }
