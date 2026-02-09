@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useGroupViewStore } from "@/stores/groupViewStore"
 import { getChatMessages, getGroupDetails } from "@/api/api"
+import {getImageUrl} from "@/utils/imageUtils.ts";
 
 export function ChatArea() {
     const { chatId } = useParams<{ chatId: string }>()
     const { messages, setMessages } = useGroupViewStore()
     const [groupName, setGroupName] = useState("Loading...")
-    const [groupIcon, setGroupIcon] = useState("/diverse-group-avatars.png")
+    const [groupIcon, setGroupIcon] = useState("")
 
     useEffect(() => {
         if (!chatId) return
@@ -33,7 +34,7 @@ export function ChatArea() {
                 })))
 
                 setGroupName(groupData.name)
-                setGroupIcon(groupData.avatarUrl || "/diverse-group-avatars.png")
+                setGroupIcon(groupData.avatarUrl || "")
             } catch (error) {
                 console.error("Failed to fetch chat data:", error)
             }
@@ -59,7 +60,7 @@ export function ChatArea() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                        <AvatarImage src={groupIcon} />
+                        <AvatarImage src={getImageUrl(groupIcon)} />
                         <AvatarFallback>G</AvatarFallback>
                     </Avatar>
                     <div>

@@ -107,7 +107,6 @@ export default function GeneralSection({
         setIsDropdownOpen(true)
     }
 
-    // Initial validation if groupSize is already set (e.g. from store)
     useEffect(() => {
         if (groupSize === "") return
 
@@ -120,7 +119,6 @@ export default function GeneralSection({
     }, [])
 
     const handleGroupSizeChange = (v: string) => {
-        // Only allow numeric input
         if (v !== "" && !/^\d+$/.test(v)) return
 
         if (setGroupSize) {
