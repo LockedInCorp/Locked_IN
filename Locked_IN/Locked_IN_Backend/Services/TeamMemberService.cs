@@ -77,6 +77,7 @@ public class TeamMemberService : ITeamMemberService
         };
 
         await _teamMemberRepository.AddTeamMemberAsync(newTeamMember);
+        await _teamMemberRepository.SaveChangesAsync();
 
         var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
         if (leader != null)
@@ -126,6 +127,7 @@ public class TeamMemberService : ITeamMemberService
         request.Jointimestamp = DateTime.UtcNow;
 
         await _teamMemberRepository.UpdateTeamMemberAsync(request);
+        await _teamMemberRepository.SaveChangesAsync();
 
         await _hubContext.Clients.User(userIdToAccept.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
         {
@@ -149,6 +151,7 @@ public class TeamMemberService : ITeamMemberService
         request.MemberStatusId = (int)TeamMemberStatus.STATUS_REJECTED;
 
         await _teamMemberRepository.UpdateTeamMemberAsync(request);
+        await _teamMemberRepository.SaveChangesAsync();
 
         await _hubContext.Clients.User(userIdToDecline.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
         {
@@ -168,6 +171,7 @@ public class TeamMemberService : ITeamMemberService
         }
 
         await _teamMemberRepository.DeleteTeamMemberAsync(request);
+        await _teamMemberRepository.SaveChangesAsync();
 
         var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
         if (leader != null)

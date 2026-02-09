@@ -60,3 +60,42 @@ export const getPendingRequests = async (userId: number): Promise<PendingRequest
         throw new Error(errorData.message || 'Failed to fetch pending requests')
     }
 }
+
+export { 
+    getFriendshipStatus,
+    sendFriendRequest,
+    cancelFriendRequest,
+    deleteFriendship
+} from '@/api/api'
+
+export const getOutgoingPendingRequests = async (userId: number): Promise<PendingRequestsResponse> => {
+    try {
+        const friendsResponse = await getFriendsList(userId)
+        const pendingResponse = await getPendingRequests(userId)
+        
+        const allFriendships = [
+            ...(friendsResponse.data || []),
+            ...(pendingResponse.data || [])
+        ]
+        
+        const outgoing: PendingFriendshipRequestDto[] = []
+        
+        for (const friendship of allFriendships) {
+            if ('requesterId' in friendship && friendship.requesterId === userId) {
+                outgoing.push(friendship as PendingFriendshipRequestDto)
+            }
+        }
+        
+        return {
+            success: true,
+            message: '',
+            data: outgoing
+        }
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
+            success: false, 
+            message: 'Failed to fetch outgoing requests' 
+        }
+        throw new Error(errorData.message || 'Failed to fetch outgoing requests')
+    }
+}
