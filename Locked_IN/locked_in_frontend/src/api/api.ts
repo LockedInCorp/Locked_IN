@@ -260,9 +260,9 @@ const createTeam = async (data: Types.CreateGroupRequest): Promise<void> => {
 export default createTeam
 
 // Friendship
-export const getFriendshipStatus = async (userId1: number, userId2: number): Promise<string> => {
+export const getFriendshipStatus = async (targetUserId: number): Promise<string> => {
     try {
-        const response = await apiClient.get<{ status: string }>(`/friendship/status/${userId1}/${userId2}`)
+        const response = await apiClient.get<{ status: string }>(`/friendship/status/${targetUserId}`)
         return response.data.status || 'None'
     } catch (error: any) {
         const errorData = error.response?.data || { 
@@ -272,9 +272,9 @@ export const getFriendshipStatus = async (userId1: number, userId2: number): Pro
     }
 }
 
-export const sendFriendRequest = async (requesterId: number, receiverId: number): Promise<void> => {
+export const sendFriendRequest = async (receiverId: number): Promise<void> => {
     try {
-        await apiClient.post(`/friendship/send/${requesterId}`, { receiverId })
+        await apiClient.post(`/friendship/request`, { receiverId })
     } catch (error: any) {
         const errorData = error.response?.data || { 
             message: 'Failed to send friend request' 
@@ -283,9 +283,9 @@ export const sendFriendRequest = async (requesterId: number, receiverId: number)
     }
 }
 
-export const cancelFriendRequest = async (friendshipId: number, currentUserId: number): Promise<void> => {
+export const cancelFriendRequest = async (friendshipId: number): Promise<void> => {
     try {
-        await apiClient.delete(`/friendship/${friendshipId}/cancel/${currentUserId}`)
+        await apiClient.delete(`/friendship/requests/${friendshipId}/cancel`)
     } catch (error: any) {
         const errorData = error.response?.data || { 
             message: 'Failed to cancel friend request' 
@@ -294,9 +294,9 @@ export const cancelFriendRequest = async (friendshipId: number, currentUserId: n
     }
 }
 
-export const deleteFriendship = async (friendshipId: number, currentUserId: number): Promise<void> => {
+export const deleteFriendship = async (friendId: number): Promise<void> => {
     try {
-        await apiClient.delete(`/friendship/${friendshipId}/cancel/${currentUserId}`)
+        await apiClient.delete(`/friendship/remove/${friendId}`)
     } catch (error: any) {
         const errorData = error.response?.data || { 
             message: 'Failed to delete friendship' 
