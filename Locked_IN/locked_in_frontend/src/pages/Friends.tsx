@@ -19,7 +19,16 @@ type SelectedTab = "user" | number
 
 export default function Friends() {
     const { user } = useAuthStore()
-    const { friends, pendingRequests, userAvailability, loadFriendAvailability, setUserAvailability } = useFriends()
+    const { 
+        friends, 
+        pendingRequests, 
+        userAvailability, 
+        loadFriendAvailability, 
+        setUserAvailability, 
+        processingRequest,
+        handleAcceptRequest,
+        handleDeclineRequest
+    } = useFriends()
     const [selectedTab, setSelectedTab] = useState<SelectedTab>("user")
     const [editingAvailability, setEditingAvailability] = useState<Record<string, string[]>>({})
     const [hasChanges, setHasChanges] = useState(false)
@@ -168,14 +177,18 @@ export default function Friends() {
                                         <Button
                                             size="icon"
                                             variant="ghost"
-                                            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-600/10"
+                                            onClick={() => handleAcceptRequest(request.friendshipId)}
+                                            disabled={processingRequest === request.friendshipId}
+                                            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-600/10 disabled:opacity-50"
                                         >
                                             <Check className="h-4 w-4" />
                                         </Button>
                                         <Button
                                             size="icon"
                                             variant="ghost"
-                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-600/10"
+                                            onClick={() => handleDeclineRequest(request.friendshipId)}
+                                            disabled={processingRequest === request.friendshipId}
+                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-600/10 disabled:opacity-50"
                                         >
                                             <X className="h-4 w-4" />
                                         </Button>

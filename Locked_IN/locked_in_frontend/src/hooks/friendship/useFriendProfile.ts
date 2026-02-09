@@ -48,7 +48,7 @@ export function useFriendProfile(friendId: number) {
             const [profile, gameProfilesResponse, status] = await Promise.all([
                 getUserProfile(friendId),
                 getUserGameProfiles(friendId).catch(() => ({ success: false, message: '', data: [] })),
-                getFriendshipStatus(currentUserId, friendId)
+                getFriendshipStatus(friendId)
             ])
 
             if (!profile) {
@@ -83,8 +83,8 @@ export function useFriendProfile(friendId: number) {
 
             if (status === "Pending" || status === "Accepted") {
                 const [friendsResponse, pendingResponse] = await Promise.all([
-                    getFriendsList(currentUserId).catch(() => ({ success: false, message: '', data: [] })),
-                    getPendingRequests(currentUserId).catch(() => ({ success: false, message: '', data: [] }))
+                    getFriendsList().catch(() => ({ success: false, message: '', data: [] })),
+                    getPendingRequests().catch(() => ({ success: false, message: '', data: [] }))
                 ])
 
                 const friends = friendsResponse.data || []
@@ -102,7 +102,7 @@ export function useFriendProfile(friendId: number) {
                         setIsOutgoingRequest(false)
                     } else {
                         try {
-                            const friendPendingResponse = await getPendingRequests(friendId)
+                            const friendPendingResponse = await getPendingRequests()
                             const friendPending = friendPendingResponse.data || []
                             const outgoingReq = friendPending.find(p => p.requesterId === currentUserId)
                             if (outgoingReq) {
@@ -130,8 +130,7 @@ export function useFriendProfile(friendId: number) {
         setError(null)
 
         try {
-            const requesterId = parseInt(user.id)
-            await sendFriendRequest(requesterId, friendId)
+            await sendFriendRequest(friendId)
             setFriendshipStatus("Pending")
             setIsOutgoingRequest(true)
             await loadFriendProfile()
@@ -150,8 +149,7 @@ export function useFriendProfile(friendId: number) {
         setError(null)
 
         try {
-            const currentUserId = parseInt(user.id)
-            await cancelFriendRequest(friendshipId, currentUserId)
+            await cancelFriendRequest(friendshipId)
             setFriendshipStatus("None")
             setFriendshipId(null)
             setIsOutgoingRequest(false)
@@ -170,8 +168,7 @@ export function useFriendProfile(friendId: number) {
         setError(null)
 
         try {
-            const currentUserId = parseInt(user.id)
-            await deleteFriendship(friendshipId, currentUserId)
+            await deleteFriendship(friendId)
             setFriendshipStatus("None")
             setFriendshipId(null)
         } catch (err) {

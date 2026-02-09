@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { useAuthStore } from "@/stores/authStore"
-import { getFriendsList, getPendingRequests } from "@/utils/friendship_and_availability/friendshipApi"
+import { getFriendsList, getPendingRequests, acceptFriendRequest, declineFriendRequest } from "@/utils/friendship_and_availability/friendshipApi"
 import { getUserProfile } from "@/api/api"
 import type { FriendshipDto, PendingFriendshipRequestDto } from "@/utils/friendship_and_availability/friendshipApi"
 
@@ -16,6 +16,7 @@ export function useFriends() {
     const [userAvailability, setUserAvailability] = useState<Record<string, string[]>>({})
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [processingRequest, setProcessingRequest] = useState<number | null>(null)
 
     const loadFriends = useCallback(async () => {
         if (!user?.id) {
@@ -31,8 +32,8 @@ export function useFriends() {
             const userId = parseInt(user.id)
             
             const [friendsResponse, pendingResponse, userProfile] = await Promise.all([
-                getFriendsList(userId),
-                getPendingRequests(userId).catch(() => ({ success: false, message: '', data: [] })),
+                getFriendsList(),
+                getPendingRequests().catch(() => ({ success: false, message: '', data: [] })),
                 getUserProfile(userId)
             ])
 
@@ -68,6 +69,38 @@ export function useFriends() {
         }
     }, [])
 
+    const handleAcceptRequest = useCallback(async (friendshipId: number) => {
+        if (processingRequest === friendshipId) return
+        
+        setProcessingRequest(friendshipId)
+        try {
+            await acceptFriendRequest(friendshipId)
+            await loadFriends()
+        } catch (err) {
+            console.error('Failed to accept friend request:', err)
+            const errorMessage = err instanceof Error ? err.message : 'Failed to accept friend request'
+            alert(errorMessage)
+        } finally {
+            setProcessingRequest(null)
+        }
+    }, [processingRequest, loadFriends])
+
+    const handleDeclineRequest = useCallback(async (friendshipId: number) => {
+        if (processingRequest === friendshipId) return
+        
+        setProcessingRequest(friendshipId)
+        try {
+            await declineFriendRequest(friendshipId)
+            await loadFriends()
+        } catch (err) {
+            console.error('Failed to decline friend request:', err)
+            const errorMessage = err instanceof Error ? err.message : 'Failed to decline friend request'
+            alert(errorMessage)
+        } finally {
+            setProcessingRequest(null)
+        }
+    }, [processingRequest, loadFriends])
+
     useEffect(() => {
         if (user?.id) {
             loadFriends()
@@ -80,8 +113,11 @@ export function useFriends() {
         userAvailability,
         isLoading,
         error,
+        processingRequest,
         loadFriends,
         loadFriendAvailability,
-        setUserAvailability
+        setUserAvailability,
+        handleAcceptRequest,
+        handleDeclineRequest
     }
 }
