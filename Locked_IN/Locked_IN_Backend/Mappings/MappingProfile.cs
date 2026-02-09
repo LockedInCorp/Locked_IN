@@ -8,6 +8,7 @@ using Locked_IN_Backend.DTOs.User;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Data.Enums;
 using System.Text.Json;
+using Locked_IN_Backend.DTOs.Friendship;
 using Locked_IN_Backend.DTOs.GameProfile;
 
 namespace Locked_IN_Backend.Mappings;
@@ -136,5 +137,12 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())
             .ForMember(dest => dest.ExperienceTag, opt => opt.Ignore());
+        
+        CreateMap<Friendship, PendingFriendshipRequestDto>()
+            .ForMember(dest => dest.FriendshipId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.RequesterId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.RequesterUsername, opt => opt.MapFrom(src => src.User.UserName))
+            .ForMember(dest => dest.RequesterAvatarUrl, opt => opt.MapFrom(src => src.User.AvatarUrl))
+            .ForMember(dest => dest.RequestTimestamp, opt => opt.MapFrom(src => src.RequestTimestamp));
     }
 }
