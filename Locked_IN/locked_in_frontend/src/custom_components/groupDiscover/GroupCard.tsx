@@ -132,10 +132,10 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
                     <span className="text-muted-foreground text-xs font-medium">TAGS</span>
                     {group.tags.map((tag) => (
                         <span
-                            key={tag}
+                            key={tag.id}
                             className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded"
                         >
-                            {tag}
+                            {tag.experiencelevel}
                         </span>
                     ))}
                 </div>

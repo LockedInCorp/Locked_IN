@@ -1,4 +1,7 @@
-﻿namespace Locked_IN_Backend.DTO;
+﻿using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.DTOs.ExperienceTag;
+
+namespace Locked_IN_Backend.DTO;
 
 public class GetTeamDto
 {
@@ -12,9 +15,7 @@ public class GetTeamDto
 
     public string Description { get; set; } = null!;
     
-    public int GameId { get; set; }
-    
-    public string? GameName { get; set; }
+    public GetGameDto Game { get; set; }
     
     public bool IsPrivate { get; set; }
     
@@ -22,15 +23,18 @@ public class GetTeamDto
     
     public int ExperienceTagId { get; set; }
     
-    public string? ExperienceLevel { get; set; }
+    public GetExperienceTagDto? ExperienceLevel { get; set; }
     
     public int CurrentMemberCount { get; set; }
     
-    public List<GetTeamMemberDto>? Members { get; set; }
+    public List<GetUserForTeamViewDto>? Members { get; set; }
+    public GetTeamMemberDto Leader { get; set; }
     
-    public List<string>? PreferenceTags { get; set; }
+    public List<GetPreferanceTagsDto>? PreferenceTags { get; set; }
     
     public DateTime CreationTimestamp { get; set; }
     public string? IconUrl { get; set; }
+    public CommunicationServiceDto CommunicationService { get; set; }
+    public string CommunicationServiceLink { get; set; }
     public float? SearchRank { get; set; }
 }

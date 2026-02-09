@@ -61,6 +61,8 @@ public class TeamRepository : ITeamRepository
     {
         return await _context.Teams
             .Include(t => t.Game)
+            .Include(t => t.TeamCommunicationService)
+            .ThenInclude(tcs => tcs!.CommunicationService)
             .Include(t => t.ExperienceTag)
             .Include(t => t.TeamMembers)
                 .ThenInclude(tm => tm.User)

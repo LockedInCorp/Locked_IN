@@ -1,85 +1,51 @@
 "use client"
 
+import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useEffect, useState } from "react"
 import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { useChatViewStore } from "@/stores/chatViewStore"
-import { getGroupDetails, getUserChats } from "@/api/api"
-import type {GroupDetailsDto, UserChatDto} from "@/api/types"
 import { ChatType } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils"
+import { useChatDetails } from "@/hooks/chat/useChatDetails"
+import { useGroupDetails } from "@/hooks/chat/useGroupDetails"
+import { useJoinRequests } from "@/hooks/chat/useJoinRequests"
 
 export function ChatInfo() {
     const navigate = useNavigate()
     const { chatId } = useParams<{ chatId: string }>()
-    const { selectedGroupId, chatType, membersExpanded, requestsExpanded, toggleMembersExpanded, toggleRequestsExpanded } = useChatViewStore()
-    const [group, setGroup] = useState<GroupDetailsDto | null>(null)
-    const [friendChat, setFriendChat] = useState<UserChatDto | null>(null)
-    const [loading, setLoading] = useState(false)
+    
+    const [membersExpanded, setMembersExpanded] = useState(true)
+    const [requestsExpanded, setRequestsExpanded] = useState(true)
 
-    useEffect(() => {
-        if (!chatId) {
-            setGroup(null)
-            setFriendChat(null)
-            return
-        }
+    const toggleMembersExpanded = () => setMembersExpanded(!membersExpanded)
+    const toggleRequestsExpanded = () => setRequestsExpanded(!requestsExpanded)
 
-        const fetchChatInfo = async () => {
-            setLoading(true)
-            setGroup(null)
-            setFriendChat(null)
-            try {
-                if (chatType === ChatType.Team) {
-                    const data = await getGroupDetails(chatId)
-                    setGroup(data)
-                    setFriendChat(null)
-                } else if (chatType === ChatType.Direct) {
-                    const chats = await getUserChats()
-                    const chat = chats.find(c => c.id.toString() === chatId)
-                    setFriendChat(chat || null)
-                    setGroup(null)
-                } else {
-                    const chats = await getUserChats()
-                    const chat = chats.find(c => c.id.toString() === chatId)
-                    if (chat?.chatType === ChatType.Team) {
-                        const data = await getGroupDetails(chatId)
-                        setGroup(data)
-                        setFriendChat(null)
-                    } else {
-                        setFriendChat(chat || null)
-                        setGroup(null)
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch chat info:", error)
-            } finally {
-                setLoading(false)
-            }
-        }
+    const numericChatId = chatId ? parseInt(chatId, 10) : null
+    const { chatDetails, isLoading: isChatLoading } = useChatDetails(numericChatId)
 
-        fetchChatInfo()
-    }, [chatId, chatType])
+    const teamId = chatDetails?.chatType === ChatType.Team ? chatDetails.teamId : null
+    const { group, isLoading: groupLoading } = useGroupDetails(teamId)
+    const { requests, isLoading: requestsLoading } = useJoinRequests(teamId)
 
     const handleEdit = () => {
-        const groupId = selectedGroupId || "1"
+        const groupId = teamId || "1"
         navigate(`/groups/edit/${groupId}`)
     }
 
     const handleViewProfile = () => {
         // TODO: Implement navigation to friend's profile
-        // navigate(`/profile/${friendChat?.id}`)
+        // navigate(`/profile/${chatDetails?.id}`)
     }
 
-    if (loading) return <div className="p-6 text-center text-muted-foreground">Loading info...</div>
+    if (isChatLoading) return <div className="p-6 text-center text-muted-foreground">Loading info...</div>
     
-    const isGroupChat = chatType === ChatType.Team || (chatType === null && group !== null)
+    const isGroupChat = chatDetails?.chatType === ChatType.Team
     
-    if (isGroupChat && !group) return <div className="p-6 text-center text-muted-foreground">No group info available</div>
-    if (!isGroupChat && !friendChat) return <div className="p-6 text-center text-muted-foreground">No chat info available</div>
+    if (isGroupChat && !group) return <div className="p-6 text-center text-muted-foreground">{groupLoading ? 'Loading info...' : 'No group info available'}</div>
+    if (!isGroupChat && !chatDetails) return <div className="p-6 text-center text-muted-foreground">No chat info available</div>
     
-    if (!isGroupChat && friendChat) {
+    if (!isGroupChat && chatDetails) {
         return (
             <div className="flex flex-col h-full bg-background overflow-y-auto">
                 {/* Friend Header */}
@@ -87,18 +53,12 @@ export function ChatInfo() {
                     <div className="flex items-center gap-3 mb-4">
                         <Avatar className="h-16 w-16">
                             <AvatarImage 
-                                src={getImageUrl(friendChat.chatIconUrl)} 
-                                onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    if (!target.src.includes("/assets/sunset-silhouette-gaming.jpg")) {
-                                        target.src = "/assets/sunset-silhouette-gaming.jpg";
-                                    }
-                                }}
+                                src={getImageUrl(chatDetails?.chatIconUrl)}
                             />
-                            <AvatarFallback>{friendChat.chatName?.charAt(0).toUpperCase() || "F"}</AvatarFallback>
+                            <AvatarFallback>{chatDetails.chatName?.charAt(0).toUpperCase() || "F"}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <h2 className="text-xl font-semibold text-foreground">{friendChat.chatName || "Friend"}</h2>
+                            <h2 className="text-xl font-semibold text-foreground">{chatDetails.chatName || "Friend"}</h2>
                         </div>
                     </div>
                 </div>
@@ -125,40 +85,34 @@ export function ChatInfo() {
                 <div className="flex items-center gap-3 mb-4">
                     <Avatar className="h-12 w-12">
                         <AvatarImage 
-                            src={getImageUrl(group.avatarUrl)} 
-                            onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                if (!target.src.includes("/assets/sunset-silhouette-gaming.jpg")) {
-                                    target.src = "/assets/sunset-silhouette-gaming.jpg";
-                                }
-                            }}
+                            src={getImageUrl(group?.iconUrl)}
                         />
-                        <AvatarFallback>G</AvatarFallback>
+                        <AvatarFallback>1</AvatarFallback>
                     </Avatar>
                     <div>
                         <h2 className="font-semibold text-foreground">{group.name}</h2>
-                        <p className="text-xs text-muted-foreground">{group.memberCount} members</p>
+                        <p className="text-xs text-muted-foreground">{group.currentMemberCount} members</p>
                     </div>
                 </div>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mb-3">
-                    {group.tags.map((tag, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-muted text-foreground text-sm rounded-full">{tag}</span>
+                    {group.preferenceTags.map((tag, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-muted text-foreground text-sm rounded-full">{tag.name}</span>
                     ))}
                 </div>
 
                 {/* Experience */}
                 <div className="mb-2">
                     <span className="text-sm text-muted-foreground">Experience: </span>
-                    <span className="text-sm font-semibold text-primary">{group.experience}</span>
+                    <span className="text-sm font-semibold text-primary">{group.experienceLevel.experiencelevel}</span>
                 </div>
 
                 {/* Description */}
                 <p className="text-sm text-muted-foreground mb-2">{group.description || "No description"}</p>
 
                 {/* Communication Service */}
-                <p className="text-sm text-muted-foreground">{group.communicationService ? `Communication service ID: ${group.communicationService}` : "No communication service"}</p>
+                <p className="text-sm text-muted-foreground">{group.communicationService ? `Communication service: ${group.communicationService.name}` : "No communication service"}</p>
                 {group.communicationServiceLink && (
                     <p className="text-sm text-muted-foreground">
                         Join link: <a href={group.communicationServiceLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{group.communicationServiceLink}</a>
@@ -168,11 +122,9 @@ export function ChatInfo() {
 
             {/* Games Section */}
             <div className="px-6 py-4 border-b border-border">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Games we play</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3">Game we play</h3>
                 <div className="flex flex-wrap gap-2">
-                    {group.games.map((game, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-muted text-foreground text-sm rounded-full">{game}</span>
-                    ))}
+                        <span className="px-3 py-1 bg-muted text-foreground text-sm rounded-full">{group.game.name}</span>
                 </div>
             </div>
 
@@ -195,7 +147,7 @@ export function ChatInfo() {
                             <div key={member.id} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={getImageUrl(member.avatarUrl) || "/placeholder.svg"} />
+                                        <AvatarImage src={getImageUrl(member.avatarUrl)} />
                                         <AvatarFallback>F</AvatarFallback>
                                     </Avatar>
                                     <span className="text-sm text-foreground">{member.username}</span>
@@ -228,19 +180,19 @@ export function ChatInfo() {
                 >
                     <div className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
-                        <span>[{group.requests.length}] requests</span>
+                        <span>[{requestsLoading ? '...' : requests.length}] requests</span>
                     </div>
                     {requestsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
 
                 {requestsExpanded && (
                     <div className="space-y-2">
-                        {group.requests.map((request) => (
-                            <div key={request.id} className="flex items-center justify-between">
+                        {requests.map((request) => (
+                            <div key={request.userId} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src={getImageUrl(request.avatarUrl) || "/placeholder.svg"} />
-                                        <AvatarFallback>N</AvatarFallback>
+                                        <AvatarFallback>{request.username.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <span className="text-sm text-foreground">{request.username}</span>
                                 </div>

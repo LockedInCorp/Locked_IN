@@ -30,7 +30,7 @@ public class TeamService : ITeamService
     
     public async Task<GetTeamDto?> GetTeamByIdAsync(int teamId)
     {
-        var team = await _teamRepository.GetTeamById(teamId);
+        var team = await _teamRepository.GetTeamWithDetailsByIdAsync(teamId);
         return _mapper.Map<GetTeamDto>(team);
     }
 
@@ -75,7 +75,7 @@ public class TeamService : ITeamService
 
     public async Task<GetTeamDto> CreateTeamAsync(CreateTeamDto dto, int creatorId)
     {
-        using var transaction = await _teamRepository.BeginTransactionAsync();
+        // using var transaction = await _teamRepository.BeginTransactionAsync();
 
         try
         {
@@ -117,15 +117,17 @@ public class TeamService : ITeamService
             await _teamRepository.AddTeam(team);
             await _teamRepository.SaveChangesAsync();
 
-            await _chatService.CreateTeamChatAsync(creatorId, team.Id, saveChanges: false);
+            await _chatService.CreateTeamChatAsync(creatorId, team.Id, saveChanges: true);
             await _teamRepository.SaveChangesAsync();
 
-            await transaction.CommitAsync();
-            return _mapper.Map<GetTeamDto>(team);
+            // await transaction.CommitAsync();
+            
+            var createdTeam = await _teamRepository.GetTeamWithDetailsByIdAsync(team.Id);
+            return _mapper.Map<GetTeamDto>(createdTeam);
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync();
+            // await transaction.RollbackAsync();
             throw;
         }
     }

@@ -175,12 +175,21 @@ export const getChatMessages = async (chatId: string): Promise<Types.ChatMessage
     }
 }
 
-export const getGroupDetails = async (chatId: string): Promise<Types.GroupDetailsDto> => {
+export const getGroupDetails = async (teamId: string): Promise<Types.GroupDetailsDto> => {
     try {
-        const response = await apiClient.get<Types.GroupDetailsDto>(`/chat/${chatId}`)
+        const response = await apiClient.get<Types.GroupDetailsDto>(`/Team/${teamId}`)
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch group details')
+    }
+}
+
+export const getChatDetails = async (id: number): Promise<Types.GetChatDetails> => {
+    try {
+        const response = await apiClient.get<Types.GetChatDetails>(`/chat/${id}`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch chat details')
     }
 }
 
@@ -215,6 +224,15 @@ export const cancelJoinRequest = async (teamId: number, userId: number): Promise
         await apiClient.delete(`/teams/${teamId}/cancel-join`, { data: { userId } })
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to cancel join request')
+    }
+}
+
+export const getTeamJoinRequests = async (teamId: number): Promise<Types.default[]> => {
+    try {
+        const response = await apiClient.get<Types.default[]>(`/teams/${teamId}/join-requests`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch join requests')
     }
 }
 

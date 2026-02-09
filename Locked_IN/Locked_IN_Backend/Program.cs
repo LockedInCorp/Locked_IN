@@ -20,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Data.SqlClient;
 using Minio;
+using CommunicationService = Locked_IN_Backend.Services.CommunicationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -195,7 +196,7 @@ void RegisterServices()
     builder.Services.AddScoped<IGameService, GameService>();
     builder.Services.AddScoped<IFriendshipService, FriendshipService>();
     builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
-    builder.Services.AddScoped<ICommunicationService, CommunicationServiceImplementation>();
+    builder.Services.AddScoped<ICommunicationService, CommunicationService>();
     builder.Services.AddScoped<IExperienceTagService, ExperienceTagService>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IGameProfileService, GameProfileService>();

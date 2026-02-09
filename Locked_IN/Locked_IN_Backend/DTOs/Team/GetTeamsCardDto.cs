@@ -1,3 +1,4 @@
+using Locked_IN_Backend.DTOs.ExperienceTag;
 using Locked_IN_Backend.Misc.Enum;
 
 namespace Locked_IN_Backend.DTOs;
@@ -14,9 +15,7 @@ public class GetTeamsCardDto
 
     public string Description { get; set; } = null!;
     
-    public int GameId { get; set; }
-    
-    public string? GameName { get; set; }
+    public GetGameDto Game { get; set; }
     
     public bool IsPrivate { get; set; }
     
@@ -24,11 +23,11 @@ public class GetTeamsCardDto
     
     public int ExperienceTagId { get; set; }
     
-    public string? ExperienceLevel { get; set; }
+    public GetExperienceTagDto? ExperienceLevel { get; set; }
     
     public int CurrentMemberCount { get; set; }
     
-    public List<string>? PreferenceTags { get; set; }
+    public List<GetPreferanceTagsDto>? PreferenceTags { get; set; }
     
     public DateTime CreationTimestamp { get; set; }
     public string? IconUrl { get; set; }

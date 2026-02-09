@@ -108,4 +108,10 @@ public class TeamJoinController : ControllerBase
 
         return Ok(new { Message = "Join request successfully cancelled." });
     }
+    [HttpGet("teams/{teamId}/members")]
+    public async Task<IActionResult> GetActiveTeamMembers(int teamId)
+    {
+        var members = await _teamMemberService.GetActiveTeamMembersAsync(teamId);
+        return Ok(members);
+    }
 }

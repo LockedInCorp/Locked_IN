@@ -8,13 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { getUserChats } from "@/api/api"
 import type {UserChatDto} from "@/api/types"
-import { useChatViewStore } from "@/stores/chatViewStore"
 import { getImageUrl } from "@/utils/imageUtils"
 
 export function ChatsList() {
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId: string }>();
-    const { setChatType } = useChatViewStore();
     const [chats, setChats] = useState<UserChatDto[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -37,7 +35,6 @@ export function ChatsList() {
     }
 
     const handleChatClick = (chat: UserChatDto) => {
-        setChatType(chat.chatType || null);
         navigate(`/my-groups/${chat.id}`);
     }
 

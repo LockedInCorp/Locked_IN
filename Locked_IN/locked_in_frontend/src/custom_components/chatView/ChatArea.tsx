@@ -1,47 +1,35 @@
 "use client"
 
 import { ImageIcon, Send } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { useParams } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useChatViewStore } from "@/stores/chatViewStore"
-import { getChatMessages, getGroupDetails } from "@/api/api"
-import {getImageUrl} from "@/utils/imageUtils.ts";
+import { useChatDetails } from "@/hooks/chat/useChatDetails"
+import { getImageUrl } from "@/utils/imageUtils.ts"
+import { persist } from "@/utils/auth/persistance"
 
 export function ChatArea() {
     const { chatId } = useParams<{ chatId: string }>()
-    const { messages, setMessages } = useChatViewStore()
-    const [groupName, setGroupName] = useState("Loading...")
-    const [groupIcon, setGroupIcon] = useState("")
 
-    useEffect(() => {
-        if (!chatId) return
+    const numericChatId = chatId ? parseInt(chatId, 10) : null
+    const { chatDetails } = useChatDetails(numericChatId)
 
-        const fetchChatData = async () => {
-            try {
-                const [msgData, groupData] = await Promise.all([
-                    getChatMessages(chatId),
-                    getGroupDetails(chatId)
-                ])
+    const messages = useMemo(() => {
+        if (!chatDetails) return []
 
-                setMessages(msgData.map(m => ({
-                    id: m.id,
-                    sender: m.senderUsername,
-                    content: m.content,
-                    isCurrentUser: m.isCurrentUser
-                })))
+        const currentUser = persist.getUserData()
 
-                setGroupName(groupData.name)
-                setGroupIcon(groupData.avatarUrl || "")
-            } catch (error) {
-                console.error("Failed to fetch chat data:", error)
-            }
-        }
-
-        fetchChatData()
-    }, [chatId, setMessages])
+        return (chatDetails.messageDtos || []).map(m => {
+            return ({
+                id: m.id,
+                sender: m.senderUsername,
+                content: m.content,
+                isCurrentUser: currentUser ? m.senderId.toString() === currentUser.id : false
+            });
+        })
+    }, [chatDetails])
 
     const groups = messages.reduce<
         { sender: string; isCurrentUser: boolean; items: any[] }[]
@@ -60,12 +48,12 @@ export function ChatArea() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                        <AvatarImage src={getImageUrl(groupIcon)} />
-                        <AvatarFallback>G</AvatarFallback>
+                        <AvatarImage src={getImageUrl(chatDetails?.chatIconUrl)} />
+                        <AvatarFallback>{chatDetails?.chatName?.[0] || "G"}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <h2 className="font-semibold text-foreground">{groupName}</h2>
-                        <p className="text-xs text-muted-foreground">icon</p>
+                        <h2 className="font-semibold text-foreground">{chatDetails?.chatName || "Loading..."}</h2>
+                        <p className="text-xs text-muted-foreground">{chatDetails?.chatType === 'Team' ? 'Group' : 'Direct'}</p>
                     </div>
                 </div>
             </div>

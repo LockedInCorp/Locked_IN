@@ -1,4 +1,6 @@
+using AutoMapper;
 using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Team;
 using Locked_IN_Backend.Interfaces.Repositories;
@@ -17,17 +19,19 @@ public class TeamMemberService : ITeamMemberService
     private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IUserRepository _userRepository;
     private readonly IHubContext<TeamJoinHub, ITeamMemberHub> _hubContext;
-
+    private readonly IMapper _mapper;
+    
     public TeamMemberService(
         ITeamRepository teamRepository, 
         ITeamMemberRepository teamMemberRepository, 
         IUserRepository userRepository, 
-        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext)
+        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext, IMapper mapper)
     {
         _teamRepository = teamRepository;
         _teamMemberRepository = teamMemberRepository;
         _userRepository = userRepository;
         _hubContext = hubContext;
+        _mapper = mapper;
     }
 
     public async Task RequestToJoinTeamAsync(int teamId, int userId)
@@ -91,19 +95,19 @@ public class TeamMemberService : ITeamMemberService
         }
     }
 
+    public async Task<List<GetTeamMemberDto>> GetActiveTeamMembersAsync(int teamId)
+    {
+        var members = await _teamMemberRepository.GetActiveTeamMembersAsync(teamId);
+        var result = _mapper.Map<List<GetTeamMemberDto>>(members);
+        return result;
+    }
+
     public async Task<List<TeamJoinResponceDto>> GetJoinRequestsAsync(int teamId, int requesterId)
     {
         await EnsureUserIsLeaderAsync(teamId, requesterId);
 
         var requests = await _teamMemberRepository.GetPendingRequestsByTeamIdAsync(teamId);
-        return requests.Select(tm => new TeamJoinResponceDto
-            {
-                TeamId = tm.TeamId,
-                UserId = tm.UserId,
-                Username = tm.User.UserName,
-                RequestTimestamp = tm.Jointimestamp
-            })
-            .ToList();
+        return _mapper.Map<List<TeamJoinResponceDto>>(requests);
     }
 
     public async Task AcceptJoinRequestAsync(int leaderId, int teamId, int userIdToAccept)

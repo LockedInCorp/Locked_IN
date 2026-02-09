@@ -214,9 +214,8 @@ public class ChatService : IChatService
         {
             chatDto.ChatName = participant.Chat.Team?.Name;
             chatDto.ChatIconUrl = participant.Chat.Team?.IconUrl;
-            Console.WriteLine($"{chatDto.ChatIconUrl}, {chatDto.ChatName}, {chatId}, {chat.Team?.Name}");
         }
-        var messages = _messageRepository.GetChatMessagesAsync(chatId, 1, 50).Result;
+        var messages = await _messageRepository.GetChatMessagesAsync(chatId, 1, 50);
         chatDto.MessageDtos = _mapper.Map<List<GetMessageDto>>(messages.OrderBy(m => m.SentAt));
         return chatDto;
     }

@@ -1,4 +1,4 @@
-import type { TeamMemberStatus } from "@/api/types"
+import type {PreferenceTag, TeamMemberStatus} from "@/api/types"
 
 export interface GroupCard {
     id: number
@@ -7,7 +7,7 @@ export interface GroupCard {
     teamLeaderUsername: string
     description: string
     image: string
-    tags: string[]
+    tags: PreferenceTag[]
     currentMembers: number
     maxMembers: number
     isPending?: boolean

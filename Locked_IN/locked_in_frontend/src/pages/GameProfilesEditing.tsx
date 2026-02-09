@@ -50,7 +50,7 @@ export default function GameProfilesEditingPage() {
             const allGames = await searchGamesByName('')
             
             for (const profile of gameProfiles) {
-                const game = allGames.find(g => g.name.toLowerCase() === profile.gameName.toLowerCase())
+                const game = allGames.find(g => g.experiencelevel.toLowerCase() === profile.gameName.toLowerCase())
                 
                 if (!game) {
                     console.warn(`Game "${profile.gameName}" not found in database, skipping...`)
