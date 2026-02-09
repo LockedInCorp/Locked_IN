@@ -102,7 +102,7 @@ public class ChatService : IChatService
         return result;
     }
     
-    public async Task<GetChatDetails> CreateTeamChatAsync(int creatorId, int teamId)
+    public async Task<GetChatDetails> CreateTeamChatAsync(int creatorId, int teamId, bool saveChanges = true)
     {
         var team = await _teamRepository.GetTeamById(teamId);
         if (team == null)
@@ -135,7 +135,7 @@ public class ChatService : IChatService
         };
         
         await _chatRepository.AddChatAsync(chat);
-        await _chatRepository.SaveChangesAsync();
+        if (saveChanges) await _chatRepository.SaveChangesAsync();
         
         var participant = new Chatparticipant
         {
@@ -147,7 +147,7 @@ public class ChatService : IChatService
         };
         await _participantRepository.AddParticipantAsync(participant);
             
-        await _participantRepository.SaveChangesAsync();
+        if (saveChanges) await _participantRepository.SaveChangesAsync();
         var result = await GetChatByIdAsync(creatorId, chat.Id);
         return result;
     }

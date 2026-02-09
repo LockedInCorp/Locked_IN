@@ -28,18 +28,20 @@ public class TeamMemberRepository : ITeamMemberRepository
     public async Task AddTeamMemberAsync(TeamMember teamMember)
     {
         await _context.TeamMembers.AddAsync(teamMember);
-        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateTeamMemberAsync(TeamMember teamMember)
     {
         _context.TeamMembers.Update(teamMember);
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteTeamMemberAsync(TeamMember teamMember)
     {
         _context.TeamMembers.Remove(teamMember);
+    }
+
+    public async Task SaveChangesAsync()
+    {
         await _context.SaveChangesAsync();
     }
 
