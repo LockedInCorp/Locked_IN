@@ -12,6 +12,22 @@ export default function FriendProfile() {
     const navigate = useNavigate()
     const friendId = id ? parseInt(id) : 0
 
+    if (!id || isNaN(friendId) || friendId <= 0) {
+        return (
+            <div className="relative w-full min-h-full overflow-y-auto bg-background">
+                <div className="relative z-10 min-h-full flex items-center justify-center px-6 py-12">
+                    <div className="text-center">
+                        <p className="text-destructive mb-4">Invalid user ID</p>
+                        <Button onClick={() => navigate(-1)} variant="outline">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     const {
         isLoading,
         isActionLoading,
