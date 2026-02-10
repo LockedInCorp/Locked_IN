@@ -13,23 +13,26 @@ namespace Locked_IN_Backend.Hubs;
 [Authorize]
 public class ChatHub : Hub<IChatHub>
 {
+    public static string GetGroupName(int chatId) => $"Chat_{chatId}";
+    public static string GetGroupName(string chatId) => $"Chat_{chatId}";
+
     /// <summary>
     /// Join a chat group when user connects to a chat room.
     /// Best Practice: Use Groups instead of sending to everyone.
     /// </summary>
     public async Task JoinChatGroup(string chatId, GetUserForTeamViewDto getUserForTeamViewDto)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
-        await Clients.Group($"Chat_{chatId}").UserJoined(getUserForTeamViewDto);
+        await Groups.AddToGroupAsync(Context.ConnectionId, GetGroupName(chatId));
+        await Clients.Group(GetGroupName(chatId)).UserJoined(getUserForTeamViewDto);
     }
 
     /// <summary>
     /// Leave a chat group when user disconnects from a chat room.
     /// </summary>
-    public async Task LeaveChatGroup(string chatId)
+    public async Task LeaveChatGroup(string chatId, int userId)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
-        await Clients.Group($"Chat_{chatId}").UserLeft(Context.ConnectionId);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetGroupName(chatId));
+        await Clients.Group(GetGroupName(chatId)).UserLeft(userId);
     }
 
     /// <summary>
@@ -37,7 +40,7 @@ public class ChatHub : Hub<IChatHub>
     /// </summary>
     public async Task SendUserLeftChat(string chatId, int userId)
     {
-        await Clients.Group($"Chat_{chatId}").UserLeftChat(userId);
+        await Clients.Group(GetGroupName(chatId)).UserLeft(userId);
     }
 
     /// <summary>
@@ -46,7 +49,7 @@ public class ChatHub : Hub<IChatHub>
     /// </summary>
     public async Task SendMessageToGroup(string chatId, GetMessageDto getMessage)
     {
-        await Clients.Group($"Chat_{chatId}").ReceiveMessage(getMessage);
+        await Clients.Group(GetGroupName(chatId)).ReceiveMessage(getMessage);
     }
 
     /// <summary>
@@ -54,7 +57,7 @@ public class ChatHub : Hub<IChatHub>
     /// </summary>
     public async Task SendEditedMessageToGroup(string chatId, GetMessageDto getMessage)
     {
-        await Clients.Group($"Chat_{chatId}").MessageEdited(getMessage);
+        await Clients.Group(GetGroupName(chatId)).MessageEdited(getMessage);
     }
 
     /// <summary>
@@ -62,7 +65,7 @@ public class ChatHub : Hub<IChatHub>
     /// </summary>
     public async Task SendDeletedMessageToGroup(string chatId, int messageId)
     {
-        await Clients.Group($"Chat_{chatId}").MessageDeleted(messageId);
+        await Clients.Group(GetGroupName(chatId)).MessageDeleted(messageId);
     }
 
     /// <summary>
@@ -70,7 +73,7 @@ public class ChatHub : Hub<IChatHub>
     /// </summary>
     public async Task SendReadReceiptToGroup(string chatId, int userId, DateTime readAt)
     {
-        await Clients.Group($"Chat_{chatId}").MessageRead(new { UserId = userId, ReadAt = readAt });
+        await Clients.Group(GetGroupName(chatId)).MessageRead(new { UserId = userId, ReadAt = readAt });
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

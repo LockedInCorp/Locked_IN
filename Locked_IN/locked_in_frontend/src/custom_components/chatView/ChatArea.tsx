@@ -9,57 +9,23 @@ import { Input } from "@/components/ui/input"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
 import { getImageUrl } from "@/utils/imageUtils.ts"
 import { persist } from "@/utils/auth/persistance"
-import { getChatMessages, sendMessage } from "@/api/api.ts"
-import { useMarkAsRead } from "@/hooks/chat/useMarkAsRead"
-import type { GetMessageDto } from "@/api/types"
+import { sendMessage } from "@/api/api.ts"
 
 export function ChatArea() {
     const { chatId } = useParams<{ chatId: string }>()
 
     const numericChatId = chatId ? parseInt(chatId, 10) : null
-    const { chatDetails } = useChatDetails(numericChatId)
-    const { mutate: markAsRead } = useMarkAsRead()
+    const {
+        chatDetails,
+        messages: allMessages,
+        isFetchingMore,
+        hasMore,
+        fetchMore,
+        page
+    } = useChatDetails(numericChatId)
 
-    const [allMessages, setAllMessages] = useState<GetMessageDto[]>([])
-    const [page, setPage] = useState(1)
-    const [hasMore, setHasMore] = useState(true)
-    const [isFetchingMore, setIsFetchingMore] = useState(false)
     const scrollContainerRef = useRef<HTMLDivElement>(null)
     const lastScrollHeightRef = useRef<number>(0)
-
-    // Reset and load first page when chatId changes
-    useEffect(() => {
-        if (numericChatId) {
-            setAllMessages([])
-            setPage(1)
-            setHasMore(true)
-            fetchMessages(1, true)
-        }
-    }, [numericChatId])
-
-    const fetchMessages = async (pageNum: number, isInitial: boolean = false) => {
-        if (!numericChatId || isFetchingMore) return
-        setIsFetchingMore(true)
-        try {
-            const result = await getChatMessages(numericChatId.toString(), pageNum)
-            const items = result?.items || []
-            if (isInitial) {
-                setAllMessages(items)
-            } else {
-                setAllMessages(prev => [...items, ...prev])
-            }
-            setHasMore(pageNum < (result?.totalPages || 0))
-            setPage(pageNum)
-
-            if (pageNum === 1) {
-                markAsRead(numericChatId)
-            }
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setIsFetchingMore(false)
-        }
-    }
 
     const handleScroll = useCallback(() => {
         if (!scrollContainerRef.current || !hasMore || isFetchingMore) return
@@ -67,9 +33,9 @@ export function ChatArea() {
         const { scrollTop } = scrollContainerRef.current
         if (scrollTop === 0) {
             lastScrollHeightRef.current = scrollContainerRef.current.scrollHeight
-            fetchMessages(page + 1)
+            fetchMore()
         }
-    }, [hasMore, isFetchingMore, page, numericChatId])
+    }, [hasMore, isFetchingMore, fetchMore])
 
     useEffect(() => {
         if (lastScrollHeightRef.current && scrollContainerRef.current && !isFetchingMore) {
@@ -134,7 +100,7 @@ export function ChatArea() {
             // Reload first page to see the new message if we are at the bottom
             // or just append it locally for immediate feedback
             // For now, let's just refetch the first page
-            fetchMessages(1, true)
+            // fetchMessages(1, true)
         } catch (e) {
             console.error(e)
         }

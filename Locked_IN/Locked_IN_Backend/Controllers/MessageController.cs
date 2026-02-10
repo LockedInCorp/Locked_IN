@@ -16,12 +16,10 @@ namespace Locked_IN_Backend.Controllers;
 public class MessageController : ControllerBase
 {
     private readonly IMessageService _messageService;
-    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
 
-    public MessageController(IMessageService messageService, IHubContext<ChatHub, IChatHub> hubContext)
+    public MessageController(IMessageService messageService)
     {
         _messageService = messageService;
-        _hubContext = hubContext;
     }
 
     /// <summary>
@@ -38,10 +36,6 @@ public class MessageController : ControllerBase
         
         // Persistence First: Save message to database
         var result = await _messageService.SendMessageAsync(userId, sendMessageDto);
-
-        // Then broadcast via SignalR to the chat group
-        await _hubContext.Clients.Group($"Chat_{sendMessageDto.ChatId}")
-            .ReceiveMessage(result);
 
         return CreatedAtAction(nameof(GetChatMessages), new { chatId = sendMessageDto.ChatId }, result);
     }
@@ -76,10 +70,6 @@ public class MessageController : ControllerBase
         // Persistence First: Update message in database
         var result = await _messageService.EditMessageAsync(userId, editMessageDto);
     
-        // Then broadcast via SignalR
-        await _hubContext.Clients.Group($"Chat_{result.ChatId}")
-            .MessageEdited(result);
-
         return Ok(result);
     }
 

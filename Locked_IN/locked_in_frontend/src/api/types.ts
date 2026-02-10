@@ -264,6 +264,7 @@ export interface TeamJoinResponceDto {
     requestTimestamp: string;
 }
 
+
 export interface SendMessageRequest {
     chatId: number;
     content: string;

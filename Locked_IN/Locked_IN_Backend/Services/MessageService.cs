@@ -6,6 +6,7 @@ using Locked_IN_Backend.Exceptions;
 using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Locked_IN_Backend.Interfaces.Services;
 using Locked_IN_Backend.Misc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -17,7 +18,7 @@ public class MessageService : IMessageService
     private readonly IChatParticipantRepository _participantRepository;
     private readonly IChatRepository _chatRepository;
     private readonly IFileUploadService _fileUploadService;
-    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
+    private readonly IChatHubService _chatHubService;
     private readonly IMapper _mapper;
 
     public MessageService(
@@ -25,14 +26,14 @@ public class MessageService : IMessageService
         IChatParticipantRepository participantRepository,
         IChatRepository chatRepository,
         IFileUploadService fileUploadService,
-        IHubContext<ChatHub, IChatHub> hubContext,
+        IChatHubService chatHubService,
         IMapper mapper)
     {
         _messageRepository = messageRepository;
         _participantRepository = participantRepository;
         _chatRepository = chatRepository;
         _fileUploadService = fileUploadService;
-        _hubContext = hubContext;
+        _chatHubService = chatHubService;
         _mapper = mapper;
     }
 
@@ -77,7 +78,7 @@ public class MessageService : IMessageService
     
         var messageDto = _mapper.Map<GetMessageDto>(message);
         
-        await _hubContext.Clients.Group($"Chat_{sendMessageDto.ChatId}").ReceiveMessage(messageDto);
+        await _chatHubService.SendMessageToGroupAsync(sendMessageDto.ChatId, messageDto);
 
         return messageDto;
     }
@@ -129,7 +130,7 @@ public class MessageService : IMessageService
     
         var messageDto = _mapper.Map<GetMessageDto>(message);
 
-        await _hubContext.Clients.Group($"Chat_{message.ChatparticipantChatparticipant.ChatId}").MessageEdited(messageDto);
+        await _chatHubService.SendEditedMessageToGroupAsync(message.ChatparticipantChatparticipant.ChatId, messageDto);
 
         return messageDto;
     }
@@ -165,6 +166,6 @@ public class MessageService : IMessageService
         await _messageRepository.UpdateMessageAsync(message);
         await _messageRepository.SaveChangesAsync();
 
-        await _hubContext.Clients.Group($"Chat_{message.ChatparticipantChatparticipant.ChatId}").MessageDeleted(messageId);
+        await _chatHubService.SendDeletedMessageToGroupAsync(message.ChatparticipantChatparticipant.ChatId, messageId);
     }
 }

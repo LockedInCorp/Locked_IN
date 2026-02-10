@@ -8,6 +8,7 @@ using Locked_IN_Backend.Exceptions;
 using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Locked_IN_Backend.Interfaces.Services;
 using Microsoft.AspNetCore.SignalR;
 
 
@@ -30,7 +31,7 @@ public class ChatService : IChatService
     private readonly IUserRepository _userRepository;
     private readonly ITeamRepository _teamRepository;
     private readonly IFileUploadService _fileUploadService;
-    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
+    private readonly IChatHubService _chatHubService;
     private readonly IMapper _mapper;
     public ChatService(
         IChatRepository chatRepository, 
@@ -39,7 +40,7 @@ public class ChatService : IChatService
         IUserRepository userRepository, 
         ITeamRepository teamRepository,
         IFileUploadService fileUploadService,
-        IHubContext<ChatHub, IChatHub> hubContext,
+        IChatHubService chatHubService,
         IMapper mapper)
     {
         _chatRepository = chatRepository;
@@ -48,7 +49,7 @@ public class ChatService : IChatService
         _userRepository = userRepository;
         _teamRepository = teamRepository;
         _fileUploadService = fileUploadService;
-        _hubContext = hubContext;
+        _chatHubService = chatHubService;
         _mapper = mapper;
     }
 
@@ -246,7 +247,7 @@ public class ChatService : IChatService
         await _participantRepository.UpdateParticipantAsync(participant);
         await _participantRepository.SaveChangesAsync();
 
-        await _hubContext.Clients.Group($"Chat_{chatId}").MessageRead(new { UserId = userId, ReadAt = now });
+        await _chatHubService.SendReadReceiptToGroupAsync(chatId, userId, now);
     }
 
     public async Task JoinChatGroupAsync(int userId, int chatId)
@@ -291,7 +292,7 @@ public class ChatService : IChatService
         if (user != null)
         {
             var userDto = _mapper.Map<GetUserForTeamViewDto>(user);
-            await _hubContext.Clients.Group($"Chat_{chatId}").UserJoined(userDto);
+            await _chatHubService.SendUserJoinedAsync(chatId, userDto);
         }
     }
 
@@ -306,7 +307,7 @@ public class ChatService : IChatService
         await _participantRepository.RemoveParticipantAsync(participant);
         await _participantRepository.SaveChangesAsync();
 
-        await _hubContext.Clients.Group($"Chat_{chatId}").UserLeftChat(userId);
+        await _chatHubService.SendUserLeftChatAsync(chatId, userId);
     }
     
     

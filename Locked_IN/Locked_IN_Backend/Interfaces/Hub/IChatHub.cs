@@ -6,8 +6,7 @@ namespace Locked_IN_Backend.Interfaces;
 public interface IChatHub
 {
     Task UserJoined(GetUserForTeamViewDto user);
-    Task UserLeft(string connectionId);
-    Task UserLeftChat(int userId);
+    Task UserLeft(int userId);
     Task ReceiveMessage(GetMessageDto message);
     Task MessageEdited(GetMessageDto message);
     Task MessageDeleted(int messageId);
