@@ -137,7 +137,7 @@ public class TeamRepository : ITeamRepository
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || 
             tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER) < t.MaxPlayerCount);
         query = query.Where(t => !t.Isprivate)
-            .Where(t => !OnlyShowPending || t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING && tm.UserId == userId));
+            .Where(t => (!OnlyShowPending || t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING && tm.UserId == userId)) && !t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_REJECTED && tm.UserId == userId));
 
         if (gameIds.Any())
         {

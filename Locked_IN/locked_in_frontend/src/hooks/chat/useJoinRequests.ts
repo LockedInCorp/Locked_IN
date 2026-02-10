@@ -53,7 +53,7 @@ export function useJoinRequests(teamId: number | null | undefined, enabled: bool
         } finally {
             setIsLoading(false)
         }
-    }, [teamId])
+    }, [teamId, enabled])
 
     useEffect(() => {
         if (enabled) {

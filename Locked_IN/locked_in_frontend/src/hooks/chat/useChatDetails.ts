@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useRef } from "react"
+﻿import { useState, useEffect, useCallback } from "react"
 import { getChatDetails, getChatMessages } from "@/api/api"
 import type { GetChatDetails, GetMessageDto } from "@/api/types"
 import { useChatHub } from "@/hooks/signalr/useChatHub"
