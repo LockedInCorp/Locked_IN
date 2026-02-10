@@ -20,7 +20,9 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<ExperienceTag, GetExperienceTagDto>();
+        CreateMap<ExperienceTag, GetExperienceTagDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Experiencelevel));
         CreateMap<PreferenceTag, GetPreferanceTagsDto>();
         CreateMap<Game, GetGameDto>();
         CreateMap<CreateTeamDto, Team>()
