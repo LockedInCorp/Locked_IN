@@ -28,6 +28,16 @@ public class GameProfileService : IGameProfileService
         return _mapper.Map<List<GameProfileDto>>(favorites);
     }
 
+    public async Task<List<GameProfileDto>> GetUserGameProfilesAsync(int userId)
+    {
+        var profiles = await _context.GameProfiles
+            .Include(gp => gp.Game)
+            .Where(gp => gp.UserId == userId)
+            .ToListAsync();
+
+        return _mapper.Map<List<GameProfileDto>>(profiles);
+    }
+
     public async Task<GameProfileDto> AddGameToFavoritesAsync(int userId, int gameId)
     {
         var game = await _context.Games.FindAsync(gameId);
@@ -114,10 +124,32 @@ public class GameProfileService : IGameProfileService
         return _mapper.Map<GameProfileDto>(profile);
     }
 
-    public async Task DeleteGameProfileAsync(int userId, int gameId)
+    public async Task<GameProfileDto> UpdateGameProfileAsync(int userId, int profileId, UpdateGameProfileDto dto)
     {
         var profile = await _context.GameProfiles
-            .FirstOrDefaultAsync(gp => gp.UserId == userId && gp.GameId == gameId);
+            .Include(gp => gp.Game)
+            .FirstOrDefaultAsync(gp => gp.Id == profileId && gp.UserId == userId);
+
+        if (profile == null)
+        {
+            throw new NotFoundException("Game profile not found.");
+        }
+
+        profile.Rank = dto.Rank;
+        profile.Isfavorite = dto.IsFavorite;
+        profile.ExperienceTagId = dto.ExperienceTagId;
+        profile.GameExpId = dto.GameExpId;
+
+        _context.GameProfiles.Update(profile);
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<GameProfileDto>(profile);
+    }
+
+    public async Task DeleteGameProfileAsync(int userId, int profileId)
+    {
+        var profile = await _context.GameProfiles
+            .FirstOrDefaultAsync(gp => gp.Id == profileId && gp.UserId == userId);
 
         if (profile == null)
         {
@@ -126,15 +158,5 @@ public class GameProfileService : IGameProfileService
 
         _context.GameProfiles.Remove(profile);
         await _context.SaveChangesAsync();
-    }
-    
-    public async Task<List<GameProfileDto>> GetUserGameProfilesAsync(int userId)
-    {
-        var profiles = await _context.GameProfiles
-            .Include(gp => gp.Game)
-            .Where(gp => gp.UserId == userId) 
-            .ToListAsync();
-
-        return _mapper.Map<List<GameProfileDto>>(profiles);
     }
 }

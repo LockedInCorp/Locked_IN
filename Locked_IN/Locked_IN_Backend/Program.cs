@@ -1,4 +1,3 @@
-
 using Locked_IN_Backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
@@ -20,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Data.SqlClient;
 using Minio;
+using Locked_IN_Backend.DTOs.GameProfile;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -177,6 +177,8 @@ void RegisterValidationServices()
     builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateAvailabilityDto>, UpdateAvailabilityDtoValidator>();
     builder.Services.AddScoped<IValidator<CreateTeamDto>, CreateTeamDtoValidator>();
+    builder.Services.AddScoped<IValidator<CreateGameProfileDto>, CreateGameProfileDtoValidator>();
+    builder.Services.AddScoped<IValidator<UpdateGameProfileDto>, UpdateGameProfileDtoValidator>();
 }
 
 void RegisterServices()
@@ -201,5 +203,4 @@ void RegisterServices()
     builder.Services.AddScoped<IMessageService, MessageService>();
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
     builder.Services.AddScoped<IJwtService, JwtService>();
-    builder.Services.AddScoped<IValidator<Locked_IN_Backend.DTOs.GameProfile.CreateGameProfileDto>, Locked_IN_Backend.DTOs.GameProfile.CreateGameProfileDtoValidator>();
 }

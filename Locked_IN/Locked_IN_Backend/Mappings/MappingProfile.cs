@@ -126,7 +126,7 @@ public class MappingProfile : Profile
         CreateMap<GameProfile, GameProfileDto>()
             .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game != null ? src.Game.Name : string.Empty))
             .ForMember(dest => dest.IsFavorite, opt => opt.MapFrom(src => src.Isfavorite))
-            .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank.ToString()));
+            .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank != null ? src.Rank.ToString() : null));
 
         CreateMap<CreateGameProfileDto, GameProfile>()
             .ForMember(dest => dest.Isfavorite, opt => opt.MapFrom(src => src.IsFavorite))
