@@ -58,12 +58,12 @@ public class ChatController : ControllerBase
     /// </summary>
     [Authorize]
     [HttpGet("user")]
-    public async Task<IActionResult> GetUserChats()
+    public async Task<IActionResult> GetUserChats([FromQuery] string? searchTerm = null)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-        var result = await _chatService.GetUserChatsAsync(userId);
+        var result = await _chatService.GetUserChatsAsync(userId, searchTerm);
 
         return Ok(result);
     }

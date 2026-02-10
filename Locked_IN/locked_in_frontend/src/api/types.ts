@@ -254,3 +254,9 @@ export interface TeamJoinStatusDto {
     teamName: string;
     status: number;
 }
+
+export interface SendMessageRequest {
+    chatId: number;
+    content: string;
+    attachmentFile?: File | null;
+}

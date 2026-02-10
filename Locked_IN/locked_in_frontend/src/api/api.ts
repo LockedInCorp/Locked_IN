@@ -157,18 +157,22 @@ export const getPreferenceTags = async (): Promise<Types.PreferenceTag[]> => {
 }
 
 // Chat
-export const getUserChats = async (): Promise<Types.UserChatDto[]> => {
+export const getUserChats = async (searchTerm?: string): Promise<Types.UserChatDto[]> => {
     try {
-        const response = await apiClient.get<Types.UserChatDto[]>(`/chat/user`)
+        const response = await apiClient.get<Types.UserChatDto[]>(`/chat/user`, {
+            params: { searchTerm }
+        })
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch user chats')
     }
 }
 
-export const getChatMessages = async (chatId: string): Promise<Types.ChatMessageDto[]> => {
+export const getChatMessages = async (chatId: string, page: number = 1, pageSize: number = 20): Promise<Types.PagedResult<Types.GetMessageDto>> => {
     try {
-        const response = await apiClient.get<Types.ChatMessageDto[]>(`/chat/${chatId}/messages`)
+        const response = await apiClient.get<Types.PagedResult<Types.GetMessageDto>>(`/Message/${chatId}`, {
+            params: { pageNumber: page, pageSize }
+        })
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch messages')
@@ -190,6 +194,32 @@ export const getChatDetails = async (id: number): Promise<Types.GetChatDetails> 
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch chat details')
+    }
+}
+
+export const sendMessage = async (data: Types.SendMessageRequest): Promise<void> => {
+    try {
+        const formData = new FormData();
+        formData.append('chatId', data.chatId.toString());
+        formData.append('content', data.content ?? '');
+        if (data.attachmentFile instanceof File) {
+            formData.append('attachmentFile', data.attachmentFile);
+        }
+        await apiClient.post(`/Message`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to send message');
+    }
+}
+
+export const markChatAsRead = async (chatId: number): Promise<void> => {
+    try {
+        await apiClient.post(`/chat/${chatId}/read`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to mark chat as read')
     }
 }
 

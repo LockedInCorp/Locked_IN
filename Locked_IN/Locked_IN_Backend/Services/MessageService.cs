@@ -1,9 +1,11 @@
 using AutoMapper;
 using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Exceptions;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Locked_IN_Backend.Misc;
 
 namespace Locked_IN_Backend.Services;
 
@@ -72,7 +74,7 @@ public class MessageService : IMessageService
         return messageDto;
     }
 
-    public async Task<List<GetMessageDto>> GetChatMessagesAsync(int userId, int chatId, int pageNumber = 1, int pageSize = 50)
+    public async Task<PagedResult<GetMessageDto>> GetChatMessagesAsync(int userId, int chatId, int pageNumber = 1, int pageSize = 50)
     {
         var participant = await _participantRepository.GetParticipantAsync(chatId, userId);
         if (participant == null)
@@ -80,10 +82,16 @@ public class MessageService : IMessageService
             throw new ForbiddenException("You are not a participant in this chat.");
         }
     
-        var messages = await _messageRepository.GetChatMessagesAsync(chatId, pageNumber, pageSize);
-        var messageDtos = _mapper.Map<List<GetMessageDto>>(messages.OrderBy(m => m.SentAt));
-
-        return messageDtos;
+        var pagedMessages = await _messageRepository.GetChatMessagesAsync(chatId, pageNumber, pageSize);
+        
+        return new PagedResult<GetMessageDto>
+        {
+            Items = _mapper.Map<List<GetMessageDto>>(pagedMessages.Items.OrderBy(m => m.SentAt)),
+            TotalCount = pagedMessages.TotalCount,
+            Page = pagedMessages.Page,
+            PageSize = pagedMessages.PageSize,
+            TotalPages = pagedMessages.TotalPages
+        };
     }
 
     public async Task<GetMessageDto> EditMessageAsync(int userId, EditMessageDto editMessageDto)

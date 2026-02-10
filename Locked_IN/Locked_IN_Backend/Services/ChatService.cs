@@ -152,7 +152,7 @@ public class ChatService : IChatService
         return result;
     }
 
-    public async Task<List<GetUserChatsDto>> GetUserChatsAsync(int userId)
+    public async Task<List<GetUserChatsDto>> GetUserChatsAsync(int userId, string? searchTerm = null)
     {
         var participants = await _participantRepository.GetUserChatParticipantsAsync(userId);
         var chatDtos = new List<GetUserChatsDto>();
@@ -165,14 +165,21 @@ public class ChatService : IChatService
             {
                 var otherParticipant = participant.Chat.Chatparticipants.FirstOrDefault(cp => cp.UserId != userId);
                 chatDto.ChatName = otherParticipant?.User.UserName;
-                chatDto.ChatIconUrl = _participantRepository.GetOtherParticipantsAsync(participant.ChatId, userId)
-                    .Result.FirstOrDefault(p => p.UserId != userId)?.User.AvatarUrl;
+                chatDto.ChatIconUrl = otherParticipant?.User.AvatarUrl;
             }
             else if (participant.Chat.Type.Equals(nameof(ChatType.Team)) && participant.Chat.TeamId != null)
             {
                 var team = participant.Chat.Team;
                 chatDto.ChatName = team?.Name;
                 chatDto.ChatIconUrl = team?.IconUrl;
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                if (chatDto.ChatName == null || !chatDto.ChatName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
             }
 
             var lastMessage = await _messageRepository.GetLastMessageAsync(participant.ChatId);
@@ -207,8 +214,7 @@ public class ChatService : IChatService
         {
             var otherParticipant = participant.Chat.Chatparticipants.FirstOrDefault(cp => cp.UserId != userId);
             chatDto.ChatName = otherParticipant?.User.UserName;
-            chatDto.ChatIconUrl = _participantRepository.GetOtherParticipantsAsync(participant.ChatId, userId)
-                .Result.FirstOrDefault(p => p.UserId != userId)?.User.AvatarUrl;
+            chatDto.ChatIconUrl = otherParticipant?.User.AvatarUrl;
         }
         else if (participant.Chat.Type.Equals(nameof(ChatType.Team)) && participant.Chat.TeamId != null)
         {
@@ -216,7 +222,7 @@ public class ChatService : IChatService
             chatDto.ChatIconUrl = participant.Chat.Team?.IconUrl;
         }
         var messages = await _messageRepository.GetChatMessagesAsync(chatId, 1, 50);
-        chatDto.MessageDtos = _mapper.Map<List<GetMessageDto>>(messages.OrderBy(m => m.SentAt));
+        chatDto.MessageDtos = _mapper.Map<List<GetMessageDto>>(messages.Items.OrderBy(m => m.SentAt));
         return chatDto;
     }
     

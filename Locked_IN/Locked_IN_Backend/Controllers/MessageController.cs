@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Exceptions;
 using Locked_IN_Backend.Interfaces;
@@ -29,7 +30,7 @@ public class MessageController : ControllerBase
     /// </summary>
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> SendMessage([FromBody] SendMessageDto sendMessageDto)
+    public async Task<IActionResult> SendMessage([FromForm] SendMessageDto sendMessageDto)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
@@ -50,7 +51,7 @@ public class MessageController : ControllerBase
     /// </summary>
     [Authorize]
     [HttpGet("{chatId}")]
-    public async Task<IActionResult> GetChatMessages(int chatId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+    public async Task<ActionResult<PagedResult<GetMessageDto>>> GetChatMessages(int chatId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
