@@ -126,13 +126,17 @@ public class MappingProfile : Profile
         CreateMap<GameProfile, GameProfileDto>()
             .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game != null ? src.Game.Name : string.Empty))
             .ForMember(dest => dest.IsFavorite, opt => opt.MapFrom(src => src.Isfavorite))
-            .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank != null ? src.Rank.ToString() : null));
+            .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank != null ? src.Rank.ToString() : null))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
+            .ForMember(dest => dest.InGameNickname, opt => opt.MapFrom(src => src.InGameNickname));
 
         CreateMap<CreateGameProfileDto, GameProfile>()
             .ForMember(dest => dest.Isfavorite, opt => opt.MapFrom(src => src.IsFavorite))
             .ForMember(dest => dest.ExperienceTagId, opt => opt.MapFrom(src => src.ExperienceTagId))
             .ForMember(dest => dest.GameExpId, opt => opt.MapFrom(src => src.GameExpId))
             .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
+            .ForMember(dest => dest.InGameNickname, opt => opt.MapFrom(src => src.InGameNickname))
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())

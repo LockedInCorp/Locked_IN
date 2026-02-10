@@ -134,12 +134,13 @@ public class GameProfileService : IGameProfileService
         {
             throw new NotFoundException("Game profile not found.");
         }
-
+        
         profile.Rank = dto.Rank;
         profile.Isfavorite = dto.IsFavorite;
         profile.ExperienceTagId = dto.ExperienceTagId;
         profile.GameExpId = dto.GameExpId;
-
+        profile.Role = dto.Role;
+        profile.InGameNickname = dto.InGameNickname;
         _context.GameProfiles.Update(profile);
         await _context.SaveChangesAsync();
 

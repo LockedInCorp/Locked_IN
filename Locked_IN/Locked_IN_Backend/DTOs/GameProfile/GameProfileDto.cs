@@ -8,6 +8,8 @@ namespace Locked_IN_Backend.DTOs.GameProfile
         public string GameName { get; set; } = string.Empty;
         public bool IsFavorite { get; set; }
         public string? Rank { get; set; }
+        public string? Role { get; set; }
+        public string? InGameNickname { get; set; }
         public int ExperienceTagId { get; set; }
         public int GameExpId { get; set; }
     }

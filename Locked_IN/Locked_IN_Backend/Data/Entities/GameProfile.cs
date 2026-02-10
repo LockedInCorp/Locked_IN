@@ -22,6 +22,14 @@ public partial class GameProfile
 
     [Column("rank")]
     public int? Rank { get; set; }
+    
+    [Column("role")]
+    [StringLength(50)]
+    public string? Role { get; set; }
+
+    [Column("in_game_nickname")]
+    [StringLength(50)]
+    public string? InGameNickname { get; set; }
 
     [Column("isfavorite")]
     public bool Isfavorite { get; set; }
