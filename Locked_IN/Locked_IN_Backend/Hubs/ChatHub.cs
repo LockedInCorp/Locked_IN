@@ -1,3 +1,4 @@
+using Locked_IN_Backend.DTO;
 using Microsoft.AspNetCore.SignalR;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Interfaces;
@@ -16,10 +17,10 @@ public class ChatHub : Hub<IChatHub>
     /// Join a chat group when user connects to a chat room.
     /// Best Practice: Use Groups instead of sending to everyone.
     /// </summary>
-    public async Task JoinChatGroup(string chatId)
+    public async Task JoinChatGroup(string chatId, GetUserForTeamViewDto getUserForTeamViewDto)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
-        await Clients.Group($"Chat_{chatId}").UserJoined(Context.ConnectionId);
+        await Clients.Group($"Chat_{chatId}").UserJoined(getUserForTeamViewDto);
     }
 
     /// <summary>
@@ -29,6 +30,14 @@ public class ChatHub : Hub<IChatHub>
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
         await Clients.Group($"Chat_{chatId}").UserLeft(Context.ConnectionId);
+    }
+
+    /// <summary>
+    /// Notify others when a user leaves the chat via API call.
+    /// </summary>
+    public async Task SendUserLeftChat(string chatId, int userId)
+    {
+        await Clients.Group($"Chat_{chatId}").UserLeftChat(userId);
     }
 
     /// <summary>

@@ -2,10 +2,13 @@ using AutoMapper;
 using ErrorOr;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.Data.Enums;
+using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Exceptions;
+using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Microsoft.AspNetCore.SignalR;
 
 
 namespace Locked_IN_Backend.Services;
@@ -27,8 +30,8 @@ public class ChatService : IChatService
     private readonly IUserRepository _userRepository;
     private readonly ITeamRepository _teamRepository;
     private readonly IFileUploadService _fileUploadService;
+    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
     private readonly IMapper _mapper;
-
     public ChatService(
         IChatRepository chatRepository, 
         IMessageRepository messageRepository,
@@ -36,6 +39,7 @@ public class ChatService : IChatService
         IUserRepository userRepository, 
         ITeamRepository teamRepository,
         IFileUploadService fileUploadService,
+        IHubContext<ChatHub, IChatHub> hubContext,
         IMapper mapper)
     {
         _chatRepository = chatRepository;
@@ -44,6 +48,7 @@ public class ChatService : IChatService
         _userRepository = userRepository;
         _teamRepository = teamRepository;
         _fileUploadService = fileUploadService;
+        _hubContext = hubContext;
         _mapper = mapper;
     }
 
@@ -234,11 +239,14 @@ public class ChatService : IChatService
             throw new ForbiddenException("You are not a participant in this chat.");
         }
     
-        participant.LastReadAt = DateTimeHelper.ToUnspecified(DateTime.UtcNow);
+        var now = DateTime.UtcNow;
+        participant.LastReadAt = DateTimeHelper.ToUnspecified(now);
         participant.UnreadCount = 0;
     
         await _participantRepository.UpdateParticipantAsync(participant);
         await _participantRepository.SaveChangesAsync();
+
+        await _hubContext.Clients.Group($"Chat_{chatId}").MessageRead(new { UserId = userId, ReadAt = now });
     }
 
     public async Task JoinChatGroupAsync(int userId, int chatId)
@@ -250,23 +258,41 @@ public class ChatService : IChatService
         }
     
         var existingParticipant = await _participantRepository.GetParticipantAsync(chatId, userId);
-        if (existingParticipant != null)
+        if (existingParticipant != null && !existingParticipant.HasLeft)
         {
             throw new ConflictException($"You are already a participant in chat with id {chatId}.");
         }
 
-        var defaultRole = await _participantRepository.GetDefaultRoleAsync();
-        var participant = new Chatparticipant
+        if (existingParticipant != null)
         {
-            ChatId = chatId,
-            UserId = userId,
-            RoleId = defaultRole?.Id ?? 1,
-            JoinedAt = DateTimeHelper.ToUnspecified(DateTime.UtcNow),
-            UnreadCount = 0
-        };
-
-        await _participantRepository.AddParticipantAsync(participant);
+            existingParticipant.HasLeft = false;
+            // Update joined at time? Usually a good idea when re-joining
+            existingParticipant.JoinedAt = DateTimeHelper.ToUnspecified(DateTime.UtcNow);
+            await _participantRepository.UpdateParticipantAsync(existingParticipant);
+        }
+        else
+        {
+            var defaultRole = await _participantRepository.GetDefaultRoleAsync();
+            var participant = new Chatparticipant
+            {
+                ChatId = chatId,
+                UserId = userId,
+                RoleId = defaultRole?.Id ?? 1,
+                JoinedAt = DateTimeHelper.ToUnspecified(DateTime.UtcNow),
+                UnreadCount = 0,
+                HasLeft = false
+            };
+            await _participantRepository.AddParticipantAsync(participant);
+        }
+        
         await _participantRepository.SaveChangesAsync();
+
+        var user = await _userRepository.GetUserById(userId);
+        if (user != null)
+        {
+            var userDto = _mapper.Map<GetUserForTeamViewDto>(user);
+            await _hubContext.Clients.Group($"Chat_{chatId}").UserJoined(userDto);
+        }
     }
 
     public async Task LeaveChatGroupAsync(int userId, int chatId)
@@ -279,6 +305,8 @@ public class ChatService : IChatService
     
         await _participantRepository.RemoveParticipantAsync(participant);
         await _participantRepository.SaveChangesAsync();
+
+        await _hubContext.Clients.Group($"Chat_{chatId}").UserLeftChat(userId);
     }
     
     

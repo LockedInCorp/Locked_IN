@@ -255,6 +255,15 @@ export interface TeamJoinStatusDto {
     status: number;
 }
 
+export interface TeamJoinResponceDto {
+    teamId: number;
+    userId: number;
+    username: string;
+    avatarUrl?: string;
+    status: number;
+    requestTimestamp: string;
+}
+
 export interface SendMessageRequest {
     chatId: number;
     content: string;

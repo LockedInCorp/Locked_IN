@@ -3,9 +3,11 @@ using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Exceptions;
+using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
 using Locked_IN_Backend.Misc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Locked_IN_Backend.Services;
 
@@ -15,6 +17,7 @@ public class MessageService : IMessageService
     private readonly IChatParticipantRepository _participantRepository;
     private readonly IChatRepository _chatRepository;
     private readonly IFileUploadService _fileUploadService;
+    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
     private readonly IMapper _mapper;
 
     public MessageService(
@@ -22,12 +25,14 @@ public class MessageService : IMessageService
         IChatParticipantRepository participantRepository,
         IChatRepository chatRepository,
         IFileUploadService fileUploadService,
+        IHubContext<ChatHub, IChatHub> hubContext,
         IMapper mapper)
     {
         _messageRepository = messageRepository;
         _participantRepository = participantRepository;
         _chatRepository = chatRepository;
         _fileUploadService = fileUploadService;
+        _hubContext = hubContext;
         _mapper = mapper;
     }
 
@@ -71,6 +76,9 @@ public class MessageService : IMessageService
         await _participantRepository.SaveChangesAsync();
     
         var messageDto = _mapper.Map<GetMessageDto>(message);
+        
+        await _hubContext.Clients.Group($"Chat_{sendMessageDto.ChatId}").ReceiveMessage(messageDto);
+
         return messageDto;
     }
 
@@ -120,6 +128,9 @@ public class MessageService : IMessageService
         await _messageRepository.SaveChangesAsync();
     
         var messageDto = _mapper.Map<GetMessageDto>(message);
+
+        await _hubContext.Clients.Group($"Chat_{message.ChatparticipantChatparticipant.ChatId}").MessageEdited(messageDto);
+
         return messageDto;
     }
 
@@ -153,5 +164,7 @@ public class MessageService : IMessageService
     
         await _messageRepository.UpdateMessageAsync(message);
         await _messageRepository.SaveChangesAsync();
+
+        await _hubContext.Clients.Group($"Chat_{message.ChatparticipantChatparticipant.ChatId}").MessageDeleted(messageId);
     }
 }

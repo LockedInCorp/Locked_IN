@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
 import { getImageUrl } from "@/utils/imageUtils.ts"
 import { persist } from "@/utils/auth/persistance"
-import { getChatMessages, markChatAsRead, sendMessage } from "@/api/api.ts"
+import { getChatMessages, sendMessage } from "@/api/api.ts"
+import { useMarkAsRead } from "@/hooks/chat/useMarkAsRead"
 import type { GetMessageDto } from "@/api/types"
 
 export function ChatArea() {
@@ -17,6 +18,7 @@ export function ChatArea() {
 
     const numericChatId = chatId ? parseInt(chatId, 10) : null
     const { chatDetails } = useChatDetails(numericChatId)
+    const { mutate: markAsRead } = useMarkAsRead()
 
     const [allMessages, setAllMessages] = useState<GetMessageDto[]>([])
     const [page, setPage] = useState(1)
@@ -50,7 +52,7 @@ export function ChatArea() {
             setPage(pageNum)
 
             if (pageNum === 1) {
-                markChatAsRead(numericChatId).catch(console.error)
+                markAsRead(numericChatId)
             }
         } catch (e) {
             console.error(e)

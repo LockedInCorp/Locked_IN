@@ -32,7 +32,9 @@ export function ChatInfo() {
 
     const teamId = chatDetails?.chatType === ChatType.Team ? chatDetails.teamId : null
     const { group, isLoading: groupLoading, refetch: refetchGroup } = useGroupDetails(teamId)
-    const { requests, isLoading: requestsLoading, refetch: refetchRequests } = useJoinRequests(teamId)
+    
+    const isLeader = user?.id && group?.leader?.id ? user.id === group.leader.id.toString() : false
+    const { requests, isLoading: requestsLoading, refetch: refetchRequests } = useJoinRequests(teamId, isLeader)
 
     const handleEdit = () => {
         const groupId = teamId || "1"
@@ -117,9 +119,6 @@ export function ChatInfo() {
     }
 
     if (!group) return <div className="p-6 text-center text-muted-foreground">No group info available</div>
-
-    const isLeader = user?.id === group.leader.id.toString()
-    console.log(isLeader)
 
     return (
         <div className="flex flex-col h-full bg-background overflow-y-auto">

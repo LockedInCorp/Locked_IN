@@ -15,12 +15,10 @@ namespace Locked_IN_Backend.Controllers;
 public class ChatController : ControllerBase
 {
     private readonly IChatService _chatService;
-    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
 
-    public ChatController(IChatService chatService, IHubContext<ChatHub, IChatHub> hubContext)
+    public ChatController(IChatService chatService)
     {
         _chatService = chatService;
-        _hubContext = hubContext;
     }
 
     /// <summary>
@@ -98,9 +96,6 @@ public class ChatController : ControllerBase
         // Persistence First: Update read status in database
         await _chatService.MarkChatAsReadAsync(userId, chatId);
 
-        // Then broadcast read receipt via SignalR
-        await _hubContext.Clients.Group($"Chat_{chatId}")
-            .MessageRead(new { UserId = userId, ReadAt = DateTime.UtcNow });
 
         return NoContent();
     }
@@ -117,6 +112,7 @@ public class ChatController : ControllerBase
         var userId = int.Parse(userIdClaim);
         
         await _chatService.JoinChatGroupAsync(userId, chatId);
+        
         return NoContent();
     }
 

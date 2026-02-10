@@ -164,6 +164,7 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chathub");
 app.MapHub<TeamJoinHub>("/teamjoinhub");
+app.MapHub<TeamRequestHub>("/teamrequesthub");
 
 app.Run();
 
