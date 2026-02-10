@@ -11,4 +11,6 @@ public interface IChatHubService
     Task SendReadReceiptToGroupAsync(int chatId, int userId, DateTime readAt);
     Task SendUserJoinedAsync(int chatId, GetUserForTeamViewDto user);
     Task SendUserLeftChatAsync(int chatId, int userId);
+    Task AddUserToGroupAsync(int userId, int chatId);
+    Task RemoveUserFromGroupAsync(int userId, int chatId);
 }

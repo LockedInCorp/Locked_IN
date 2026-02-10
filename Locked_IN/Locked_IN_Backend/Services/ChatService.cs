@@ -288,6 +288,8 @@ public class ChatService : IChatService
         
         await _participantRepository.SaveChangesAsync();
 
+        await _chatHubService.AddUserToGroupAsync(userId, chatId);
+
         var user = await _userRepository.GetUserById(userId);
         if (user != null)
         {
@@ -307,6 +309,7 @@ public class ChatService : IChatService
         await _participantRepository.RemoveParticipantAsync(participant);
         await _participantRepository.SaveChangesAsync();
 
+        await _chatHubService.RemoveUserFromGroupAsync(userId, chatId);
         await _chatHubService.SendUserLeftChatAsync(chatId, userId);
     }
     
