@@ -85,6 +85,7 @@ public class TeamMemberRepository : ITeamMemberRepository
     {
         return await _context.TeamMembers
             .Include(tm => tm.Team)
+            .ThenInclude(t => t.Chats)
             .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.UserId == userId);
     }
 

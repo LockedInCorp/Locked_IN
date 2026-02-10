@@ -10,10 +10,16 @@ import { getImageUrl } from "@/utils/imageUtils"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
 import { useGroupDetails } from "@/hooks/chat/useGroupDetails"
 import { useJoinRequests } from "@/hooks/chat/useJoinRequests"
+import { acceptJoinRequest, declineJoinRequest, leaveTeam } from "@/api/api"
+import { useAuthStore } from "@/stores/authStore"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function ChatInfo() {
     const navigate = useNavigate()
     const { chatId } = useParams<{ chatId: string }>()
+    const queryClient = useQueryClient()
+    
+    const { user } = useAuthStore()
     
     const [membersExpanded, setMembersExpanded] = useState(true)
     const [requestsExpanded, setRequestsExpanded] = useState(true)
@@ -25,8 +31,8 @@ export function ChatInfo() {
     const { chatDetails, isLoading: isChatLoading } = useChatDetails(numericChatId)
 
     const teamId = chatDetails?.chatType === ChatType.Team ? chatDetails.teamId : null
-    const { group, isLoading: groupLoading } = useGroupDetails(teamId)
-    const { requests, isLoading: requestsLoading } = useJoinRequests(teamId)
+    const { group, isLoading: groupLoading, refetch: refetchGroup } = useGroupDetails(teamId)
+    const { requests, isLoading: requestsLoading, refetch: refetchRequests } = useJoinRequests(teamId)
 
     const handleEdit = () => {
         const groupId = teamId || "1"
@@ -36,6 +42,40 @@ export function ChatInfo() {
     const handleViewProfile = () => {
         // TODO: Implement navigation to friend's profile
         // navigate(`/profile/${chatDetails?.id}`)
+    }
+
+    const handleAcceptRequest = async (userId: number) => {
+        if (!teamId) return;
+        try {
+            await acceptJoinRequest(teamId, userId)
+            refetchRequests()
+            refetchGroup()
+        } catch (error) {
+            console.error("Failed to accept request:", error)
+        }
+    }
+
+    const handleDeclineRequest = async (userId: number) => {
+        if (!teamId) return
+        try {
+            await declineJoinRequest(teamId, userId)
+            refetchRequests()
+        } catch (error) {
+            console.error("Failed to decline request:", error)
+        }
+    }
+
+    const handleLeaveTeam = async () => {
+        if (!teamId) return
+        if (window.confirm("Are you sure you want to leave this team?")) {
+            try {
+                await leaveTeam(teamId)
+                queryClient.invalidateQueries({ queryKey: ["userChats"] })
+                navigate("/my-groups")
+            } catch (error) {
+                console.error("Failed to leave team:", error)
+            }
+        }
     }
 
     if (isChatLoading) return <div className="p-6 text-center text-muted-foreground">Loading info...</div>
@@ -78,6 +118,9 @@ export function ChatInfo() {
 
     if (!group) return <div className="p-6 text-center text-muted-foreground">No group info available</div>
 
+    const isLeader = user?.id === group.leader.id.toString()
+    console.log(isLeader)
+
     return (
         <div className="flex flex-col h-full bg-background overflow-y-auto">
             {/* Group Header */}
@@ -105,7 +148,7 @@ export function ChatInfo() {
                 {/* Experience */}
                 <div className="mb-2">
                     <span className="text-sm text-muted-foreground">Experience: </span>
-                    <span className="text-sm font-semibold text-primary">{group.experienceLevel.experiencelevel}</span>
+                    <span className="text-sm font-semibold text-primary">{group.experienceLevel.name}</span>
                 </div>
 
                 {/* Description */}
@@ -173,57 +216,72 @@ export function ChatInfo() {
             </div>
 
             {/* Requests Section */}
-            <div className="px-6 py-4 flex-1">
-                <button
-                    onClick={toggleRequestsExpanded}
-                    className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
-                >
-                    <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        <span>[{requestsLoading ? '...' : requests.length}] requests</span>
-                    </div>
-                    {requestsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </button>
+            {isLeader && (
+                <div className="px-6 py-4 flex-1">
+                    <button
+                        onClick={toggleRequestsExpanded}
+                        className="flex items-center justify-between w-full mb-3 text-sm font-semibold text-foreground cursor-pointer"
+                    >
+                        <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            <span>[{requestsLoading ? '...' : requests.length}] requests</span>
+                        </div>
+                        {requestsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
 
-                {requestsExpanded && (
-                    <div className="space-y-2">
-                        {requests.map((request) => (
-                            <div key={request.userId} className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={getImageUrl(request.avatarUrl) || "/placeholder.svg"} />
-                                        <AvatarFallback>{request.username.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <span className="text-sm text-foreground">{request.username}</span>
+                    {requestsExpanded && (
+                        <div className="space-y-2">
+                            {requests.map((request) => (
+                                <div key={request.userId} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={getImageUrl(request.avatarUrl) || "/placeholder.svg"} />
+                                            <AvatarFallback>{request.username.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <span className="text-sm text-foreground">{request.username}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Button 
+                                            size="icon" 
+                                            variant="ghost" 
+                                            className="h-6 w-6 text-green-500 hover:text-green-400"
+                                            onClick={() => handleAcceptRequest(request.userId)}
+                                        >
+                                            <Check className="h-4 w-4" />
+                                        </Button>
+                                        <Button 
+                                            size="icon" 
+                                            variant="ghost" 
+                                            className="h-6 w-6 text-red-500 hover:text-red-400"
+                                            onClick={() => handleDeclineRequest(request.userId)}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-green-500 hover:text-green-400">
-                                        <Check className="h-4 w-4" />
-                                    </Button>
-                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-red-500 hover:text-red-400">
-                                        <X className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Action Buttons */}
             <div className="px-6 py-4 border-t border-border flex gap-3">
                 <Button
                     variant="outline"
                     className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
+                    onClick={handleLeaveTeam}
                 >
                     Leave
                 </Button>
-                <Button 
-                    onClick={handleEdit}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                    Edit
-                </Button>
+                {isLeader && (
+                    <Button 
+                        onClick={handleEdit}
+                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                        Edit
+                    </Button>
+                )}
             </div>
         </div>
     )

@@ -28,7 +28,7 @@ public class GetTeamDto
     public int CurrentMemberCount { get; set; }
     
     public List<GetUserForTeamViewDto>? Members { get; set; }
-    public GetTeamMemberDto Leader { get; set; }
+    public GetUserForTeamViewDto Leader { get; set; }
     
     public List<GetPreferanceTagsDto>? PreferenceTags { get; set; }
     
@@ -37,4 +37,5 @@ public class GetTeamDto
     public CommunicationServiceDto CommunicationService { get; set; }
     public string CommunicationServiceLink { get; set; }
     public float? SearchRank { get; set; }
+    public int ChatId { get; set; }
 }

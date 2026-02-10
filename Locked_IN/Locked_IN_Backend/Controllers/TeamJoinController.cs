@@ -108,6 +108,25 @@ public class TeamJoinController : ControllerBase
 
         return Ok(new { Message = "Join request successfully cancelled." });
     }
+
+    /// <summary>
+    /// Leave a team.
+    /// </summary>
+    /// <param name="teamId">The ID of the team to leave.</param>
+    /// <returns>Confirmation message.</returns>
+    [Authorize]
+    [HttpPost("teams/{teamId}/leave")]
+    public async Task<IActionResult> LeaveTeam(int teamId)
+    {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        await _teamMemberService.LeaveTeamAsync(teamId, userId);
+
+        return Ok(new { Message = "Successfully left the team and its associated chat." });
+    }
+
     [HttpGet("teams/{teamId}/members")]
     public async Task<IActionResult> GetActiveTeamMembers(int teamId)
     {

@@ -34,4 +34,6 @@ public class GetTeamsCardDto
     public float? SearchRank { get; set; }
     public string? TeamLeaderUsername { get; set; }
     public TeamMemberStatus TeamMemberStatus { get; set; }
+    
+    public int ChatId { get; set; }
 }

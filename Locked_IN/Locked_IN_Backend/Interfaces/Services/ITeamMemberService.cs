@@ -11,4 +11,5 @@ public interface ITeamMemberService
     Task AcceptJoinRequestAsync(int leaderId, int teamId, int userIdToAccept);
     Task DeclineJoinRequestAsync(int leaderId, int teamId, int userIdToDecline);
     Task CancelJoinRequestAsync(int teamId, int userId);
+    Task LeaveTeamAsync(int teamId, int userId);
 }

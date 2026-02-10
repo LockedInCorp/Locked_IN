@@ -67,7 +67,7 @@ export interface GameSuggestion {
 
 export interface ExperienceTag {
     id: number
-    experiencelevel: string
+    name: string
 }
 
 export interface PreferenceTag {
@@ -210,8 +210,7 @@ export interface TeamSearchResult {
     minCompScore: number;
     maxPlayerCount: number;
     description: string;
-    gameId: number;
-    gameName: string;
+    game: GameDto;
     isPrivate: boolean;
     autoAccept: boolean;
     experienceLevel: ExperienceTag
@@ -223,6 +222,7 @@ export interface TeamSearchResult {
     searchRank: number;
     teamLeaderUsername: string;
     teamMemberStatus: TeamMemberStatus;
+    chatId: number;
 }
 
 export interface TeamMemberSearchResult {

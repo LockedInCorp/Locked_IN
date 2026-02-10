@@ -18,6 +18,7 @@ public class TeamMemberService : ITeamMemberService
     private readonly ITeamRepository _teamRepository;
     private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IChatService _chatService;
     private readonly IHubContext<TeamJoinHub, ITeamMemberHub> _hubContext;
     private readonly IMapper _mapper;
     
@@ -25,13 +26,14 @@ public class TeamMemberService : ITeamMemberService
         ITeamRepository teamRepository, 
         ITeamMemberRepository teamMemberRepository, 
         IUserRepository userRepository, 
-        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext, IMapper mapper)
+        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext, IMapper mapper, IChatRepository chatRepository, IChatService chatService)
     {
         _teamRepository = teamRepository;
         _teamMemberRepository = teamMemberRepository;
         _userRepository = userRepository;
         _hubContext = hubContext;
         _mapper = mapper;
+        _chatService = chatService;
     }
 
     public async Task RequestToJoinTeamAsync(int teamId, int userId)
@@ -81,6 +83,7 @@ public class TeamMemberService : ITeamMemberService
         };
 
         await _teamMemberRepository.AddTeamMemberAsync(newTeamMember);
+        if (team.IsAutoaccept) await _chatService.JoinChatGroupAsync(userId, team.Chats.First().Id);
         await _teamMemberRepository.SaveChangesAsync();
 
         var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
@@ -131,6 +134,7 @@ public class TeamMemberService : ITeamMemberService
         request.Jointimestamp = DateTime.UtcNow;
 
         await _teamMemberRepository.UpdateTeamMemberAsync(request);
+        await _chatService.JoinChatGroupAsync(userIdToAccept, request.Team.Chats.First().Id);
         await _teamMemberRepository.SaveChangesAsync();
 
         await _hubContext.Clients.User(userIdToAccept.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
@@ -193,6 +197,52 @@ public class TeamMemberService : ITeamMemberService
                 Status = statusNone
             });
         }
+    }
+
+    public async Task LeaveTeamAsync(int teamId, int userId)
+    {
+        var member = await _teamMemberRepository.GetTeamMemberWithTeamByIdAsync(teamId, userId);
+
+        if (member == null || (member.MemberStatusId != (int)TeamMemberStatus.STATUS_MEMBER && member.MemberStatusId != (int)TeamMemberStatus.STATUS_LEADER))
+        {
+            throw new NotFoundException("User is not a member of this team.");
+        }
+
+        if (member.Isleader)
+        {
+            var activeMembers = await _teamMemberRepository.GetActiveTeamMembersAsync(teamId);
+            if (activeMembers.Count > 1)
+            {
+                var newLeader = activeMembers
+                    .Where(m => m.UserId != userId)
+                    .OrderBy(m => m.Jointimestamp)
+                    .FirstOrDefault();
+
+                if (newLeader != null)
+                {
+                    newLeader.Isleader = true;
+                    newLeader.MemberStatusId = (int)TeamMemberStatus.STATUS_LEADER;
+                    await _teamMemberRepository.UpdateTeamMemberAsync(newLeader);
+                }
+            }
+        }
+
+        if (member.Team.Chats != null && member.Team.Chats.Any())
+        {
+            foreach (var chat in member.Team.Chats)
+            {
+                try
+                {
+                    await _chatService.LeaveChatGroupAsync(userId, chat.Id);
+                }
+                catch (ForbiddenException)
+                {
+                }
+            }
+        }
+
+        await _teamMemberRepository.DeleteTeamMemberAsync(member);
+        await _teamMemberRepository.SaveChangesAsync();
     }
 
     private async Task EnsureUserIsLeaderAsync(int teamId, int userId)

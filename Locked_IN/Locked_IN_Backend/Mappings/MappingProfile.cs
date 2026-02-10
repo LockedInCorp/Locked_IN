@@ -64,15 +64,19 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Game, opt => opt.MapFrom(src => src.Game))
             .ForMember(dest => dest.IsPrivate, opt => opt.MapFrom(src => src.Isprivate))
             .ForMember(dest => dest.ExperienceLevel, opt => opt.MapFrom(src => src.ExperienceTag))
-            .ForMember(dest => dest.CurrentMemberCount, opt => opt.MapFrom(src => src.TeamMembers != null ? src.TeamMembers.Count : 0))
+            .ForMember(dest => dest.CurrentMemberCount,
+                opt => opt.MapFrom(src => src.TeamMembers != null ? src.TeamMembers.Count : 0))
             .ForMember(dest => dest.Members, opt => opt.MapFrom(src => src.TeamMembers.Select(tm => tm.User)))
             .ForMember(dest => dest.AutoAccept, opt => opt.MapFrom(src => src.IsAutoaccept))
-            .ForMember(dest => dest.PreferenceTags, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.PreferenceTags, opt => opt.MapFrom(src =>
                 src.TeamPreferencetagRelations.Select(t => t.PreferenceTag)))
             .ForMember(dest => dest.SearchRank, opt => opt.Ignore())
-            .ForMember(dest => dest.Leader, opt => opt.MapFrom(src => src.TeamMembers.FirstOrDefault(tm => tm.Isleader)))
-            .ForMember(dest => dest.CommunicationService, opt => opt.MapFrom(src => src.TeamCommunicationService.CommunicationService))
-            .ForMember(dest => dest.CommunicationServiceLink, opt => opt.MapFrom(src => src.TeamCommunicationService.Link))
+            .ForMember(dest => dest.Leader,
+                opt => opt.MapFrom(src => src.TeamMembers.FirstOrDefault(tm => tm.Isleader).User))
+            .ForMember(dest => dest.CommunicationService,
+                opt => opt.MapFrom(src => src.TeamCommunicationService.CommunicationService))
+            .ForMember(dest => dest.CommunicationServiceLink,
+                opt => opt.MapFrom(src => src.TeamCommunicationService.Link))
             .ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.IconUrl));
 
         CreateMap<TeamMember, GetTeamMemberDto>()
@@ -128,7 +132,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.PreferenceTags, opt => opt.MapFrom(src => 
                 src.TeamPreferencetagRelations.Select(t => t.PreferenceTag)))
             .ForMember(dest => dest.SearchRank, opt => opt.Ignore())
-            .ForMember(dest => dest.TeamLeaderUsername, opt => opt.Ignore());
+            .ForMember(dest => dest.TeamLeaderUsername, opt => opt.Ignore())
+            .ForMember(dest => dest.ChatId, opt => opt.MapFrom(src => src.Chats.FirstOrDefault()!.Id));
         
         CreateMap<GameProfile, GameProfileDto>()
             .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game != null ? src.Game.Name : string.Empty))

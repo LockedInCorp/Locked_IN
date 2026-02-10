@@ -74,7 +74,7 @@ export default function FinderSettingsSection({
                                         : "bg-card text-muted-foreground border-2 border-transparent hover:bg-muted hover:text-foreground hover:border-border"
                                 }`}
                             >
-                                {tag.experiencelevel}
+                                {tag.name}
                             </button>
                         ))}
                     </div>
@@ -88,7 +88,7 @@ export default function FinderSettingsSection({
                             <div key={level.id} className="flex items-center gap-2">
                                 <RadioGroupItem value={level.id.toString()} id={level.id.toString()} className="border-border" />
                                 <Label htmlFor={level.id.toString()} className="cursor-pointer text-sm text-foreground capitalize">
-                                    {level.experiencelevel}
+                                    {level.name}
                                 </Label>
                             </div>
                         ))}

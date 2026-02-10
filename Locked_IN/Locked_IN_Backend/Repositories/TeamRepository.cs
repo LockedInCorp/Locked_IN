@@ -26,7 +26,7 @@ public class TeamRepository : ITeamRepository
 
     public async Task<Team?> GetTeamById(int id)
     {
-        return await _context.Teams.FindAsync(id);
+        return await _context.Teams.Include(t => t.Chats).FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task AddTeam(Team team)
@@ -64,7 +64,7 @@ public class TeamRepository : ITeamRepository
             .Include(t => t.TeamCommunicationService)
             .ThenInclude(tcs => tcs!.CommunicationService)
             .Include(t => t.ExperienceTag)
-            .Include(t => t.TeamMembers)
+            .Include(t => t.TeamMembers.Where(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER))
                 .ThenInclude(tm => tm.User)
             .Include(t => t.TeamPreferencetagRelations)
                 .ThenInclude(r => r.PreferenceTag)
@@ -235,6 +235,7 @@ public class TeamRepository : ITeamRepository
             .ThenInclude(r => r.PreferenceTag)
             .Include(team => team.TeamMembers)
             .ThenInclude(teamMember => teamMember.MemberStatus)
+            .Include(t => t.Chats)
             .Where(t => teamIntermediateIds.Contains(t.Id))
             .ToListAsync();
         

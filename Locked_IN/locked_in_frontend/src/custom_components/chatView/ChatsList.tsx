@@ -2,33 +2,17 @@
 
 import { X } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { getUserChats } from "@/api/api"
-import type {UserChatDto} from "@/api/types"
+import { useUserChats } from "@/hooks/chat/useUserChats"
+import type { UserChatDto } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils"
 
 export function ChatsList() {
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId: string }>();
-    const [chats, setChats] = useState<UserChatDto[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchChats = async () => {
-            try {
-                const data = await getUserChats();
-                setChats(data);
-            } catch (error) {
-                console.error("Failed to fetch chats:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchChats();
-    }, []);
+    const { data: chats = [], isLoading } = useUserChats();
 
     const handleCreateGroup = () => {
         navigate("/groups/new");
@@ -38,7 +22,7 @@ export function ChatsList() {
         navigate(`/my-groups/${chat.id}`);
     }
 
-    if (loading) {
+    if (isLoading) {
         return <div className="p-6 text-center text-muted-foreground">Loading chats...</div>;
     }
 

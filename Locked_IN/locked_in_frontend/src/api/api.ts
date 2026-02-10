@@ -227,12 +227,36 @@ export const cancelJoinRequest = async (teamId: number, userId: number): Promise
     }
 }
 
-export const getTeamJoinRequests = async (teamId: number): Promise<Types.default[]> => {
+export const getTeamJoinRequests = async (teamId: number): Promise<Types.JoinRequestDto[]> => {
     try {
-        const response = await apiClient.get<Types.default[]>(`/teams/${teamId}/join-requests`)
+        const response = await apiClient.get<Types.JoinRequestDto[]>(`/teams/${teamId}/join-requests`)
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch join requests')
+    }
+}
+
+export const acceptJoinRequest = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.put(`/teams/${teamId}/users/${userId}/accept`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to accept join request')
+    }
+}
+
+export const declineJoinRequest = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.put(`/teams/${teamId}/users/${userId}/decline`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to decline join request')
+    }
+}
+
+export const leaveTeam = async (teamId: number): Promise<void> => {
+    try {
+        await apiClient.post(`/teams/${teamId}/leave`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to leave team')
     }
 }
 
