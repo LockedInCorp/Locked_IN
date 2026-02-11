@@ -19,11 +19,11 @@ type ProfileFieldsEditProps = {
 }
 
 export default function ProfileFieldsEdit({
-    nickname,
-    gameProfiles,
-    onNicknameChange,
-    onGameProfilesChange
-}: ProfileFieldsEditProps) {
+                                              nickname,
+                                              gameProfiles,
+                                              onNicknameChange,
+                                              onGameProfilesChange
+                                          }: ProfileFieldsEditProps) {
     const navigate = useNavigate()
     const {
         expandedGames,
@@ -31,7 +31,6 @@ export default function ProfileFieldsEdit({
         setExpandedGames
     } = useProfileStore()
 
-    const [availableGamesDict, setAvailableGamesDict] = useState<Record<number, string>>({})
     const [gamePreferencesDict, setGamePreferencesDict] = useState<Record<number, string>>({})
     const [experienceLevelsDict, setExperienceLevelsDict] = useState<Record<number, string>>({})
 
@@ -110,17 +109,18 @@ export default function ProfileFieldsEdit({
                 {gameProfiles.length > 0 && (
                     <div className="space-y-2 mt-3">
                         {gameProfiles.map((profile) => {
-                            const isExpanded = expandedGames.has(profile.gameId)
-                            const gameName = availableGamesDict[profile.gameId] || `Game #${profile.gameId}`
+                            const isExpanded = expandedGames.has(profile.gameId!)
+                            const gameName = profile.gameName || `Game #${profile.gameId}`
+
                             return (
                                 <div
-                                    key={profile.gameId}
+                                    key={profile.id || profile.gameId}
                                     className="rounded-lg border border-border bg-card overflow-hidden"
                                 >
                                     {/* Collapsed Header */}
                                     <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
                                         <button
-                                            onClick={() => toggleExpandedGame(profile.gameId)}
+                                            onClick={() => toggleExpandedGame(profile.gameId!)}
                                             className="flex-1 flex items-center justify-between cursor-pointer"
                                         >
                                             <span className="text-sm font-semibold text-foreground">{gameName}</span>
@@ -132,7 +132,7 @@ export default function ProfileFieldsEdit({
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveGame(profile.gameId)}
+                                            onClick={() => handleRemoveGame(profile.gameId!)}
                                             className="ml-2 p-1.5 hover:bg-destructive/20 rounded transition-colors cursor-pointer"
                                             aria-label={`Remove ${gameName}`}
                                         >
@@ -154,7 +154,7 @@ export default function ProfileFieldsEdit({
                                                             <button
                                                                 key={id}
                                                                 type="button"
-                                                                onClick={() => togglePreference(profile.gameId, id)}
+                                                                onClick={() => togglePreference(profile.gameId!, id)}
                                                                 className={`flex items-center rounded-md px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
                                                                     isSelected
                                                                         ? "bg-primary text-primary-foreground border-2 border-primary shadow-sm"
@@ -174,7 +174,7 @@ export default function ProfileFieldsEdit({
                                                 <Label className="text-sm text-muted-foreground">Choose your game experience</Label>
                                                 <RadioGroup
                                                     value={profile.experience.toString()}
-                                                    onValueChange={(value) => handleUpdateGameProfile(profile.gameId, { experience: Number(value) })}
+                                                    onValueChange={(value) => handleUpdateGameProfile(profile.gameId!, { experience: Number(value) })}
                                                 >
                                                     {Object.entries(experienceLevelsDict).map(([idStr, name]) => (
                                                         <div key={idStr} className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export default function ProfileFieldsEdit({
                                                     id={`${profile.gameId}-nickname`}
                                                     type="text"
                                                     value={profile.inGameNickname}
-                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId, { inGameNickname: e.target.value })}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId!, { inGameNickname: e.target.value })}
                                                     placeholder="Enter your in-game nickname"
                                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                                 />
@@ -207,7 +207,7 @@ export default function ProfileFieldsEdit({
                                                     id={`${profile.gameId}-ranking`}
                                                     type="text"
                                                     value={profile.ranking || ""}
-                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId, { ranking: e.target.value })}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId!, { ranking: e.target.value })}
                                                     placeholder="0"
                                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                                 />
@@ -220,7 +220,7 @@ export default function ProfileFieldsEdit({
                                                     id={`${profile.gameId}-role`}
                                                     type="text"
                                                     value={profile.role || ""}
-                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId, { role: e.target.value })}
+                                                    onChange={(e) => handleUpdateGameProfile(profile.gameId!, { role: e.target.value })}
                                                     placeholder="e.g. Tank, Damager"
                                                     className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                                 />
@@ -236,4 +236,3 @@ export default function ProfileFieldsEdit({
         </div>
     )
 }
-

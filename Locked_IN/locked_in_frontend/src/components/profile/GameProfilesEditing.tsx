@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
-import { Label } from "@/lib/components/ui/label"
-import { Input } from "@/lib/components/ui/input"
-import { Button } from "@/lib/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/lib/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/lib/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { GameProfile } from "./ProfileFields"
 import { useGameProfilesStore } from "@/stores/gameProfilesStore"
 import { searchGamesByName, getPreferenceTags, getExperienceTags } from "@/api/api"
@@ -57,11 +57,20 @@ export default function GameProfilesEditing({
                     getPreferenceTags(),
                     getExperienceTags()
                 ])
+                if (games) {
+                    setAvailableGames(games.map(game => game.name))
+                }
 
-                setAvailableGames(games.map(game => game.name))
-                setGamePreferences(preferences.map(pref => pref.name))
-                setExperienceLevels(experiences.map(exp => exp.name))
+                if (preferences) {
+                    setGamePreferences(preferences.map(pref => pref.name))
+                }
+
+                if (experiences) {
+                    setExperienceLevels(experiences.map(exp => exp.name))
+                }
+
             } catch (error) {
+                console.error(error);
                 setDataError(error instanceof Error ? error.message : "Failed to load games and tags")
             } finally {
                 setIsLoadingData(false)
@@ -109,9 +118,15 @@ export default function GameProfilesEditing({
         const profile = gameProfiles.find(p => p.gameName === gameName)
         if (!profile) return
 
-        const newPreferences = profile.preferences.includes(preference)
-            ? profile.preferences.filter(p => p !== preference)
-            : [...profile.preferences, preference]
+        const currentPrefs = profile.preferences.map(String);
+
+        let newPreferences: (string | number)[];
+
+        if (currentPrefs.includes(preference)) {
+            newPreferences = currentPrefs.filter(p => p !== preference)
+        } else {
+            newPreferences = [...currentPrefs, preference]
+        }
 
         handleUpdateGameProfile(gameName, { preferences: newPreferences })
     }
@@ -222,7 +237,7 @@ export default function GameProfilesEditing({
                                             <Label className="text-sm text-muted-foreground">Choose your gameplay preferences</Label>
                                             <div className="flex flex-wrap gap-2">
                                                 {gamePreferences.map((pref) => {
-                                                    const isSelected = profile.preferences.includes(pref)
+                                                    const isSelected = profile.preferences.some(p => String(p) === pref)
                                                     return (
                                                         <button
                                                             key={pref}
@@ -246,7 +261,7 @@ export default function GameProfilesEditing({
                                         <div className="space-y-3">
                                             <Label className="text-sm text-muted-foreground">Choose your game experience</Label>
                                             <RadioGroup
-                                                value={profile.experience}
+                                                value={profile.experience ? String(profile.experience) : ""}
                                                 onValueChange={(value) => handleUpdateGameProfile(profile.gameName, { experience: value })}
                                             >
                                                 {experienceLevels.map((level) => (
@@ -281,12 +296,29 @@ export default function GameProfilesEditing({
 
                                         {/* Ranking */}
                                         <div className="space-y-2">
-                                            <Label htmlFor={`${profile.gameName}-ranking`} className="text-sm text-muted-foreground">Enter your game ranking (optional)</Label>
+                                            <Label htmlFor={`${profile.gameName}-ranking`} className="text-sm text-muted-foreground">
+                                                Enter your game ranking (optional)
+                                            </Label>
                                             <Input
                                                 id={`${profile.gameName}-ranking`}
                                                 type="text"
+                                                inputMode="numeric"
+                                                maxLength={9}
                                                 value={profile.ranking || ""}
-                                                onChange={(e) => handleUpdateGameProfile(profile.gameName, { ranking: e.target.value })}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+
+                                                    if (val === "") {
+                                                        handleUpdateGameProfile(profile.gameName, { ranking: "" });
+                                                        return;
+                                                    }
+
+                                                    if (!/^\d+$/.test(val)) {
+                                                        return;
+                                                    }
+
+                                                    handleUpdateGameProfile(profile.gameName, { ranking: val })
+                                                }}
                                                 placeholder="0"
                                                 className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                                             />
