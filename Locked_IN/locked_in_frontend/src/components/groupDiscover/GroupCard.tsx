@@ -1,5 +1,5 @@
 import { X, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/lib/components/ui/button"
 import type { TeamSearchResult } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils.ts"
 import { useNavigate } from "react-router-dom"

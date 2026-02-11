@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/lib/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
 import { useAuthStore } from "@/stores/authStore"
 import { getImageUrl } from "@/utils/imageUtils"
 

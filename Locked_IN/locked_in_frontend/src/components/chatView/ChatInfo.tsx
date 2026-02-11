@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ChevronDown, ChevronUp, Users, UserMinus, Check, X } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
+import { Button } from "@/lib/components/ui/button"
 import { ChatType } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
@@ -13,7 +13,7 @@ import { useJoinRequests } from "@/hooks/chat/useJoinRequests"
 import { acceptJoinRequest, declineJoinRequest, leaveTeam, removeTeamMember } from "@/api/api"
 import { useAuthStore } from "@/stores/authStore"
 import { useQueryClient } from "@tanstack/react-query"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { ConfirmDialog } from "@/lib/components/ui/confirm-dialog"
 
 export function ChatInfo() {
     const navigate = useNavigate()

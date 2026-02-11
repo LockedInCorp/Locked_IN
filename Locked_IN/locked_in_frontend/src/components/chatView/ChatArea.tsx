@@ -28,7 +28,8 @@ export function ChatArea() {
         isFetchingMore,
         hasMore,
         fetchMore,
-        page
+        page,
+        refetch
     } = useChatDetails(numericChatId)
 
     const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -60,7 +61,17 @@ export function ChatArea() {
         if (allMessages.length > 0 && page === 1 && scrollContainerRef.current) {
             scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
         }
-    }, [allMessages, page]) // Fix: trigger when allMessages or page changes
+    }, [allMessages, page])
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && numericChatId) {
+                refetch()
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }, [numericChatId, refetch])
 
     const [messageText, setMessageText] = useState("")
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -77,8 +88,8 @@ export function ChatArea() {
             .map(m => {
             return ({
                 id: m.id,
-                sender: m.senderUsername,
-                content: m.content,
+                sender: m.senderUsername ?? '',
+                content: m.content ?? '',
                 attachmentUrl: m.attachmentUrl,
                 isCurrentUser: currentUser ? m.senderId.toString() === currentUser.id : false,
                 senderAvatarUrl: m.senderAvatarUrl
@@ -197,7 +208,7 @@ export function ChatArea() {
                             <Avatar className="h-10 w-10 mr-3 mt-[2px] shrink-0">
                                 <AvatarImage src={getImageUrl(g.senderAvatarUrl)} />
                                 <AvatarFallback className="bg-muted text-foreground">
-                                    {g.sender[0]}
+                                    {(g.sender || '?')[0]}
                                 </AvatarFallback>
                             </Avatar>
                         )}

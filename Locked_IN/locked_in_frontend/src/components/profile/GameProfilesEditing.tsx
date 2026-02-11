@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import type { GameProfile } from "@/api/types.ts"
+import { Label } from "@/lib/components/ui/label"
+import { Input } from "@/lib/components/ui/input"
+import { Button } from "@/lib/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/lib/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/lib/components/ui/radio-group"
+import type { GameProfile } from "./ProfileFields"
 import { useGameProfilesStore } from "@/stores/gameProfilesStore"
 import { searchGamesByName, getPreferenceTags, getExperienceTags } from "@/api/api"
 

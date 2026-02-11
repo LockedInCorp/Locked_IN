@@ -1,6 +1,6 @@
 "use client"
 
-import RegisterPart1 from "@/custom_components/register/RegisterPart1"
+import RegisterPart1 from "@/components/register/RegisterPart1"
 import { useRegister } from "@/hooks/auth/useRegister"
 
 export default function Register() {
