@@ -6,7 +6,7 @@ import type { FriendshipDto, PendingFriendshipRequestDto } from "@/utils/friends
 
 export interface FriendWithAvailability extends FriendshipDto {
     availability?: Record<string, string[]>
-    avatarUrl?: string
+    friendAvatarUrl?: string
 }
 
 export function useFriends() {
