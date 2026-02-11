@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/lib/components/ui/button"
 import GeneralSection from "@/custom_components/groupCreation/GeneralSection"
 import FinderSettingsSection from "@/custom_components/groupCreation/FinderSettingsSection"
 import { useGroupCreationStore } from "@/stores/groupCreationStore"

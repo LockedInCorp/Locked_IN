@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronDown, ChevronUp } from "lucide-react"
-import { Label } from "@/components/ui/label"
+import { Label } from "@/lib/components/ui/label"
 import { Check } from "lucide-react"
 import { useProfileStore } from "@/stores/profileStore"
 import { useEffect, useState } from "react"

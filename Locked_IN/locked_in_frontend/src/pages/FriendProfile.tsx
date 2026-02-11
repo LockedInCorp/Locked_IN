@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/lib/components/ui/button"
 import { ArrowLeft, X } from "lucide-react"
 import ProfileHeader from "@/custom_components/profile/ProfileHeader"
 import ProfileFields from "@/custom_components/profile/ProfileFields"

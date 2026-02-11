@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/lib/components/ui/button"
 import ProfileHeader from "@/custom_components/profile/ProfileHeader"
 import ProfileFields from "@/custom_components/profile/ProfileFields"
 import ProfileFieldsEdit from "@/custom_components/profile/ProfileFieldsEdit"

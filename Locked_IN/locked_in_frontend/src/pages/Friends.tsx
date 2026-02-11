@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
+import { Button } from "@/lib/components/ui/button"
 import { getImageUrl } from "@/utils/imageUtils"
 import { useFriends } from "@/hooks/friendship/useFriends"
 import { useAuthStore } from "@/stores/authStore"

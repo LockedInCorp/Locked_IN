@@ -1,6 +1,6 @@
 import type { TeamSearchResult } from "@/api/types"
 import { GroupCard as GroupCardComponent } from "./GroupCard"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/lib/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface GroupCardGridProps {
