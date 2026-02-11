@@ -5,7 +5,7 @@ import { Label } from "@/lib/components/ui/label"
 import { Check } from "lucide-react"
 import { useProfileStore } from "@/stores/profileStore"
 import { useEffect, useState } from "react"
-import { getExperienceTags, getPreferenceTags, searchGamesByName } from "@/api/api"
+import { getExperienceTags, getPreferenceTags } from "@/api/api"
 
 export type GameProfile = {
     gameId: number
@@ -38,8 +38,8 @@ export default function ProfileFields({
                     getExperienceTags()
                 ])
                 
-                const prefsObj = prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.experiencelevel }), {})
-                const expsObj = exps.reduce((acc, e) => ({ ...acc, [e.id]: e.experiencelevel }), {})
+                const prefsObj = prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {})
+                const expsObj = exps.reduce((acc, e) => ({ ...acc, [e.id]: e.name }), {})
                 
                 setPrefsDict(prefsObj)
                 setExpDict(expsObj)

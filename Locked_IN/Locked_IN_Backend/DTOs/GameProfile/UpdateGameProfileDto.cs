@@ -6,6 +6,7 @@ public class UpdateGameProfileDto
 {
     public int ExperienceTagId { get; set; }
     public int GameExpId { get; set; } 
+    public List<int> PreferenceTagIds { get; set; } = new List<int>();
     public int? Rank { get; set; }
     public string? Role { get; set; }
     public string? InGameNickname { get; set; }

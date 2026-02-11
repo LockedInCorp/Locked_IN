@@ -25,12 +25,12 @@ type GameProfilesEditingProps = {
 }
 
 export default function GameProfilesEditing({
-    gameProfiles,
-    onGameProfilesChange,
-    onSave,
-    isLoading = false,
-    errors = {}
-}: GameProfilesEditingProps) {
+                                                gameProfiles,
+                                                onGameProfilesChange,
+                                                onSave,
+                                                isLoading = false,
+                                                errors = {}
+                                            }: GameProfilesEditingProps) {
     const {
         expandedGames,
         selectedGame,
@@ -51,16 +51,16 @@ export default function GameProfilesEditing({
             try {
                 setIsLoadingData(true)
                 setDataError(null)
-                
+
                 const [games, preferences, experiences] = await Promise.all([
                     searchGamesByName(""),
                     getPreferenceTags(),
                     getExperienceTags()
                 ])
-                
-                setAvailableGames(games.map(game => game.experiencelevel))
-                setGamePreferences(preferences.map(pref => pref.experiencelevel))
-                setExperienceLevels(experiences.map(exp => exp.experiencelevel))
+
+                setAvailableGames(games.map(game => game.name))
+                setGamePreferences(preferences.map(pref => pref.name))
+                setExperienceLevels(experiences.map(exp => exp.name))
             } catch (error) {
                 setDataError(error instanceof Error ? error.message : "Failed to load games and tags")
             } finally {
@@ -149,8 +149,8 @@ export default function GameProfilesEditing({
             {/* Select from available games */}
             <div className="space-y-2">
                 <Label className="text-sm text-muted-foreground">Select a game</Label>
-                <Select 
-                    value={selectedGame} 
+                <Select
+                    value={selectedGame}
                     onValueChange={(value) => {
                         setSelectedGame(value)
                         handleAddGame(value)
