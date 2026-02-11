@@ -1,4 +1,3 @@
-
 using Locked_IN_Backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Locked_IN_Backend.Data;
@@ -20,6 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Data.SqlClient;
 using Minio;
+using Locked_IN_Backend.DTOs.GameProfile;
+using CommunicationService = Locked_IN_Backend.Services.CommunicationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -163,6 +164,7 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chathub");
 app.MapHub<TeamJoinHub>("/teamjoinhub");
+app.MapHub<TeamRequestHub>("/teamrequesthub");
 
 app.Run();
 
@@ -177,6 +179,8 @@ void RegisterValidationServices()
     builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateAvailabilityDto>, UpdateAvailabilityDtoValidator>();
     builder.Services.AddScoped<IValidator<CreateTeamDto>, CreateTeamDtoValidator>();
+    builder.Services.AddScoped<IValidator<CreateGameProfileDto>, CreateGameProfileDtoValidator>();
+    builder.Services.AddScoped<IValidator<UpdateGameProfileDto>, UpdateGameProfileDtoValidator>();
 }
 
 void RegisterServices()
@@ -193,13 +197,13 @@ void RegisterServices()
     builder.Services.AddScoped<IGameService, GameService>();
     builder.Services.AddScoped<IFriendshipService, FriendshipService>();
     builder.Services.AddScoped<IPreferanceTagsService, PreferanceTagsService>();
-    builder.Services.AddScoped<ICommunicationService, CommunicationServiceImplementation>();
+    builder.Services.AddScoped<ICommunicationService, CommunicationService>();
     builder.Services.AddScoped<IExperienceTagService, ExperienceTagService>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IGameProfileService, GameProfileService>();
     builder.Services.AddScoped<IChatService, ChatService>();
     builder.Services.AddScoped<IMessageService, MessageService>();
+    builder.Services.AddScoped<IChatHubService, ChatHubService>();
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
     builder.Services.AddScoped<IJwtService, JwtService>();
-    builder.Services.AddScoped<IValidator<Locked_IN_Backend.DTOs.GameProfile.CreateGameProfileDto>, Locked_IN_Backend.DTOs.GameProfile.CreateGameProfileDtoValidator>();
 }

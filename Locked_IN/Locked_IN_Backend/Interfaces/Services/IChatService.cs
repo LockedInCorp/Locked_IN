@@ -13,6 +13,6 @@ public interface IChatService
     Task JoinChatGroupAsync(int userId, int chatId);
     Task LeaveChatGroupAsync(int userId, int chatId);
     
-    Task<List<GetUserChatsDto>> GetUserChatsAsync(int userId);
+    Task<List<GetUserChatsDto>> GetUserChatsAsync(int userId, string? searchTerm = null);
 }
 

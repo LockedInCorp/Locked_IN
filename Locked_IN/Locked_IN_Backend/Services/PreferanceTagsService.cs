@@ -14,12 +14,12 @@ public class PreferanceTagsService : IPreferanceTagsService
         _context = context;
     }
     
-    public async Task<List<GetTagsDto>> GetPreferanceTagsAsync()
+    public async Task<List<GetPreferanceTagsDto>> GetPreferanceTagsAsync()
     {
         var query = _context.PreferenceTags.AsQueryable();
     
         var games = await query
-            .Select(t => new GetTagsDto()
+            .Select(t => new GetPreferanceTagsDto()
             {
                 Id = t.Id,
                 Name = t.Name

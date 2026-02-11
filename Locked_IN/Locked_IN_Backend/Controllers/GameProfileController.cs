@@ -14,13 +14,16 @@ public class GameProfileController : ControllerBase
 {
     private readonly IGameProfileService _gameProfileService;
     private readonly IValidator<CreateGameProfileDto> _createProfileValidator;
+    private readonly IValidator<UpdateGameProfileDto> _updateProfileValidator;
 
     public GameProfileController(
         IGameProfileService gameProfileService,
-        IValidator<CreateGameProfileDto> createProfileValidator)
+        IValidator<CreateGameProfileDto> createProfileValidator,
+        IValidator<UpdateGameProfileDto> updateProfileValidator)
     {
         _gameProfileService = gameProfileService;
         _createProfileValidator = createProfileValidator;
+        _updateProfileValidator = updateProfileValidator;
     }
 
     /// <summary>
@@ -93,18 +96,42 @@ public class GameProfileController : ControllerBase
     }
 
     /// <summary>
-    /// Completely delete a game profile
+    /// Update an existing game profile
     /// </summary>
-    /// <param name="gameId">The ID of the game profile to delete</param>
+    /// <param name="profileId">The ID of the game profile to update</param>
+    /// <param name="dto">Data to update</param>
+    /// <returns>Updated game profile</returns>
     [Authorize]
-    [HttpDelete("{gameId}")]
-    public async Task<IActionResult> DeleteGameProfile(int gameId)
+    [HttpPut("{profileId}")]
+    public async Task<ActionResult<GameProfileDto>> UpdateGameProfile(int profileId, [FromBody] UpdateGameProfileDto dto)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
         var userId = int.Parse(userIdClaim);
 
-        await _gameProfileService.DeleteGameProfileAsync(userId, gameId);
+        var validationResult = await _updateProfileValidator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.First().ErrorMessage);
+        }
+
+        var result = await _gameProfileService.UpdateGameProfileAsync(userId, profileId, dto);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Completely delete a game profile
+    /// </summary>
+    /// <param name="profileId">The ID of the game profile to delete</param>
+    [Authorize]
+    [HttpDelete("{profileId}")]
+    public async Task<IActionResult> DeleteGameProfile(int profileId)
+    {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        await _gameProfileService.DeleteGameProfileAsync(userId, profileId);
         return Ok(new { Message = "Game profile deleted successfully." });
     }
     

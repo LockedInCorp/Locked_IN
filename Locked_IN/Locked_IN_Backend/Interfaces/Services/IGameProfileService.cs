@@ -8,6 +8,7 @@ public interface IGameProfileService
     Task<GameProfileDto> AddGameToFavoritesAsync(int userId, int gameId);
     Task<GameProfileDto> RemoveGameFromFavoritesAsync(int userId, int gameId);
     Task<GameProfileDto> CreateGameProfileAsync(int userId, CreateGameProfileDto dto);
-    Task DeleteGameProfileAsync(int userId, int gameId);
+    Task<GameProfileDto> UpdateGameProfileAsync(int userId, int profileId, UpdateGameProfileDto dto);
+    Task DeleteGameProfileAsync(int userId, int profileId);
     Task<List<GameProfileDto>> GetUserGameProfilesAsync(int userId);
 }

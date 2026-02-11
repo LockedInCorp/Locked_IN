@@ -1,6 +1,6 @@
 namespace Locked_IN_Backend.DTOs;
 
-public class GetTagsDto
+public class GetPreferanceTagsDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";

@@ -4,5 +4,5 @@ namespace Locked_IN_Backend.Interfaces;
 
 public interface IExperienceTagService
 {
-    Task<List<GetTagsDto>> GetExperienceTagsAsync();
+    Task<List<GetPreferanceTagsDto>> GetExperienceTagsAsync();
 }

@@ -1,5 +1,6 @@
 using Locked_IN_Backend.Data;
 using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,16 +15,29 @@ public class MessageRepository : IMessageRepository
         _context = context;
     }
 
-    public async Task<List<Message>> GetChatMessagesAsync(int chatId, int pageNumber, int pageSize)
+    public async Task<PagedResult<Message>> GetChatMessagesAsync(int chatId, int pageNumber, int pageSize)
     {
-        return await _context.Messages
+        var query = _context.Messages
             .Include(m => m.ChatparticipantChatparticipant)
                 .ThenInclude(cp => cp.User)
-            .Where(m => m.ChatparticipantChatparticipant.ChatId == chatId && !m.IsDeleted)
+            .Where(m => m.ChatparticipantChatparticipant.ChatId == chatId && !m.IsDeleted);
+
+        var totalCount = await query.CountAsync();
+        
+        var items = await query
             .OrderByDescending(m => m.SentAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
+
+        return new PagedResult<Message>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
     }
 
     public async Task<Message?> GetMessageByIdAsync(int messageId)

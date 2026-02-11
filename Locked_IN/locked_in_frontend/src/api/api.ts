@@ -167,30 +167,85 @@ export const getPreferenceTags = async (): Promise<Types.PreferenceTag[]> => {
 }
 
 // Chat
-export const getUserChats = async (): Promise<Types.UserChatDto[]> => {
+export const getUserChats = async (searchTerm?: string): Promise<Types.UserChatDto[]> => {
     try {
-        const response = await apiClient.get<Types.UserChatDto[]>(`/chat/user`)
+        const response = await apiClient.get<Types.UserChatDto[]>(`/chat/user`, {
+            params: { searchTerm }
+        })
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch user chats')
     }
 }
 
-export const getChatMessages = async (chatId: string): Promise<Types.ChatMessageDto[]> => {
+export const getChatMessages = async (chatId: string, page: number = 1, pageSize: number = 20): Promise<Types.PagedResult<Types.GetMessageDto>> => {
     try {
-        const response = await apiClient.get<Types.ChatMessageDto[]>(`/chat/${chatId}/messages`)
+        const response = await apiClient.get<Types.PagedResult<Types.GetMessageDto>>(`/Message/${chatId}`, {
+            params: { pageNumber: page, pageSize }
+        })
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch messages')
     }
 }
 
-export const getGroupDetails = async (chatId: string): Promise<Types.GroupDetailsDto> => {
+export const getGroupDetails = async (teamId: string): Promise<Types.GroupDetailsDto> => {
     try {
-        const response = await apiClient.get<Types.GroupDetailsDto>(`/chat/${chatId}`)
+        const response = await apiClient.get<Types.GroupDetailsDto>(`/Team/${teamId}`)
         return response.data
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to fetch group details')
+    }
+}
+
+export const getChatDetails = async (id: number): Promise<Types.GetChatDetails> => {
+    try {
+        const response = await apiClient.get<Types.GetChatDetails>(`/chat/${id}`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch chat details')
+    }
+}
+
+export const sendMessage = async (data: Types.SendMessageRequest): Promise<void> => {
+    try {
+        const formData = new FormData();
+        formData.append('chatId', data.chatId.toString());
+        formData.append('content', data.content ?? '');
+        if (data.attachmentFile instanceof File) {
+            formData.append('attachmentFile', data.attachmentFile);
+        }
+        await apiClient.post(`/Message`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to send message');
+    }
+}
+
+export const editMessage = async (messageId: number, content: string): Promise<void> => {
+    try {
+        await apiClient.put(`/Message`, { messageId, content })
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to edit message')
+    }
+}
+
+export const deleteMessage = async (messageId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/Message/${messageId}`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to delete message')
+    }
+}
+
+export const markChatAsRead = async (chatId: number): Promise<void> => {
+    try {
+        await apiClient.post(`/chat/${chatId}/read`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to mark chat as read')
     }
 }
 
@@ -225,6 +280,48 @@ export const cancelJoinRequest = async (teamId: number, userId: number): Promise
         await apiClient.delete(`/teams/${teamId}/cancel-join`, { data: { userId } })
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to cancel join request')
+    }
+}
+
+export const getTeamJoinRequests = async (teamId: number): Promise<Types.JoinRequestDto[]> => {
+    try {
+        const response = await apiClient.get<Types.JoinRequestDto[]>(`/teams/${teamId}/join-requests`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch join requests')
+    }
+}
+
+export const acceptJoinRequest = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.put(`/teams/${teamId}/users/${userId}/accept`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to accept join request')
+    }
+}
+
+export const declineJoinRequest = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.put(`/teams/${teamId}/users/${userId}/decline`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to decline join request')
+    }
+}
+
+export const leaveTeam = async (teamId: number): Promise<void> => {
+    try {
+        await apiClient.post(`/teams/${teamId}/leave`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to leave team')
+    }
+}
+
+// TODO: Add backend API endpoint for removing a member from a team (e.g. DELETE /teams/{teamId}/members/{userId})
+export const removeTeamMember = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/teams/${teamId}/members/${userId}`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to remove member from team')
     }
 }
 

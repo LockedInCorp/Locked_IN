@@ -12,6 +12,7 @@ public interface ITeamMemberRepository
     Task SaveChangesAsync();
 
     Task<int> GetActiveMemberCountAsync(int teamId);
+    Task <List<TeamMember>> GetActiveTeamMembersAsync(int teamId);
     Task<TeamMember?> GetTeamMemberAsync(int teamId, int userId);
     Task<List<TeamMember>> GetPendingRequestsAsync(int userId);
     Task<List<TeamMember>> GetPendingRequestsByTeamIdAsync(int teamId);

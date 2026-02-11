@@ -1,9 +1,14 @@
 using AutoMapper;
 using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Exceptions;
+using Locked_IN_Backend.Hubs;
 using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Interfaces.Repositories;
+using Locked_IN_Backend.Interfaces.Services;
+using Locked_IN_Backend.Misc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Locked_IN_Backend.Services;
 
@@ -13,6 +18,7 @@ public class MessageService : IMessageService
     private readonly IChatParticipantRepository _participantRepository;
     private readonly IChatRepository _chatRepository;
     private readonly IFileUploadService _fileUploadService;
+    private readonly IChatHubService _chatHubService;
     private readonly IMapper _mapper;
 
     public MessageService(
@@ -20,12 +26,14 @@ public class MessageService : IMessageService
         IChatParticipantRepository participantRepository,
         IChatRepository chatRepository,
         IFileUploadService fileUploadService,
+        IChatHubService chatHubService,
         IMapper mapper)
     {
         _messageRepository = messageRepository;
         _participantRepository = participantRepository;
         _chatRepository = chatRepository;
         _fileUploadService = fileUploadService;
+        _chatHubService = chatHubService;
         _mapper = mapper;
     }
 
@@ -69,10 +77,13 @@ public class MessageService : IMessageService
         await _participantRepository.SaveChangesAsync();
     
         var messageDto = _mapper.Map<GetMessageDto>(message);
+        
+        await _chatHubService.SendMessageToGroupAsync(sendMessageDto.ChatId, messageDto);
+
         return messageDto;
     }
 
-    public async Task<List<GetMessageDto>> GetChatMessagesAsync(int userId, int chatId, int pageNumber = 1, int pageSize = 50)
+    public async Task<PagedResult<GetMessageDto>> GetChatMessagesAsync(int userId, int chatId, int pageNumber = 1, int pageSize = 50)
     {
         var participant = await _participantRepository.GetParticipantAsync(chatId, userId);
         if (participant == null)
@@ -80,10 +91,16 @@ public class MessageService : IMessageService
             throw new ForbiddenException("You are not a participant in this chat.");
         }
     
-        var messages = await _messageRepository.GetChatMessagesAsync(chatId, pageNumber, pageSize);
-        var messageDtos = _mapper.Map<List<GetMessageDto>>(messages.OrderBy(m => m.SentAt));
-
-        return messageDtos;
+        var pagedMessages = await _messageRepository.GetChatMessagesAsync(chatId, pageNumber, pageSize);
+        
+        return new PagedResult<GetMessageDto>
+        {
+            Items = _mapper.Map<List<GetMessageDto>>(pagedMessages.Items.OrderBy(m => m.SentAt)),
+            TotalCount = pagedMessages.TotalCount,
+            Page = pagedMessages.Page,
+            PageSize = pagedMessages.PageSize,
+            TotalPages = pagedMessages.TotalPages
+        };
     }
 
     public async Task<GetMessageDto> EditMessageAsync(int userId, EditMessageDto editMessageDto)
@@ -112,6 +129,9 @@ public class MessageService : IMessageService
         await _messageRepository.SaveChangesAsync();
     
         var messageDto = _mapper.Map<GetMessageDto>(message);
+
+        await _chatHubService.SendEditedMessageToGroupAsync(message.ChatparticipantChatparticipant.ChatId, messageDto);
+
         return messageDto;
     }
 
@@ -134,16 +154,22 @@ public class MessageService : IMessageService
             throw new ConflictException("Message is already deleted.");
         }
     
-        if (message.AttachmentUrl != null)
+        if (!string.IsNullOrEmpty(message.AttachmentUrl))
         {
-            var bucket = message.AttachmentUrl.Split("/")[0];
-            var fileName = message.AttachmentUrl.Split("/")[1];
-            await _fileUploadService.DeleteFileAsync(bucket, fileName);
+            var parts = message.AttachmentUrl.Split("/");
+            if (parts.Length >= 2)
+            {
+                var bucket = parts[0];
+                var fileName = parts[1];
+                await _fileUploadService.DeleteFileAsync(bucket, fileName);
+            }
         }
         message.IsDeleted = true;
         message.DeletedAt = DateTimeHelper.ToUnspecified(DateTime.UtcNow);
     
         await _messageRepository.UpdateMessageAsync(message);
         await _messageRepository.SaveChangesAsync();
+
+        await _chatHubService.SendDeletedMessageToGroupAsync(message.ChatparticipantChatparticipant.ChatId, messageId);
     }
 }

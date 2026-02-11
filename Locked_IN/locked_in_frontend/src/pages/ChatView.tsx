@@ -1,18 +1,11 @@
 "use client"
 import { useParams } from "react-router-dom"
-import { useEffect } from "react"
-import { useChatViewStore } from "@/stores/chatViewStore.ts"
 import { ChatsList } from "../custom_components/chatView/ChatsList.tsx"
 import { ChatArea } from "../custom_components/chatView/ChatArea.tsx"
 import { ChatInfo } from "../custom_components/chatView/ChatInfo.tsx"
 
 export function ChatView() {
     const { chatId } = useParams<{ chatId: string }>()
-    const { setSelectedGroupId } = useChatViewStore()
-
-    useEffect(() => {
-        setSelectedGroupId(chatId || null)
-    }, [chatId, setSelectedGroupId])
 
     return (
         <>

@@ -1,48 +1,37 @@
 "use client"
 
 import { X } from "lucide-react"
+import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { getUserChats } from "@/api/api"
-import type {UserChatDto} from "@/api/types"
-import { useChatViewStore } from "@/stores/chatViewStore"
+import { useUserChats } from "@/hooks/chat/useUserChats"
+import type { UserChatDto } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils"
 
 export function ChatsList() {
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId: string }>();
-    const { setChatType } = useChatViewStore();
-    const [chats, setChats] = useState<UserChatDto[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
     useEffect(() => {
-        const fetchChats = async () => {
-            try {
-                const data = await getUserChats();
-                setChats(data);
-            } catch (error) {
-                console.error("Failed to fetch chats:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchChats();
-    }, []);
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const { data: chats = [], isLoading } = useUserChats(debouncedSearchTerm);
 
     const handleCreateGroup = () => {
         navigate("/groups/new");
     }
 
     const handleChatClick = (chat: UserChatDto) => {
-        setChatType(chat.chatType || null);
         navigate(`/my-groups/${chat.id}`);
-    }
-
-    if (loading) {
-        return <div className="p-6 text-center text-muted-foreground">Loading chats...</div>;
     }
 
     return (
@@ -56,20 +45,27 @@ export function ChatsList() {
                     <Input
                         placeholder="Search by name..."
                         className="bg-muted border-0 pr-10 text-foreground placeholder:text-muted-foreground"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground"
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
+                    {searchTerm && (
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground"
+                            onClick={() => setSearchTerm("")}
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    )}
                 </div>
             </div>
 
             {/* Groups List OR Empty State - Scrollable */}
             <div className="flex-1 overflow-y-auto px-6 pb-6">
-                {chats.length > 0 ? (
+                {isLoading ? (
+                    <div className="p-6 text-center text-muted-foreground">Loading chats...</div>
+                ) : chats.length > 0 ? (
                     <div className="space-y-3">
                         {chats.map((chat) => (
                             <div
@@ -115,13 +111,20 @@ export function ChatsList() {
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center mt-20 text-center text-muted-foreground">
-                        <p className="text-lg mb-4">You don't have any chats yet.</p>
-                        <Button
-                            onClick={handleCreateGroup}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90"
-                        >
-                            Create Group
-                        </Button>
+                        <p className="text-lg mb-4">
+                            {debouncedSearchTerm 
+                                ? `No chats found matching "${debouncedSearchTerm}"`
+                                : "You don't have any chats yet."
+                            }
+                        </p>
+                        {!debouncedSearchTerm && (
+                            <Button
+                                onClick={handleCreateGroup}
+                                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            >
+                                Create Group
+                            </Button>
+                        )}
                     </div>
                 )}
             </div>

@@ -28,6 +28,8 @@ public partial class Chatparticipant
 
     [Column("unread_count")]
     public int UnreadCount { get; set; } = 0;
+    [Column("has_Left")]
+    public bool HasLeft { get; set; }
 
     [Column("role_id")]
     public int RoleId { get; set; }

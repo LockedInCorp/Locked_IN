@@ -1,19 +1,3 @@
-import type { TeamMemberStatus } from "@/api/types"
-
-export interface GroupCard {
-    id: number
-    title: string
-    game: string
-    teamLeaderUsername: string
-    description: string
-    image: string
-    tags: string[]
-    currentMembers: number
-    maxMembers: number
-    isPending?: boolean
-    autoAccept: boolean
-    teamMemberStatus: TeamMemberStatus
-}
 
 export interface GameOption {
     id: string

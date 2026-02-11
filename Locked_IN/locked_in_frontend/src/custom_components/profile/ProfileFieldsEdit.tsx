@@ -41,8 +41,8 @@ export default function ProfileFieldsEdit({
                     getPreferenceTags(),
                     getExperienceTags()
                 ])
-                setGamePreferencesDict(prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {}))
-                setExperienceLevelsDict(exps.reduce((acc, e) => ({ ...acc, [e.id]: e.name }), {}))
+                setGamePreferencesDict(prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.experiencelevel }), {}))
+                setExperienceLevelsDict(exps.reduce((acc, e) => ({ ...acc, [e.id]: e.experiencelevel }), {}))
             } catch (error) {
                 console.error("Failed to fetch tags", error)
             }

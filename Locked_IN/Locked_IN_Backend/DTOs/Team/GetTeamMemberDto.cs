@@ -2,7 +2,6 @@
 
 public class GetTeamMemberDto
 {
-    public int Id { get; set; }
     
     public bool IsLeader { get; set; }
     
@@ -13,8 +12,6 @@ public class GetTeamMemberDto
     public int UserId { get; set; }
     
     public int MemberStatusId { get; set; }
-    
-    public string? MemberStatusName { get; set; }
     
     public GetUserForTeamViewDto? User { get; set; }
 }
