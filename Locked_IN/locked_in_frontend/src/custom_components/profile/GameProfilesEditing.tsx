@@ -58,9 +58,9 @@ export default function GameProfilesEditing({
                     getExperienceTags()
                 ])
                 
-                setAvailableGames(games.map(game => game.name))
-                setGamePreferences(preferences.map(pref => pref.name))
-                setExperienceLevels(experiences.map(exp => exp.name))
+                setAvailableGames(games.map(game => game.experiencelevel))
+                setGamePreferences(preferences.map(pref => pref.experiencelevel))
+                setExperienceLevels(experiences.map(exp => exp.experiencelevel))
             } catch (error) {
                 setDataError(error instanceof Error ? error.message : "Failed to load games and tags")
             } finally {

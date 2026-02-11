@@ -38,8 +38,8 @@ export default function ProfileFields({
                     getExperienceTags()
                 ])
                 
-                const prefsObj = prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {})
-                const expsObj = exps.reduce((acc, e) => ({ ...acc, [e.id]: e.name }), {})
+                const prefsObj = prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.experiencelevel }), {})
+                const expsObj = exps.reduce((acc, e) => ({ ...acc, [e.id]: e.experiencelevel }), {})
                 
                 setPrefsDict(prefsObj)
                 setExpDict(expsObj)

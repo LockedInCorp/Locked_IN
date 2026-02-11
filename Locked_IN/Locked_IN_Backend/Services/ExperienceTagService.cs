@@ -14,10 +14,10 @@ public class ExperienceTagService : IExperienceTagService
         _context = context;
     }
 
-    public async Task<List<GetTagsDto>> GetExperienceTagsAsync()
+    public async Task<List<GetPreferanceTagsDto>> GetExperienceTagsAsync()
     {
         return await _context.ExperienceTags
-            .Select(t => new GetTagsDto
+            .Select(t => new GetPreferanceTagsDto
             {
                 Id = t.Id,
                 Name = t.Experiencelevel

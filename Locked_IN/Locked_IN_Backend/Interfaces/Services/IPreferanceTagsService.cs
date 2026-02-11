@@ -4,5 +4,5 @@ namespace Locked_IN_Backend.Interfaces;
 
 public interface IPreferanceTagsService
 {
-    public Task<List<GetTagsDto>> GetPreferanceTagsAsync();
+    public Task<List<GetPreferanceTagsDto>> GetPreferanceTagsAsync();
 }

@@ -1,6 +1,6 @@
 import { X, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { GroupCard as GroupCardType } from "./types"
+import type { TeamSearchResult } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils.ts"
 import { useNavigate } from "react-router-dom"
 import { TeamMemberStatus } from "@/api/types"
@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { requestToJoinTeam, cancelJoinRequest } from "@/api/api"
 
 interface GroupCardProps {
-    group: GroupCardType
+    group: TeamSearchResult
     onUpdate?: () => void
 }
 
@@ -35,7 +35,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
     })
     
     const handleOpenClick = () => {
-        navigate(`/my-groups/${group.id}`)
+        navigate(`/my-groups/${group.chatId}`)
     }
     
     const handleJoinClick = () => {
@@ -95,17 +95,17 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
             {/* Card Header */}
             <div className="flex gap-3 p-4 border-b border-border">
                 <img
-                    src={getImageUrl(group.image) || "/assets/sunset-silhouette-gaming.jpg"}
-                    alt={group.title}
+                    src={getImageUrl(group.iconUrl) || "/assets/sunset-silhouette-gaming.jpg"}
+                    alt={group.name}
                     className="w-16 h-16 rounded-lg object-cover"
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = "/assets/sunset-silhouette-gaming.jpg"
                     }}
                 />
                 <div className="flex-1 min-w-0">
-                    <h3 className="text-foreground font-semibold text-lg">{group.title}</h3>
+                    <h3 className="text-foreground font-semibold text-lg">{group.name}</h3>
                     <p className="text-muted-foreground text-sm">
-                        {group.game}
+                        {group.game.name}
                         <br/>
                         by <span className="text-primary">{group.teamLeaderUsername}</span>
                     </p>
@@ -130,12 +130,12 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
 
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-muted-foreground text-xs font-medium">TAGS</span>
-                    {group.tags.map((tag) => (
+                    {group.preferenceTags.map((tag) => (
                         <span
-                            key={tag}
+                            key={tag.id}
                             className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded"
                         >
-                            {tag}
+                            {tag.name}
                         </span>
                     ))}
                 </div>
@@ -144,7 +144,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
                     <div className="flex items-center gap-2 text-muted-foreground">
                         <Users className="h-4 w-4" />
                         <span className="text-sm">
-                            {group.currentMembers}/{group.maxMembers}
+                            {group.currentMemberCount}/{group.maxPlayerCount}
                         </span>
                     </div>
 

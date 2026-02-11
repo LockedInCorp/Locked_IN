@@ -7,8 +7,8 @@ import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
 import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 import { searchTeamsAdvanced } from "@/api/api"
 import { useTeamJoinHub } from "@/hooks/signalr/useTeamJoinHub"
-import type { GroupCard, GameOption } from "@/custom_components/groupDiscover/types"
-import type { TeamSearchResult, TeamMemberStatus, TeamJoinStatusDto } from "@/api/types"
+import type { GameOption, DiscoverFiltersProps, DiscoverSidebarProps } from "./types"
+import type { TeamSearchResult } from "@/api/types"
 import { TeamMemberStatus as TeamMemberStatusValues } from "@/api/types"
 
 //#TODO when current page=maxpage and changeView to lower value displays empty page
@@ -27,7 +27,7 @@ export default function DiscoverPage() {
     const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(new Set())
     const [customGames, setCustomGames] = useState<Array<{ id: string; label: string }>>([])
 
-    const [groups, setGroups] = useState<GroupCard[]>([])
+    const [groups, setGroups] = useState<TeamSearchResult[]>([])
     const [totalPages, setTotalPages] = useState(1)
     const [pageSize, setPageSize] = useState(12)
     const [sortBy, setSortBy] = useState("relevance")
@@ -48,22 +48,7 @@ export default function DiscoverPage() {
             
             const data = await searchTeamsAdvanced(dto)
             
-            const mappedGroups: GroupCard[] = data.items.map((team: TeamSearchResult) => ({
-                id: team.id,
-                title: team.name,
-                game: team.gameName || "Unknown Game",
-                teamLeaderUsername: team.teamLeaderUsername || "Unknown",
-                description: team.description,
-                image: team.iconUrl || "/assets/sunset-silhouette-gaming.jpg",
-                tags: team.preferenceTags || [],
-                currentMembers: team.currentMemberCount,
-                maxMembers: team.maxPlayerCount,
-                isPending: false,
-                autoAccept: team.autoAccept,
-                teamMemberStatus: team.teamMemberStatus
-            }))
-
-            setGroups(mappedGroups)
+            setGroups(data.items)
             setTotalPages(data.totalPages)
         } catch (error) {
             console.error(error)
@@ -80,8 +65,7 @@ export default function DiscoverPage() {
                 if (group.id === data.teamId) {
                     return {
                         ...group,
-                        teamMemberStatus: data.status as TeamMemberStatus,
-                        isPending: data.status === TeamMemberStatusValues.STATUS_PENDING
+                        teamMemberStatus: data.status as TeamMemberStatusValues
                     }
                 }
                 return group

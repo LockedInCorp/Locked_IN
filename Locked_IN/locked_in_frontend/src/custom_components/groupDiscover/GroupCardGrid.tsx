@@ -1,10 +1,10 @@
-import type { GroupCard } from "./types"
+import type { TeamSearchResult } from "@/api/types"
 import { GroupCard as GroupCardComponent } from "./GroupCard"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface GroupCardGridProps {
-    groups: GroupCard[]
+    groups: TeamSearchResult[]
     currentPage: number
     totalPages: number
     onPageChange: (page: number) => void

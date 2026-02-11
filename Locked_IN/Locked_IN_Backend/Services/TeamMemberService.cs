@@ -1,4 +1,6 @@
+using AutoMapper;
 using Locked_IN_Backend.Data.Entities;
+using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Team;
 using Locked_IN_Backend.Interfaces.Repositories;
@@ -16,18 +18,28 @@ public class TeamMemberService : ITeamMemberService
     private readonly ITeamRepository _teamRepository;
     private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IChatService _chatService;
     private readonly IHubContext<TeamJoinHub, ITeamMemberHub> _hubContext;
-
+    private readonly IHubContext<TeamRequestHub, IJoinRequestHub> _requestHubContext;
+    private readonly IMapper _mapper;
+    
     public TeamMemberService(
         ITeamRepository teamRepository, 
         ITeamMemberRepository teamMemberRepository, 
         IUserRepository userRepository, 
-        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext)
+        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext, 
+        IHubContext<TeamRequestHub, IJoinRequestHub> requestHubContext,
+        IMapper mapper, 
+        IChatRepository chatRepository, 
+        IChatService chatService)
     {
         _teamRepository = teamRepository;
         _teamMemberRepository = teamMemberRepository;
         _userRepository = userRepository;
         _hubContext = hubContext;
+        _requestHubContext = requestHubContext;
+        _mapper = mapper;
+        _chatService = chatService;
     }
 
     public async Task RequestToJoinTeamAsync(int teamId, int userId)
@@ -77,7 +89,13 @@ public class TeamMemberService : ITeamMemberService
         };
 
         await _teamMemberRepository.AddTeamMemberAsync(newTeamMember);
+        if (team.IsAutoaccept) await _chatService.JoinChatGroupAsync(userId, team.Chats.First().Id);
         await _teamMemberRepository.SaveChangesAsync();
+
+        if (newMemberStatusId == (int)TeamMemberStatus.STATUS_PENDING)
+        {
+            await NotifyLeaderNewJoinRequestAsync(teamId, userId);
+        }
 
         var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
         if (leader != null)
@@ -91,19 +109,19 @@ public class TeamMemberService : ITeamMemberService
         }
     }
 
+    public async Task<List<GetTeamMemberDto>> GetActiveTeamMembersAsync(int teamId)
+    {
+        var members = await _teamMemberRepository.GetActiveTeamMembersAsync(teamId);
+        var result = _mapper.Map<List<GetTeamMemberDto>>(members);
+        return result;
+    }
+
     public async Task<List<TeamJoinResponceDto>> GetJoinRequestsAsync(int teamId, int requesterId)
     {
         await EnsureUserIsLeaderAsync(teamId, requesterId);
 
         var requests = await _teamMemberRepository.GetPendingRequestsByTeamIdAsync(teamId);
-        return requests.Select(tm => new TeamJoinResponceDto
-            {
-                TeamId = tm.TeamId,
-                UserId = tm.UserId,
-                Username = tm.User.UserName,
-                RequestTimestamp = tm.Jointimestamp
-            })
-            .ToList();
+        return _mapper.Map<List<TeamJoinResponceDto>>(requests);
     }
 
     public async Task AcceptJoinRequestAsync(int leaderId, int teamId, int userIdToAccept)
@@ -127,6 +145,7 @@ public class TeamMemberService : ITeamMemberService
         request.Jointimestamp = DateTime.UtcNow;
 
         await _teamMemberRepository.UpdateTeamMemberAsync(request);
+        await _chatService.JoinChatGroupAsync(userIdToAccept, request.Team.Chats.First().Id);
         await _teamMemberRepository.SaveChangesAsync();
 
         await _hubContext.Clients.User(userIdToAccept.ToString()).ReceiveJoinRequestStatus(new TeamJoinStatusDto
@@ -173,6 +192,8 @@ public class TeamMemberService : ITeamMemberService
         await _teamMemberRepository.DeleteTeamMemberAsync(request);
         await _teamMemberRepository.SaveChangesAsync();
 
+        await NotifyLeaderJoinRequestCanceledAsync(teamId, userId);
+
         var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
         if (leader != null)
         {
@@ -191,6 +212,52 @@ public class TeamMemberService : ITeamMemberService
         }
     }
 
+    public async Task LeaveTeamAsync(int teamId, int userId)
+    {
+        var member = await _teamMemberRepository.GetTeamMemberWithTeamByIdAsync(teamId, userId);
+
+        if (member == null || (member.MemberStatusId != (int)TeamMemberStatus.STATUS_MEMBER && member.MemberStatusId != (int)TeamMemberStatus.STATUS_LEADER))
+        {
+            throw new NotFoundException("User is not a member of this team.");
+        }
+
+        if (member.Isleader)
+        {
+            var activeMembers = await _teamMemberRepository.GetActiveTeamMembersAsync(teamId);
+            if (activeMembers.Count > 1)
+            {
+                var newLeader = activeMembers
+                    .Where(m => m.UserId != userId)
+                    .OrderBy(m => m.Jointimestamp)
+                    .FirstOrDefault();
+
+                if (newLeader != null)
+                {
+                    newLeader.Isleader = true;
+                    newLeader.MemberStatusId = (int)TeamMemberStatus.STATUS_LEADER;
+                    await _teamMemberRepository.UpdateTeamMemberAsync(newLeader);
+                }
+            }
+        }
+
+        if (member.Team.Chats != null && member.Team.Chats.Any())
+        {
+            foreach (var chat in member.Team.Chats)
+            {
+                try
+                {
+                    await _chatService.LeaveChatGroupAsync(userId, chat.Id);
+                }
+                catch (ForbiddenException)
+                {
+                }
+            }
+        }
+
+        await _teamMemberRepository.DeleteTeamMemberAsync(member);
+        await _teamMemberRepository.SaveChangesAsync();
+    }
+
     private async Task EnsureUserIsLeaderAsync(int teamId, int userId)
     {
         var member = await _teamMemberRepository.GetTeamMemberAsync(teamId, userId);
@@ -204,5 +271,25 @@ public class TeamMemberService : ITeamMemberService
         {
             throw new ForbiddenException("Only the team leader can perform this action.");
         }
+    }
+
+    public async Task NotifyLeaderNewJoinRequestAsync(int teamId, int userId)
+    {
+        var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
+        if (leader == null) return;
+
+        var request = await _teamMemberRepository.GetTeamMemberWithTeamByIdAsync(teamId, userId);
+        if (request == null) return;
+
+        var requestDto = _mapper.Map<TeamJoinResponceDto>(request);
+        await _requestHubContext.Clients.User(leader.UserId.ToString()).ReceiveNewJoinRequest(requestDto);
+    }
+
+    public async Task NotifyLeaderJoinRequestCanceledAsync(int teamId, int userId)
+    {
+        var leader = await _teamMemberRepository.GetTeamLeaderAsync(teamId);
+        if (leader == null) return;
+
+        await _requestHubContext.Clients.User(leader.UserId.ToString()).ReceiveCanceledJoinRequest(userId, teamId);
     }
 }

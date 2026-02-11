@@ -26,7 +26,7 @@ public class TeamRepository : ITeamRepository
 
     public async Task<Team?> GetTeamById(int id)
     {
-        return await _context.Teams.FindAsync(id);
+        return await _context.Teams.Include(t => t.Chats).FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task AddTeam(Team team)
@@ -61,8 +61,10 @@ public class TeamRepository : ITeamRepository
     {
         return await _context.Teams
             .Include(t => t.Game)
+            .Include(t => t.TeamCommunicationService)
+            .ThenInclude(tcs => tcs!.CommunicationService)
             .Include(t => t.ExperienceTag)
-            .Include(t => t.TeamMembers)
+            .Include(t => t.TeamMembers.Where(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER))
                 .ThenInclude(tm => tm.User)
             .Include(t => t.TeamPreferencetagRelations)
                 .ThenInclude(r => r.PreferenceTag)
@@ -131,41 +133,18 @@ public class TeamRepository : ITeamRepository
     {
         var query = _context.Teams.AsQueryable();
 
-        query = query.Where(t => t.TeamMembers.Count(tm => 
-            tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || 
-            tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER) < t.MaxPlayerCount);
-        query = query.Where(t => !t.Isprivate)
-            .Where(t => !OnlyShowPending || t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING && tm.UserId == userId));
-
-        if (gameIds.Any())
-        {
-            query = query.Where(t => gameIds.Contains(t.GameId));
-        }
-
-        if (preferenceTagIds.Any())
-        {
-            query = query.Where(t => t.TeamPreferencetagRelations
-                .Any(rel => preferenceTagIds.Contains(rel.PreferenceTagId)));
-        }
-
-        var hasSearch = !string.IsNullOrWhiteSpace(searchTerm);
-        string searchWithStar = string.Empty;
-        if (hasSearch)
-        {
-            var trimmedSearch = searchTerm.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            searchWithStar = string.Join(" & ", trimmedSearch) + ":*";
-            
-            //TODO english w const
-            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name)
-                .Matches(EF.Functions.ToTsQuery("english", searchWithStar)));
-        }
+        query = ApplyBaseFilters(query, userId, OnlyShowPending);
+        query = ApplyGameFilters(query, gameIds);
+        query = ApplyPreferenceTagFilters(query, preferenceTagIds);
+        query = ApplySearchFilter(query, searchTerm, out var searchWithStar);
 
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = ValidationConstraints.DefaultPageSize;
 
         var totalCount = await query.CountAsync();
 
-        var intermediate = query.Select(t => new
+        var hasSearch = !string.IsNullOrWhiteSpace(searchTerm);
+        var intermediate = query.Select(t => new TeamIntermediateResult
         {
             TeamId = t.Id,
             SearchRank = hasSearch
@@ -184,38 +163,7 @@ public class TeamRepository : ITeamRepository
             Team = t
         });
 
-        var sort = (sortBy ?? string.Empty).Trim().ToLower();
-        if (sort == "relevance")
-        {
-            intermediate = intermediate
-                .OrderByDescending(x => x.SearchRank)
-                .ThenByDescending(x => x.CreationTimestamp);
-        }
-        else if (sort == "popular")
-        {
-            intermediate = intermediate
-                .OrderByDescending(x => x.Team.TeamMembers.Count)
-                .ThenByDescending(x => x.CreationTimestamp);
-        }
-        else if (sort == "newest")
-        {
-            intermediate = intermediate
-                .OrderByDescending(x => x.CreationTimestamp);
-        }
-        else
-        {
-            if (hasSearch)
-            {
-                intermediate = intermediate
-                    .OrderByDescending(x => x.SearchRank)
-                    .ThenByDescending(x => x.CreationTimestamp);
-            }
-            else
-            {
-                intermediate = intermediate
-                    .OrderByDescending(x => x.CreationTimestamp);
-            }
-        }
+        intermediate = ApplySorting(intermediate, sortBy, hasSearch);
 
         var pagedResults = await intermediate
             .Skip((page - 1) * pageSize)
@@ -233,6 +181,7 @@ public class TeamRepository : ITeamRepository
             .ThenInclude(r => r.PreferenceTag)
             .Include(team => team.TeamMembers)
             .ThenInclude(teamMember => teamMember.MemberStatus)
+            .Include(t => t.Chats)
             .Where(t => teamIntermediateIds.Contains(t.Id))
             .ToListAsync();
         
@@ -262,5 +211,93 @@ public class TeamRepository : ITeamRepository
             PageSize = pageSize,
             TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
         };
+    }
+
+    private IQueryable<Team> ApplyBaseFilters(IQueryable<Team> query, int userId, bool onlyShowPending)
+    {
+        query = query.Where(t => t.TeamMembers.Count(tm => 
+            tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER || 
+            tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER) < t.MaxPlayerCount);
+        
+        return query.Where(t => !t.Isprivate)
+            .Where(t => (!onlyShowPending || t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_PENDING && tm.UserId == userId)) && !t.TeamMembers.Any(tm => tm.MemberStatusId == (int)TeamMemberStatus.STATUS_REJECTED && tm.UserId == userId));
+    }
+
+    private IQueryable<Team> ApplyGameFilters(IQueryable<Team> query, List<int> gameIds)
+    {
+        if (gameIds.Any())
+        {
+            query = query.Where(t => gameIds.Contains(t.GameId));
+        }
+        return query;
+    }
+
+    private IQueryable<Team> ApplyPreferenceTagFilters(IQueryable<Team> query, List<int> preferenceTagIds)
+    {
+        if (preferenceTagIds.Any())
+        {
+            query = query.Where(t => t.TeamPreferencetagRelations
+                .Any(rel => preferenceTagIds.Contains(rel.PreferenceTagId)));
+        }
+        return query;
+    }
+
+    private IQueryable<Team> ApplySearchFilter(IQueryable<Team> query, string searchTerm, out string searchWithStar)
+    {
+        searchWithStar = string.Empty;
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var trimmedSearch = searchTerm.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var localSearchWithStar = string.Join(" & ", trimmedSearch) + ":*";
+            searchWithStar = localSearchWithStar;
+            
+            query = query.Where(t => EF.Functions.ToTsVector("english", t.Name)
+                .Matches(EF.Functions.ToTsQuery("english", localSearchWithStar)));
+        }
+        return query;
+    }
+
+    private IQueryable<TeamIntermediateResult> ApplySorting(IQueryable<TeamIntermediateResult> intermediate, string sortBy, bool hasSearch)
+    {
+        var sort = (sortBy ?? string.Empty).Trim().ToLower();
+        if (sort == "relevance")
+        {
+            return intermediate
+                .OrderByDescending(x => x.SearchRank)
+                .ThenByDescending(x => x.CreationTimestamp);
+        }
+        
+        if (sort == "popular")
+        {
+            return intermediate
+                .OrderByDescending(x => x.Team.TeamMembers.Count)
+                .ThenByDescending(x => x.CreationTimestamp);
+        }
+        
+        if (sort == "newest")
+        {
+            return intermediate
+                .OrderByDescending(x => x.CreationTimestamp);
+        }
+        
+        if (hasSearch)
+        {
+            return intermediate
+                .OrderByDescending(x => x.SearchRank)
+                .ThenByDescending(x => x.CreationTimestamp);
+        }
+        
+        return intermediate
+            .OrderByDescending(x => x.CreationTimestamp);
+    }
+
+    private class TeamIntermediateResult
+    {
+        public int TeamId { get; set; }
+        public float SearchRank { get; set; }
+        public DateTime? LatestMemberJoin { get; set; }
+        public string? TeamLeaderUsername { get; set; }
+        public DateTime CreationTimestamp { get; set; }
+        public Team Team { get; set; } = null!;
     }
 }

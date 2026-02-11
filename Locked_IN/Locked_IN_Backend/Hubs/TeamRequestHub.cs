@@ -1,6 +1,11 @@
+using Locked_IN_Backend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+
 namespace Locked_IN_Backend.Hubs;
 
-public class TeamRequestHub
+[Authorize]
+public class TeamRequestHub : Hub<IJoinRequestHub>
 {
     
 }

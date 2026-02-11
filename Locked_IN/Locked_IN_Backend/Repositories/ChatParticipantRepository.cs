@@ -22,7 +22,7 @@ public class ChatParticipantRepository : IChatParticipantRepository
             .Include(cp => cp.Chat)
                 .ThenInclude(c => c.Chatparticipants)
                     .ThenInclude(cp => cp.User)
-            .Where(cp => cp.UserId == userId)
+            .Where(cp => cp.UserId == userId && !cp.HasLeft)
             .ToListAsync();
     }
 
@@ -54,6 +54,7 @@ public class ChatParticipantRepository : IChatParticipantRepository
 
     public async Task AddParticipantAsync(Chatparticipant participant)
     {
+        
         await _context.Chatparticipants.AddAsync(participant);
     }
 
@@ -65,7 +66,7 @@ public class ChatParticipantRepository : IChatParticipantRepository
 
     public async Task RemoveParticipantAsync(Chatparticipant participant)
     {
-        _context.Chatparticipants.Remove(participant);
+        participant.HasLeft = true;
         await Task.CompletedTask;
     }
 

@@ -1,47 +1,77 @@
 "use client"
 
 import { ImageIcon, Send } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useMemo, useRef, useState, useCallback, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useChatViewStore } from "@/stores/chatViewStore"
-import { getChatMessages, getGroupDetails } from "@/api/api"
-import {getImageUrl} from "@/utils/imageUtils.ts";
+import { useChatDetails } from "@/hooks/chat/useChatDetails"
+import { getImageUrl } from "@/utils/imageUtils.ts"
+import { persist } from "@/utils/auth/persistance"
+import { sendMessage } from "@/api/api.ts"
 
 export function ChatArea() {
     const { chatId } = useParams<{ chatId: string }>()
-    const { messages, setMessages } = useChatViewStore()
-    const [groupName, setGroupName] = useState("Loading...")
-    const [groupIcon, setGroupIcon] = useState("")
+
+    const numericChatId = chatId ? parseInt(chatId, 10) : null
+    const {
+        chatDetails,
+        messages: allMessages,
+        isFetchingMore,
+        hasMore,
+        fetchMore,
+        page
+    } = useChatDetails(numericChatId)
+
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const lastScrollHeightRef = useRef<number>(0)
+
+    const handleScroll = useCallback(() => {
+        if (!scrollContainerRef.current || !hasMore || isFetchingMore) return
+
+        const { scrollTop } = scrollContainerRef.current
+        if (scrollTop === 0) {
+            lastScrollHeightRef.current = scrollContainerRef.current.scrollHeight
+            fetchMore()
+        }
+    }, [hasMore, isFetchingMore, fetchMore])
 
     useEffect(() => {
-        if (!chatId) return
-
-        const fetchChatData = async () => {
-            try {
-                const [msgData, groupData] = await Promise.all([
-                    getChatMessages(chatId),
-                    getGroupDetails(chatId)
-                ])
-
-                setMessages(msgData.map(m => ({
-                    id: m.id,
-                    sender: m.senderUsername,
-                    content: m.content,
-                    isCurrentUser: m.isCurrentUser
-                })))
-
-                setGroupName(groupData.name)
-                setGroupIcon(groupData.avatarUrl || "")
-            } catch (error) {
-                console.error("Failed to fetch chat data:", error)
+        if (lastScrollHeightRef.current && scrollContainerRef.current && !isFetchingMore) {
+            const newScrollHeight = scrollContainerRef.current.scrollHeight
+            const heightDifference = newScrollHeight - lastScrollHeightRef.current
+            if (heightDifference > 0) {
+                scrollContainerRef.current.scrollTop = heightDifference
+                lastScrollHeightRef.current = 0
             }
         }
+    }, [allMessages, isFetchingMore])
 
-        fetchChatData()
-    }, [chatId, setMessages])
+    // Initial scroll to bottom
+    useEffect(() => {
+        if (allMessages.length > 0 && page === 1 && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
+        }
+    }, [allMessages, page]) // Fix: trigger when allMessages or page changes
+
+    const [messageText, setMessageText] = useState("")
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+    const messages = useMemo(() => {
+        const currentUser = persist.getUserData()
+
+        return allMessages.map(m => {
+            return ({
+                id: m.id,
+                sender: m.senderUsername,
+                content: m.content,
+                attachmentUrl: m.attachmentUrl,
+                isCurrentUser: currentUser ? m.senderId.toString() === currentUser.id : false
+            });
+        })
+    }, [allMessages])
 
     const groups = messages.reduce<
         { sender: string; isCurrentUser: boolean; items: any[] }[]
@@ -54,24 +84,55 @@ export function ChatArea() {
         }
         return acc
     }, [])
+    async function handleSend() {
+        if (!numericChatId) return
+        if (!messageText.trim() && !selectedFile) return
+        try {
+            await sendMessage({
+                chatId: numericChatId,
+                content: messageText.trim(),
+                attachmentFile: selectedFile ?? undefined,
+            })
+            setMessageText("")
+            setSelectedFile(null)
+            if (fileInputRef.current) fileInputRef.current.value = ""
+            
+            // Reload first page to see the new message if we are at the bottom
+            // or just append it locally for immediate feedback
+            // For now, let's just refetch the first page
+            // fetchMessages(1, true)
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
     return (
-        <div className="flex flex-col h-svh">
+        <div className="flex flex-col h-full overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                        <AvatarImage src={getImageUrl(groupIcon)} />
-                        <AvatarFallback>G</AvatarFallback>
+                        <AvatarImage src={getImageUrl(chatDetails?.chatIconUrl)} />
+                        <AvatarFallback>{chatDetails?.chatName?.[0] || "G"}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <h2 className="font-semibold text-foreground">{groupName}</h2>
-                        <p className="text-xs text-muted-foreground">icon</p>
+                        <h2 className="font-semibold text-foreground">{chatDetails?.chatName || "Loading..."}</h2>
+                        <p className="text-xs text-muted-foreground">{chatDetails?.chatType === 'Team' ? 'Group' : 'Direct'}</p>
                     </div>
                 </div>
             </div>
 
-            {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+            {/* Chat Area Messages */}
+            <div 
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0"
+            >
+                {isFetchingMore && (
+                    <div className="text-center text-xs text-muted-foreground py-2">
+                        Loading older messages...
+                    </div>
+                )}
                 {groups.map((g, gi) => (
                     <div
                         key={`${g.sender}-${gi}`}
@@ -115,6 +176,15 @@ export function ChatArea() {
                                             key={m.id}
                                             className={`px-4 py-2 bg-muted text-foreground ${bubbleRadius}`}
                                         >
+                                            {m.attachmentUrl && (
+                                                <div className="mb-2 max-w-sm overflow-hidden rounded-lg">
+                                                    <img
+                                                        src={getImageUrl(m.attachmentUrl)}
+                                                        alt="Attachment"
+                                                        className="w-full h-auto object-cover"
+                                                    />
+                                                </div>
+                                            )}
                                             {m.content}
                                         </div>
                                     )
@@ -126,19 +196,55 @@ export function ChatArea() {
             </div>
 
             {/* Input area */}
-            <div className="px-6 py-4 border-t border-border">
+            <div className="px-6 py-4 border-t border-border shrink-0">
                 <div className="flex items-center gap-3 bg-muted rounded-full px-5 py-3">
                     <Input
                         placeholder="Write a message..."
                         className="flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground placeholder:text-muted-foreground"
+                        value={messageText}
+                        onChange={(e) => setMessageText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                handleSend()
+                            }
+                        }}
                     />
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0">
+                    {/* Hidden file input */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0] || null
+                            setSelectedFile(file)
+                        }}
+                    />
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+                        onClick={() => fileInputRef.current?.click()}
+                        title={selectedFile ? selectedFile.name : "Attach a file"}
+                    >
                         <ImageIcon className="h-5 w-5" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0">
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+                        onClick={handleSend}
+                        disabled={!messageText.trim() && !selectedFile}
+                        title="Send"
+                    >
                         <Send className="h-5 w-5" />
                     </Button>
                 </div>
+                {selectedFile && (
+                    <div className="px-2 pt-2 text-xs text-muted-foreground truncate" title={selectedFile.name}>
+                        Attached: {selectedFile.name}
+                    </div>
+                )}
             </div>
         </div>
     )

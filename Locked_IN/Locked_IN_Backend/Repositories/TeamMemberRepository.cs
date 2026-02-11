@@ -53,6 +53,14 @@ public class TeamMemberRepository : ITeamMemberRepository
                               tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER));
     }
 
+    public async Task<List<TeamMember>> GetActiveTeamMembersAsync(int teamId)
+    {
+        return await _context.TeamMembers
+            .Where(tm => tm.TeamId == teamId &&
+                              (tm.MemberStatusId == (int)TeamMemberStatus.STATUS_MEMBER ||
+                               tm.MemberStatusId == (int)TeamMemberStatus.STATUS_LEADER)).Include(tm => tm.User).ToListAsync();
+    }
+
     public async Task<TeamMember?> GetTeamMemberAsync(int teamId, int userId)
     {
         return await _context.TeamMembers
@@ -77,6 +85,7 @@ public class TeamMemberRepository : ITeamMemberRepository
     {
         return await _context.TeamMembers
             .Include(tm => tm.Team)
+            .ThenInclude(t => t.Chats)
             .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.UserId == userId);
     }
 

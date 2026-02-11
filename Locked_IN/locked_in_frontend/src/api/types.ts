@@ -103,19 +103,43 @@ export interface ChatMessageDto {
     isCurrentUser: boolean;
 }
 
+export interface GetMessageDto {
+    id: number;
+    content: string;
+    sentAt: string | Date;
+    editedAt?: string | Date;
+    isDeleted: boolean;
+    attachmentUrl?: string;
+    senderId: number;
+    senderUsername: string;
+    senderAvatarUrl?: string;
+    chatId: number;
+}
+
+export interface GetChatDetails {
+    id: number;
+    chatName?: string;
+    chatType: string;
+    teamId?: number;
+    participantCount: number;
+    chatIconUrl?: string;
+    messageDtos: GetMessageDto[];
+}
+
 export interface GroupDetailsDto {
     id: number;
     name: string;
     description?: string;
-    avatarUrl?: string;
-    memberCount: number;
-    tags: string[];
-    experience: string;
-    communicationService?: number;
+    iconUrl?: string;
+    currentMemberCount: number;
+    preferenceTags: PreferenceTag[];
+    experienceLevel: ExperienceTag;
+    communicationService?: CommunicationService;
     communicationServiceLink?: string;
-    games: string[];
+    game: GameDto;
     members: GroupMemberDto[];
-    requests: GroupRequestDto[];
+    leader: GroupMemberDto;
+
 }
 
 export interface GroupMemberDto {
@@ -129,6 +153,16 @@ export interface GroupRequestDto {
     username: string;
     avatarUrl?: string;
 }
+
+export interface JoinRequestDto {
+    teamId: number;
+    userId: number;
+    username: string;
+    requestTimestamp: string;
+    avatarUrl?: string;
+}
+
+
 
 export interface CreateGroupRequest {
     name: string;
@@ -176,20 +210,19 @@ export interface TeamSearchResult {
     minCompScore: number;
     maxPlayerCount: number;
     description: string;
-    gameId: number;
-    gameName: string;
+    game: GameDto;
     isPrivate: boolean;
     autoAccept: boolean;
-    experienceTagId: number;
-    experienceLevel: string;
+    experienceLevel: ExperienceTag
     currentMemberCount: number;
     members: TeamMemberSearchResult[];
-    preferenceTags: string[];
+    preferenceTags: PreferenceTag[];
     creationTimestamp: string;
     iconUrl: string;
     searchRank: number;
     teamLeaderUsername: string;
     teamMemberStatus: TeamMemberStatus;
+    chatId: number;
 }
 
 export interface TeamMemberSearchResult {
@@ -220,4 +253,20 @@ export interface TeamJoinStatusDto {
     teamId: number;
     teamName: string;
     status: number;
+}
+
+export interface TeamJoinResponceDto {
+    teamId: number;
+    userId: number;
+    username: string;
+    avatarUrl?: string;
+    status: number;
+    requestTimestamp: string;
+}
+
+
+export interface SendMessageRequest {
+    chatId: number;
+    content: string;
+    attachmentFile?: File | null;
 }

@@ -10,6 +10,7 @@ public interface ITeamRepository
 {
     Task<IEnumerable<Team>> GetTeams();
     Task<Team?> GetTeamById(int id);
+    Task<Team?> GetTeamWithDetailsByIdAsync(int teamId);
     Task AddTeam(Team team);
     Task UpdateTeam(Team team);
     Task DeleteTeam(Team team);

@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Chat;
 using Locked_IN_Backend.Exceptions;
 using Locked_IN_Backend.Interfaces;
@@ -15,12 +16,10 @@ namespace Locked_IN_Backend.Controllers;
 public class MessageController : ControllerBase
 {
     private readonly IMessageService _messageService;
-    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
 
-    public MessageController(IMessageService messageService, IHubContext<ChatHub, IChatHub> hubContext)
+    public MessageController(IMessageService messageService)
     {
         _messageService = messageService;
-        _hubContext = hubContext;
     }
 
     /// <summary>
@@ -29,7 +28,7 @@ public class MessageController : ControllerBase
     /// </summary>
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> SendMessage([FromBody] SendMessageDto sendMessageDto)
+    public async Task<IActionResult> SendMessage([FromForm] SendMessageDto sendMessageDto)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
@@ -37,10 +36,6 @@ public class MessageController : ControllerBase
         
         // Persistence First: Save message to database
         var result = await _messageService.SendMessageAsync(userId, sendMessageDto);
-
-        // Then broadcast via SignalR to the chat group
-        await _hubContext.Clients.Group($"Chat_{sendMessageDto.ChatId}")
-            .ReceiveMessage(result);
 
         return CreatedAtAction(nameof(GetChatMessages), new { chatId = sendMessageDto.ChatId }, result);
     }
@@ -50,7 +45,7 @@ public class MessageController : ControllerBase
     /// </summary>
     [Authorize]
     [HttpGet("{chatId}")]
-    public async Task<IActionResult> GetChatMessages(int chatId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+    public async Task<ActionResult<PagedResult<GetMessageDto>>> GetChatMessages(int chatId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
     {
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
@@ -75,10 +70,6 @@ public class MessageController : ControllerBase
         // Persistence First: Update message in database
         var result = await _messageService.EditMessageAsync(userId, editMessageDto);
     
-        // Then broadcast via SignalR
-        await _hubContext.Clients.Group($"Chat_{result.ChatId}")
-            .MessageEdited(result);
-
         return Ok(result);
     }
 
