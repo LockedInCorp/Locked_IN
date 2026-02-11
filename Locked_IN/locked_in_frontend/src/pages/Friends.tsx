@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { getImageUrl } from "@/utils/imageUtils"
@@ -9,7 +10,7 @@ import { useAuthStore } from "@/stores/authStore"
 import { updateUserAvailability } from "@/api/api"
 import { isCellAvailable, toggleHour } from "@/utils/friendship_and_availability/availabilityUtils"
 import { formatDate, formatTimeAgo } from "@/utils/dateUtils"
-import { Check, X, MessageCircle, MoreHorizontal } from "lucide-react"
+import { Check, X, MessageCircle, User } from "lucide-react"
 
 const DAYS_OF_WEEK = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 const DAY_LABELS = ["MO", "TU", "WE", "TH", "FR", "ST", "SU"]
@@ -18,6 +19,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')
 type SelectedTab = "user" | number
 
 export default function Friends() {
+    const navigate = useNavigate()
     const { user } = useAuthStore()
     const { 
         friends, 
@@ -125,7 +127,7 @@ export default function Friends() {
                                 }`}
                             >
                                 <Avatar className="h-12 w-12 flex-shrink-0">
-                                    <AvatarImage src={getImageUrl(friend.avatarUrl)} />
+                                    <AvatarImage src={getImageUrl(friend.friendAvatarUrl)} />
                                     <AvatarFallback>{friend.friendUsername.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
@@ -142,9 +144,10 @@ export default function Friends() {
                                     <Button
                                         size="icon"
                                         variant="ghost"
+                                        onClick={() => navigate(`/friend/${friend.friendId}`)}
                                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
                                     >
-                                        <MoreHorizontal className="h-4 w-4" />
+                                        <User className="h-4 w-4" />
                                     </Button>
                                     <Button
                                         size="icon"

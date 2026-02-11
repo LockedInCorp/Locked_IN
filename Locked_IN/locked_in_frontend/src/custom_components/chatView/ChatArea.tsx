@@ -68,19 +68,20 @@ export function ChatArea() {
                 sender: m.senderUsername,
                 content: m.content,
                 attachmentUrl: m.attachmentUrl,
-                isCurrentUser: currentUser ? m.senderId.toString() === currentUser.id : false
+                isCurrentUser: currentUser ? m.senderId.toString() === currentUser.id : false,
+                senderAvatarUrl: m.senderAvatarUrl
             });
         })
     }, [allMessages])
 
     const groups = messages.reduce<
-        { sender: string; isCurrentUser: boolean; items: any[] }[]
+        { sender: string; isCurrentUser: boolean; items: any[]; senderAvatarUrl?: string }[]
     >((acc, m) => {
         const last = acc[acc.length - 1]
         if (last && last.sender === m.sender && last.isCurrentUser === m.isCurrentUser) {
             last.items.push(m)
         } else {
-            acc.push({ sender: m.sender, isCurrentUser: m.isCurrentUser, items: [m] })
+            acc.push({ sender: m.sender, isCurrentUser: m.isCurrentUser, items: [m], senderAvatarUrl: m.senderAvatarUrl })
         }
         return acc
     }, [])
@@ -140,6 +141,7 @@ export function ChatArea() {
                     >
                         {!g.isCurrentUser && (
                             <Avatar className="h-10 w-10 mr-3 mt-[2px] shrink-0">
+                                <AvatarImage src={getImageUrl(g.senderAvatarUrl)} />
                                 <AvatarFallback className="bg-muted text-foreground">
                                     {g.sender[0]}
                                 </AvatarFallback>

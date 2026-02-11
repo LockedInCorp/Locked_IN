@@ -129,6 +129,7 @@ public class MappingProfile : Profile
         CreateMap<Team, GetTeamsCardDto>()
             .ForMember(dest => dest.Game, opt => opt.MapFrom(src => src.Game))
             .ForMember(dest => dest.IsPrivate, opt => opt.MapFrom(src => src.Isprivate))
+            .ForMember(dest => dest.AutoAccept, opt => opt.MapFrom(src => src.IsAutoaccept))
             .ForMember(dest => dest.ExperienceLevel, opt => opt.MapFrom(src => src.ExperienceTag))
             .ForMember(dest => dest.CurrentMemberCount, opt => opt.MapFrom(src => src.TeamMembers != null ? src.TeamMembers.Count : 0))
             .ForMember(dest => dest.PreferenceTags, opt => opt.MapFrom(src => 
