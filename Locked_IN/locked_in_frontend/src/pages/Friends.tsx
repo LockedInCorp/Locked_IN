@@ -131,14 +131,8 @@ export default function Friends() {
                                     <AvatarFallback>{friend.friendUsername.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <h3 className="font-semibold text-foreground">{friend.friendUsername}</h3>
-                                        <span className="text-xs text-muted-foreground">{formatDate(friend.since)}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground truncate">
-                                        <span className="text-primary">User: </span>
-                                        Last message
-                                    </p>
+                                    <h3 className="font-semibold text-foreground mb-0 leading-none">{friend.friendUsername}</h3>
+                                    <span className="text-xs text-muted-foreground">Friends since: {formatDate(friend.since)}</span>
                                 </div>
                                 <div className="flex gap-2">
                                     <Button
@@ -163,9 +157,9 @@ export default function Friends() {
                 </div>
 
                 {/* Incoming Requests Section */}
-                {pendingRequests.length > 0 && (
-                    <div className="border-t border-border px-6 py-4 flex-shrink-0">
-                        <h3 className="text-lg font-semibold text-foreground mb-4">Incoming Requests</h3>
+                <div className="border-t border-border px-6 py-4 flex-shrink-0">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">Incoming Requests</h3>
+                    {pendingRequests.length > 0 ? (
                         <div className="space-y-3">
                             {pendingRequests.map((request) => (
                                 <div
@@ -199,8 +193,10 @@ export default function Friends() {
                                 </div>
                             ))}
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <p className="text-sm text-muted-foreground">You don&apos;t have any friend requests yet.</p>
+                    )}
+                </div>
             </div>
 
             {/* Right Panel - Availability Calendar */}

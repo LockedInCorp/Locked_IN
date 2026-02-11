@@ -215,6 +215,22 @@ export const sendMessage = async (data: Types.SendMessageRequest): Promise<void>
     }
 }
 
+export const editMessage = async (messageId: number, content: string): Promise<void> => {
+    try {
+        await apiClient.put(`/Message`, { messageId, content })
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to edit message')
+    }
+}
+
+export const deleteMessage = async (messageId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/Message/${messageId}`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to delete message')
+    }
+}
+
 export const markChatAsRead = async (chatId: number): Promise<void> => {
     try {
         await apiClient.post(`/chat/${chatId}/read`)
@@ -287,6 +303,15 @@ export const leaveTeam = async (teamId: number): Promise<void> => {
         await apiClient.post(`/teams/${teamId}/leave`)
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to leave team')
+    }
+}
+
+// TODO: Add backend API endpoint for removing a member from a team (e.g. DELETE /teams/{teamId}/members/{userId})
+export const removeTeamMember = async (teamId: number, userId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/teams/${teamId}/members/${userId}`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to remove member from team')
     }
 }
 

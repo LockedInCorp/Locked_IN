@@ -1,16 +1,25 @@
 "use client"
 
+import { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, X } from "lucide-react"
 import ProfileHeader from "@/custom_components/profile/ProfileHeader"
 import ProfileFields from "@/custom_components/profile/ProfileFields"
 import { useFriendProfile } from "@/hooks/friendship/useFriendProfile"
+import { useAuthStore } from "@/stores/authStore"
 
 export default function FriendProfile() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
+    const { user } = useAuthStore()
     const friendId = id ? parseInt(id) : 0
+
+    useEffect(() => {
+        if (user?.id && friendId > 0 && friendId.toString() === user.id) {
+            navigate("/profile", { replace: true })
+        }
+    }, [user?.id, friendId, navigate])
 
     if (!id || isNaN(friendId) || friendId <= 0) {
         return (
