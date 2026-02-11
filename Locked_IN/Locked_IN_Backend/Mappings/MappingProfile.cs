@@ -143,7 +143,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.IsFavorite, opt => opt.MapFrom(src => src.Isfavorite))
             .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank != null ? src.Rank.ToString() : null))
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
-            .ForMember(dest => dest.InGameNickname, opt => opt.MapFrom(src => src.InGameNickname));
+            .ForMember(dest => dest.InGameNickname, opt => opt.MapFrom(src => src.InGameNickname))
+            .ForMember(dest => dest.Preferences, opt => opt.MapFrom(src => 
+                src.GameprofilePreferencetagRelations.Select(x => x.PreferenceTag.Name).ToList()));
 
         CreateMap<CreateGameProfileDto, GameProfile>()
             .ForMember(dest => dest.Isfavorite, opt => opt.MapFrom(src => src.IsFavorite))
