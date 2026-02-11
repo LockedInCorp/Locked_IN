@@ -2,8 +2,8 @@
 
 import { useRef } from "react"
 import { Upload } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
+import { Button } from "@/lib/components/ui/button"
 import { getImageUrl } from "@/utils/imageUtils"
 
 type ProfileHeaderProps = {

@@ -15,12 +15,10 @@ interface ProfileState {
     avatarFile: File | null
     profileDataBeforeEdit: ProfileData
     
-    // Profile fields UI state
     expandedGames: Set<number>
     selectedGame: string
     customGame: string
     
-    // Actions
     setIsEditing: (isEditing: boolean) => void
     setProfileData: (data: ProfileData) => void
     updateProfileData: (updates: Partial<ProfileData>) => void
@@ -28,13 +26,11 @@ interface ProfileState {
     setAvatarFile: (file: File | null) => void
     setProfileDataBeforeEdit: (data: ProfileData) => void
     
-    // Profile fields UI actions
     setExpandedGames: (games: Set<number>) => void
     toggleExpandedGame: (gameId: number) => void
     setSelectedGame: (game: string) => void
     setCustomGame: (game: string) => void
     
-    // Profile actions
     startEditing: () => void
     cancelEditing: () => void
 }
@@ -47,19 +43,16 @@ const initialProfileData: ProfileData = {
 }
 
 export const useProfileStore = create<ProfileState>((set, get) => ({
-    // Initial state
     isEditing: false,
     profileData: initialProfileData,
     avatarPreview: null,
     avatarFile: null,
     profileDataBeforeEdit: initialProfileData,
     
-    // Profile fields UI state
     expandedGames: new Set(),
     selectedGame: "",
     customGame: "",
     
-    // Basic setters
     setIsEditing: (isEditing) => set({ isEditing }),
     setProfileData: (data) => set({ profileData: data }),
     updateProfileData: (updates) => set((state) => ({
@@ -69,7 +62,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     setAvatarFile: (file) => set({ avatarFile: file }),
     setProfileDataBeforeEdit: (data) => set({ profileDataBeforeEdit: data }),
     
-    // Profile fields UI actions
     setExpandedGames: (games) => set({ expandedGames: games }),
     toggleExpandedGame: (gameId) => {
         const newExpanded = new Set(get().expandedGames)
@@ -83,7 +75,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     setSelectedGame: (game) => set({ selectedGame: game }),
     setCustomGame: (game) => set({ customGame: game }),
     
-    // Profile actions
     startEditing: () => {
         const currentData = get().profileData
         set({

@@ -10,9 +10,9 @@ import Register from "@/pages/Register"
 import Login from "@/pages/Login"
 import Friends from "@/pages/Friends"
 import GameProfilesEditingPage from "@/pages/GameProfilesEditing"
-import { Header } from "@/custom_components/header/Header"
+import { Header } from "@/components/header/Header"
 import { useAuthInit } from "@/hooks/auth/useAuthInit"
-import ProtectedRoute from "@/components/ProtectedRoute"
+import ProtectedRoute from "@/lib/components/ProtectedRoute"
 
 function App() {
     useAuthInit();

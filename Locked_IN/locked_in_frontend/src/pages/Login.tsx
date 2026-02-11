@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/lib/components/ui/button"
+import { Input } from "@/lib/components/ui/input"
+import { Label } from "@/lib/components/ui/label"
 import { useAuthStore } from "@/stores/authStore"
 import { useLogin } from "@/hooks/auth/useLogin"
 

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { X, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/lib/components/ui/input"
+import { Checkbox } from "@/lib/components/ui/checkbox"
 import { getPreferenceTags, searchGamesByName } from "@/api/api"
 import type {GameSuggestion} from "@/api/types"
 import type { DiscoverSidebarProps } from "./types"

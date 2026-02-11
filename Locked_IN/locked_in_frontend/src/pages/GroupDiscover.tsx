@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { DiscoverSidebar } from "@/custom_components/groupDiscover/DiscoverSidebar"
-import { DiscoverFilters } from "@/custom_components/groupDiscover/DiscoverFilters"
-import { GroupCardGrid } from "@/custom_components/groupDiscover/GroupCardGrid"
+import { DiscoverSidebar } from "@/components/groupDiscover/DiscoverSidebar"
+import { DiscoverFilters } from "@/components/groupDiscover/DiscoverFilters"
+import { GroupCardGrid } from "@/components/groupDiscover/GroupCardGrid"
 import { useGroupDiscoveryStore } from "@/stores/groupDiscoveryStore"
 import { searchTeamsAdvanced } from "@/api/api"
 import { useTeamJoinHub } from "@/hooks/signalr/useTeamJoinHub"
-import type { GameOption, DiscoverFiltersProps, DiscoverSidebarProps } from "./types"
-import type { TeamSearchResult } from "@/api/types"
+import type { GameOption } from "@/api/types"
+import type { TeamSearchResult, TeamJoinStatusDto } from "@/api/types"
 import { TeamMemberStatus as TeamMemberStatusValues } from "@/api/types"
 
 //#TODO when current page=maxpage and changeView to lower value displays empty page
