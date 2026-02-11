@@ -3,8 +3,8 @@
 import { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/lib/components/ui/button"
-import GeneralSection from "@/custom_components/groupCreation/GeneralSection"
-import FinderSettingsSection from "@/custom_components/groupCreation/FinderSettingsSection"
+import GeneralSection from "@/components/groupCreation/GeneralSection"
+import FinderSettingsSection from "@/components/groupCreation/FinderSettingsSection"
 import { useGroupEditStore } from "@/stores/groupEditStore"
 
 export default function GroupEdit() {

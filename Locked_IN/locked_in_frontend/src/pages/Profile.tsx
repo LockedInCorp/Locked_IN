@@ -1,9 +1,9 @@
 "use client"
 
 import { Button } from "@/lib/components/ui/button"
-import ProfileHeader from "@/custom_components/profile/ProfileHeader"
-import ProfileFields from "@/custom_components/profile/ProfileFields"
-import ProfileFieldsEdit from "@/custom_components/profile/ProfileFieldsEdit"
+import ProfileHeader from "@/components/profile/ProfileHeader"
+import ProfileFields from "@/components/profile/ProfileFields"
+import ProfileFieldsEdit from "@/components/profile/ProfileFieldsEdit"
 import { useProfileStore } from "@/stores/profileStore"
 import { useLogout } from "@/hooks/auth/useLogout"
 import {useProfile} from "@/hooks/profile/useProfile"

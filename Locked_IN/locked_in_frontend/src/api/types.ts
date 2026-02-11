@@ -270,3 +270,9 @@ export interface SendMessageRequest {
     content: string;
     attachmentFile?: File | null;
 }
+
+export interface GameOption {
+    id: string
+    label: string
+    isFavorite: boolean
+}

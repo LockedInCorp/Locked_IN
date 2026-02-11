@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { useProfileStore } from "@/stores/profileStore"
-import GameProfilesEditing from "@/custom_components/profile/GameProfilesEditing"
+import GameProfilesEditing from "@/components/profile/GameProfilesEditing"
 import { searchGamesByName, addGameProfile } from "@/api/api"
-import type { GameProfile } from "@/custom_components/profile/ProfileFields"
+import type { GameProfile } from "@/components/profile/ProfileFields"
 
 export default function GameProfilesEditingPage() {
     const navigate = useNavigate()
