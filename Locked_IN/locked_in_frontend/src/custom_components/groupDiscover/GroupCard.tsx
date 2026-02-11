@@ -17,7 +17,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
     const navigate = useNavigate()
     const { user } = useAuthStore()
     const queryClient = useQueryClient()
-    
+
     const joinMutation = useMutation({
         mutationFn: () => requestToJoinTeam(group.id, parseInt(user?.id || '0')),
         onSuccess: () => {
@@ -25,7 +25,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
             queryClient.invalidateQueries({ queryKey: ['teams'] })
         },
     })
-    
+
     const cancelMutation = useMutation({
         mutationFn: () => cancelJoinRequest(group.id, parseInt(user?.id || '0')),
         onSuccess: () => {
@@ -33,25 +33,25 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
             queryClient.invalidateQueries({ queryKey: ['teams'] })
         },
     })
-    
+
     const handleOpenClick = () => {
         navigate(`/my-groups/${group.id}`)
     }
-    
+
     const handleJoinClick = () => {
         if (user?.id) {
             joinMutation.mutate()
         }
     }
-    
+
     const handleCancelClick = () => {
         if (user?.id) {
             cancelMutation.mutate()
         }
     }
-    
+
     const renderButton = () => {
-        if (group.teamMemberStatus === TeamMemberStatus.STATUS_LEADER || 
+        if (group.teamMemberStatus === TeamMemberStatus.STATUS_LEADER ||
             group.teamMemberStatus === TeamMemberStatus.STATUS_MEMBER) {
             return (
                 <Button
@@ -63,7 +63,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
                 </Button>
             )
         }
-        
+
         if (group.teamMemberStatus === TeamMemberStatus.STATUS_PENDING) {
             return (
                 <Button
@@ -77,7 +77,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
                 </Button>
             )
         }
-        
+
         return (
             <Button
                 size="sm"
@@ -89,7 +89,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
             </Button>
         )
     }
-    
+
     return (
         <div className="bg-card rounded-lg overflow-hidden border border-border hover:border-border transition-colors cursor-pointer flex flex-col h-full">
             {/* Card Header */}
@@ -105,7 +105,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
                 <div className="flex-1 min-w-0">
                     <h3 className="text-foreground font-semibold text-lg">{group.title}</h3>
                     <p className="text-muted-foreground text-sm">
-                        {group.game}
+                        {typeof group.game === 'object' ? (group.game as any).name : group.game}
                         <br/>
                         by <span className="text-primary">{group.teamLeaderUsername}</span>
                     </p>
@@ -116,26 +116,26 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
             <div className="p-4 space-y-3 flex-1 flex flex-col">
                 <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 text-xs font-medium rounded ${
-                        group.autoAccept 
-                            ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
+                        group.autoAccept
+                            ? 'bg-green-500/10 text-green-600 dark:text-green-400'
                             : 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
                     }`}>
                         {group.autoAccept ? 'Auto-Accept' : 'Manual Approval'}
                     </span>
                 </div>
-                
+
                 <p className="text-muted-foreground text-sm line-clamp-4 leading-relaxed">
                     {group.description}
                 </p>
 
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-muted-foreground text-xs font-medium">TAGS</span>
-                    {group.tags.map((tag) => (
+                    {group.tags.map((tag: any) => (
                         <span
-                            key={tag}
+                            key={tag.id || tag}
                             className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded"
                         >
-                            {tag}
+                            {typeof tag === 'object' ? tag.name : tag}
                         </span>
                     ))}
                 </div>
@@ -154,4 +154,3 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
         </div>
     )
 }
-

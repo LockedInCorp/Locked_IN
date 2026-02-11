@@ -39,7 +39,7 @@ export interface UpdateAvailabilityRequest {
 }
 
 export interface GameProfile {
-    id: number
+    id?: number
     userId: number
     gameId: number
     gameName: string
@@ -63,8 +63,6 @@ export interface GameSuggestion {
     label: string
 }
 
-
-
 export interface ExperienceTag {
     id: number
     name: string
@@ -74,7 +72,6 @@ export interface PreferenceTag {
     id: number
     name: string
 }
-
 
 export const ChatType = {
     Direct: "Direct",
@@ -220,4 +217,23 @@ export interface TeamJoinStatusDto {
     teamId: number;
     teamName: string;
     status: number;
+}
+
+export interface CreateGameProfileRequest {
+    gameId: number;
+    experienceTagId: number;
+    gameExpId: number;
+    rank?: number;
+    isFavorite: boolean;
+    role?: string;
+    inGameNickname?: string;
+}
+
+export interface UpdateGameProfileRequest {
+    experienceTagId: number;
+    gameExpId: number;
+    rank?: number;
+    isFavorite: boolean;
+    role?: string;
+    inGameNickname?: string;
 }
