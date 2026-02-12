@@ -7,7 +7,7 @@ import { Button } from "@/lib/components/ui/button"
 import { getImageUrl } from "@/utils/imageUtils"
 import { useFriends } from "@/hooks/friendship/useFriends"
 import { useAuthStore } from "@/stores/authStore"
-import { updateUserAvailability } from "@/api/api"
+import { updateUserAvailability, createDirectChat } from "@/api/api"
 import { isCellAvailable, toggleHour } from "@/utils/friendship_and_availability/availabilityUtils"
 import { formatDate, formatTimeAgo } from "@/utils/dateUtils"
 import { Check, X, MessageCircle, User } from "lucide-react"
@@ -35,6 +35,16 @@ export default function Friends() {
     const [editingAvailability, setEditingAvailability] = useState<Record<string, string[]>>({})
     const [hasChanges, setHasChanges] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+
+    const handleStartDirectChat = async (targetUserId: number) => {
+        try {
+            const chat = await createDirectChat(targetUserId)
+            navigate(`/my-groups/${chat.id}`)
+        } catch (err) {
+            console.error('Failed to create direct chat:', err)
+            alert(err instanceof Error ? err.message : 'Failed to create direct chat')
+        }
+    }
 
     useEffect(() => {
         if (selectedTab === "user") {
@@ -146,6 +156,7 @@ export default function Friends() {
                                     <Button
                                         size="icon"
                                         variant="ghost"
+                                        onClick={() => handleStartDirectChat(friend.friendId)}
                                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
                                     >
                                         <MessageCircle className="h-4 w-4" />

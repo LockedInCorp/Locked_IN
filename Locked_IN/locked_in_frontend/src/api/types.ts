@@ -171,6 +171,7 @@ export interface GetChatDetails {
     participantCount: number;
     chatIconUrl?: string;
     messageDtos: GetMessageDto[];
+    friendId?: number;
 }
 
 export interface GroupDetailsDto {

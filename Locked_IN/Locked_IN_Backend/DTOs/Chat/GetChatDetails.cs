@@ -11,4 +11,5 @@ public class GetChatDetails
     public int ParticipantCount { get; set; }
     public string? ChatIconUrl { get; set; }
     public List<GetMessageDto> MessageDtos { get; set; } = new();
+    public int? FriendId { get; set; }
 }

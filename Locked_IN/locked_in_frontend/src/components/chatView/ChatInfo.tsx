@@ -60,8 +60,9 @@ export function ChatInfo() {
     }
 
     const handleViewProfile = () => {
-        // TODO: Implement navigation to friend's profile
-        // navigate(`/profile/${chatDetails?.id}`)
+        if (chatDetails?.friendId) {
+            navigate(`/friend/${chatDetails.friendId}`)
+        }
     }
 
     const handleAcceptRequest = async (userId: number) => {

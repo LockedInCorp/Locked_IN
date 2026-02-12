@@ -221,6 +221,7 @@ public class ChatService : IChatService
             var otherParticipant = participant.Chat.Chatparticipants.FirstOrDefault(cp => cp.UserId != userId);
             chatDto.ChatName = otherParticipant?.User.UserName;
             chatDto.ChatIconUrl = otherParticipant?.User.AvatarUrl;
+            chatDto.FriendId = otherParticipant?.UserId;
         }
         else if (participant.Chat.Type.Equals(nameof(ChatType.Team)) && participant.Chat.TeamId != null)
         {
