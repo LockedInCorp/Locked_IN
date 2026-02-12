@@ -49,15 +49,18 @@ export function useFriendProfile(friendId: number) {
             let avatarUrl = getImageUrl(extractAvatarPath(profile as any))
             if (!avatarUrl) avatarUrl = profile.avatarURL || "/assets/diverse-user-avatars.png"
 
-            const gameProfiles: GameProfile[] = Array.isArray(gameProfilesData) ? gameProfilesData.map((gp: any) => ({
-                gameId: gp.id || gp.gameId,
+            const rawProfiles = Array.isArray(gameProfilesData) ? gameProfilesData : (gameProfilesData?.data ?? [])
+            const gameProfiles: GameProfile[] = rawProfiles.map((gp: any) => ({
+                id: gp.id,
+                gameId: gp.gameId,
                 gameName: gp.gameName || gp.name || "Unknown Game",
-                preferences: [],
-                experience: gp.rank || "",
-                inGameNickname: gp.gameName,
-                rank: gp.rank || "",
-                role: ""
-            })) : [];
+                preferences: gp.preferences ?? [],
+                experienceTagId: gp.experienceTagId,
+                experience: gp.experienceTagId,
+                inGameNickname: gp.inGameNickname ?? "",
+                rank: gp.rank ?? "",
+                role: gp.role ?? ""
+            }));
 
             setProfileData({
                 nickname: profile.username,
