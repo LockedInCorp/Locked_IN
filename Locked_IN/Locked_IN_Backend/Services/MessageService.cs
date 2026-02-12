@@ -45,6 +45,11 @@ public class MessageService : IMessageService
             throw new ForbiddenException("You are not a participant in this chat.");
         }
 
+        if (participant.HasLeft)
+        {
+            throw new ForbiddenException("You have left this chat.");
+        }
+
         var attachmentUrl = "";
         if (sendMessageDto.AttachmentFile != null)
         {
@@ -111,12 +116,15 @@ public class MessageService : IMessageService
         {
             throw new NotFoundException($"Message with id {editMessageDto.MessageId} not found.");
         }
-    
         if (message.ChatparticipantChatparticipant.UserId != userId)
         {
             throw new ForbiddenException("You can only edit your own messages.");
         }
-    
+
+        if (message.ChatparticipantChatparticipant.HasLeft)
+        {
+            throw new ForbiddenException("You have left this chat.");
+        }
         if (message.IsDeleted)
         {
             throw new ConflictException("Message is already deleted.");
@@ -148,7 +156,10 @@ public class MessageService : IMessageService
         {
             throw new ForbiddenException("You can only delete your own messages.");
         }
-    
+        if (message.ChatparticipantChatparticipant.HasLeft)
+        {
+            throw new ForbiddenException("You have left this chat.");
+        }
         if (message.IsDeleted)
         {
             throw new ConflictException("Message is already deleted.");

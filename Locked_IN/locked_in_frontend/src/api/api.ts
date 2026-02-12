@@ -315,12 +315,12 @@ export const leaveTeam = async (teamId: number): Promise<void> => {
     }
 }
 
-// TODO: Add backend API endpoint for removing a member from a team (e.g. DELETE /teams/{teamId}/members/{userId})
-export const removeTeamMember = async (teamId: number, userId: number): Promise<void> => {
+// Kick a member from a team
+export const kickMember = async (teamId: number, userId: number): Promise<void> => {
     try {
-        await apiClient.delete(`/teams/${teamId}/members/${userId}`)
+        await apiClient.delete(`/teams/${teamId}/users/${userId}/kick`)
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to remove member from team')
+        throw new Error(error.response?.data?.message || 'Failed to kick member from team')
     }
 }
 

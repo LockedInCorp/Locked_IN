@@ -10,7 +10,7 @@ import { getImageUrl } from "@/utils/imageUtils"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
 import { useGroupDetails } from "@/hooks/chat/useGroupDetails"
 import { useJoinRequests } from "@/hooks/chat/useJoinRequests"
-import { acceptJoinRequest, declineJoinRequest, leaveTeam, getInviteToken, removeTeamMember } from "@/api/api"
+import { acceptJoinRequest, declineJoinRequest, leaveTeam, getInviteToken, kickMember } from "@/api/api"
 import { useAuthStore } from "@/stores/authStore"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -23,8 +23,6 @@ export function ChatInfo() {
     
     const [membersExpanded, setMembersExpanded] = useState(true)
     const [requestsExpanded, setRequestsExpanded] = useState(true)
-    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-    const [memberToRemove, setMemberToRemove] = useState<{ id: number; username: string } | null>(null)
     const [inviteToken, setInviteToken] = useState<string | null>(null)
     const [copied, setCopied] = useState(false)
 
@@ -99,20 +97,15 @@ export function ChatInfo() {
         }
     }
 
-    const handleRemoveMemberClick = (member: { id: number; username: string }) => {
-        setMemberToRemove(member)
-        setDeleteConfirmOpen(true)
-    }
-
-    const handleConfirmRemoveMember = async () => {
-        if (!teamId || !memberToRemove) return
-        try {
-            await removeTeamMember(teamId, memberToRemove.id)
-            refetchGroup()
-        } catch (error) {
-            console.error("Failed to remove member:", error)
-        } finally {
-            setMemberToRemove(null)
+    const handleKickMember = async ({ id }: { id: number }) => {
+        if (!teamId) return
+        if (window.confirm("Are you sure you want to kick this member?")) {
+            try {
+                await kickMember(teamId, id)
+                refetchGroup()
+            } catch (error) {
+                console.error("Failed to kick member:", error)
+            }
         }
     }
 
@@ -276,7 +269,7 @@ export function ChatInfo() {
                                             className="h-6 w-6 text-muted-foreground hover:text-foreground"
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                handleRemoveMemberClick({ id: member.id, username: member.username })
+                                                handleKickMember({ id: member.id})
                                             }}
                                         >
                                             <UserMinus className="h-3 w-3" />
