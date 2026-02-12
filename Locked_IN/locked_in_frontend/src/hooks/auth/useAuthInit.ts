@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { persist } from '@/utils/auth/persistance';
+import { clearProfileStores } from '@/utils/clearProfileStores';
 import { getUserProfile } from '@/api/api';
 import { getImageUrl, extractAvatarPath } from '@/utils/imageUtils';
 
@@ -32,6 +33,7 @@ export function useAuthInit() {
         .catch((error) => {
           console.error('Failed to refresh user profile:', error);
           persist.clearUserData();
+          clearProfileStores();
           setUser(null);
           setInitialized(true);
         });

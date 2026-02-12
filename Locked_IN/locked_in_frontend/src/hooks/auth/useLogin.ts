@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import { extractAvatarPath, getImageUrl } from '@/utils/imageUtils';
 import { persist } from '@/utils/auth/persistance';
+import { clearProfileStores } from '@/utils/clearProfileStores';
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ export function useLogin() {
     mutationFn: loginUser,
     onSuccess: async (data) => {
       if (data) {
+        clearProfileStores();
+
         const avatarUrl = getImageUrl(extractAvatarPath(data as any))
         
         const userData = {
