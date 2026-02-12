@@ -267,7 +267,6 @@ public class ChatService : IChatService
         if (existingParticipant != null)
         {
             existingParticipant.HasLeft = false;
-            // Update joined at time? Usually a good idea when re-joining
             existingParticipant.JoinedAt = DateTimeHelper.ToUnspecified(DateTime.UtcNow);
             await _participantRepository.UpdateParticipantAsync(existingParticipant);
         }

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
+import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X, Link, Copy } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ChatType } from "@/api/types"
@@ -10,7 +10,7 @@ import { getImageUrl } from "@/utils/imageUtils"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
 import { useGroupDetails } from "@/hooks/chat/useGroupDetails"
 import { useJoinRequests } from "@/hooks/chat/useJoinRequests"
-import { acceptJoinRequest, declineJoinRequest, leaveTeam } from "@/api/api"
+import { acceptJoinRequest, declineJoinRequest, leaveTeam, getInviteToken } from "@/api/api"
 import { useAuthStore } from "@/stores/authStore"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -23,6 +23,8 @@ export function ChatInfo() {
     
     const [membersExpanded, setMembersExpanded] = useState(true)
     const [requestsExpanded, setRequestsExpanded] = useState(true)
+    const [inviteToken, setInviteToken] = useState<string | null>(null)
+    const [copied, setCopied] = useState(false)
 
     const toggleMembersExpanded = () => setMembersExpanded(!membersExpanded)
     const toggleRequestsExpanded = () => setRequestsExpanded(!requestsExpanded)
@@ -35,6 +37,20 @@ export function ChatInfo() {
     
     const isLeader = user?.id && group?.leader?.id ? user.id === group.leader.id.toString() : false
     const { requests, isLoading: requestsLoading, refetch: refetchRequests } = useJoinRequests(teamId, isLeader)
+
+    useEffect(() => {
+        const fetchToken = async () => {
+            if (isLeader && teamId) {
+                try {
+                    const response = await getInviteToken(teamId)
+                    setInviteToken(response.token)
+                } catch (error) {
+                    console.error("Failed to fetch invite token:", error)
+                }
+            }
+        }
+        fetchToken()
+    }, [isLeader, teamId])
 
     const handleEdit = () => {
         const groupId = teamId || "1"
@@ -78,6 +94,14 @@ export function ChatInfo() {
                 console.error("Failed to leave team:", error)
             }
         }
+    }
+
+    const handleCopyLink = () => {
+        if (!inviteToken) return
+        const joinLink = `${window.location.origin}/join?token=${inviteToken}`
+        navigator.clipboard.writeText(joinLink)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
     }
 
     if (isChatLoading) return <div className="p-6 text-center text-muted-foreground">Loading info...</div>
@@ -169,6 +193,29 @@ export function ChatInfo() {
                         <span className="px-3 py-1 bg-muted text-foreground text-sm rounded-full">{group.game.name}</span>
                 </div>
             </div>
+
+            {/* Private Join Link Section */}
+            {isLeader && inviteToken && (
+                <div className="px-6 py-4 border-b border-border">
+                    <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-foreground">
+                        <Link className="h-4 w-4" />
+                        <span>Private join link</span>
+                    </div>
+                    <div className="flex gap-2">
+                        <div className="flex-1 bg-muted rounded-md px-3 py-2 text-xs text-muted-foreground truncate border border-border flex items-center">
+                            {`${window.location.origin}/join?token=${inviteToken}`}
+                        </div>
+                        <Button 
+                            size="sm" 
+                            variant="secondary" 
+                            className="h-9 px-3"
+                            onClick={handleCopyLink}
+                        >
+                            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {/* Members Section */}
             <div className="px-6 py-4 border-b border-border">

@@ -33,8 +33,6 @@ public class MessageController : ControllerBase
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-        
-        // Persistence First: Save message to database
         var result = await _messageService.SendMessageAsync(userId, sendMessageDto);
 
         return CreatedAtAction(nameof(GetChatMessages), new { chatId = sendMessageDto.ChatId }, result);
@@ -66,8 +64,6 @@ public class MessageController : ControllerBase
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-        
-        // Persistence First: Update message in database
         var result = await _messageService.EditMessageAsync(userId, editMessageDto);
     
         return Ok(result);
@@ -84,8 +80,6 @@ public class MessageController : ControllerBase
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-        
-        // Persistence First: Soft delete in database
         await _messageService.DeleteMessageAsync(userId, messageId);
     
         return NoContent();

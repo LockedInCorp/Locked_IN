@@ -226,7 +226,6 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("user_pk");
-            // Use PostgreSQL identity column for proper auto-increment
             entity.Property(e => e.Id).UseIdentityColumn();
         });
 

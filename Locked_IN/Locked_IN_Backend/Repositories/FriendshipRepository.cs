@@ -43,9 +43,8 @@ public class FriendshipRepository : IFriendshipRepository
 
     public async Task<List<Friendship>> GetPendingIncomingRequestsAsync(int userId)
     {
-        // Запросы где User2 - это текущий пользователь, и статус Pending
         return await _context.Friendships
-            .Include(f => f.User) // Загружаем инфо о том, КТО отправил (UserId)
+            .Include(f => f.User)
             .Where(f => f.User2Id == userId && f.StatusId == (int)FriendshipStatusEnum.Pending)
             .ToListAsync();
     }

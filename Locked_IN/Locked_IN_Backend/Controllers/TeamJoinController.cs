@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.Interfaces;
 using Locked_IN_Backend.Services;
+using Locked_IN_Backend.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +14,14 @@ namespace Locked_IN_Backend.Controllers;
 public class TeamJoinController : ControllerBase
 {
     private readonly ITeamMemberService _teamMemberService;
+    private readonly IInviteTokenService _inviteTokenService;
+    private readonly IChatService _chatService;
 
-    public TeamJoinController(ITeamMemberService teamMemberService)
+    public TeamJoinController(ITeamMemberService teamMemberService, IInviteTokenService inviteTokenService, IChatService chatService)
     {
         _teamMemberService = teamMemberService;
+        _inviteTokenService = inviteTokenService;
+        _chatService = chatService;
     }
 
     /// <summary>
@@ -132,5 +138,39 @@ public class TeamJoinController : ControllerBase
     {
         var members = await _teamMemberService.GetActiveTeamMembersAsync(teamId);
         return Ok(members);
+    }
+
+    /// <summary>
+    /// Generate an invite token for a team (Leader only).
+    /// </summary>
+    [Authorize]
+    [HttpGet("teams/{teamId}/invite-token")]
+    public async Task<IActionResult> GetInviteToken(int teamId)
+    {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+        
+        await _teamMemberService.CheckInviteAvailablitity(teamId, userId);
+        
+        var token = _inviteTokenService.GenerateInviteToken(teamId);
+        return Ok(new { Token = token });
+    }
+
+    /// <summary>
+    /// Join a team using an invite token.
+    /// </summary>
+    [Authorize]
+    [HttpPost("teams/join-with-token")]
+    public async Task<IActionResult> JoinTeamWithToken([FromQuery] string token)
+    {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var teamId = _inviteTokenService.DecodeInviteToken(token);
+        var chatId = await _teamMemberService.JoinTeamDirectlyAsync(teamId, userId);
+
+        return Ok(new { Message = "Successfully joined the team via invite token.", TeamId = teamId, ChatId = chatId });
     }
 }

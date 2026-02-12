@@ -92,8 +92,6 @@ public class ChatController : ControllerBase
         var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-        
-        // Persistence First: Update read status in database
         await _chatService.MarkChatAsReadAsync(userId, chatId);
 
 

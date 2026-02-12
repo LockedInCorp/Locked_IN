@@ -290,6 +290,26 @@ export const leaveTeam = async (teamId: number): Promise<void> => {
     }
 }
 
+export const getInviteToken = async (teamId: number): Promise<Types.InviteTokenResponse> => {
+    try {
+        const response = await apiClient.get<Types.InviteTokenResponse>(`/teams/${teamId}/invite-token`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to get invite token')
+    }
+}
+
+export const joinWithToken = async (token: string): Promise<Types.JoinTeamWithTokenResponse> => {
+    try {
+        const response = await apiClient.post<Types.JoinTeamWithTokenResponse>(`/teams/join-with-token`, null, {
+            params: { token }
+        })
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to join team with token')
+    }
+}
+
 const createTeam = async (data: Types.CreateGroupRequest): Promise<void> => {
     try {
         const formData = new FormData()

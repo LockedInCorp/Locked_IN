@@ -206,4 +206,5 @@ void RegisterServices()
     builder.Services.AddScoped<IChatHubService, ChatHubService>();
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
     builder.Services.AddScoped<IJwtService, JwtService>();
+    builder.Services.AddScoped<IInviteTokenService, InviteTokenService>();
 }

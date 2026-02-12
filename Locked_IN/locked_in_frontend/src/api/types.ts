@@ -264,6 +264,14 @@ export interface TeamJoinResponceDto {
     requestTimestamp: string;
 }
 
+export interface InviteTokenResponse {
+    token: string;
+}
+
+export interface JoinTeamWithTokenResponse {
+    chatId: number;
+}
+
 
 export interface SendMessageRequest {
     chatId: number;

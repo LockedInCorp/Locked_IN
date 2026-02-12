@@ -56,6 +56,7 @@ public class ExceptionHandlingMiddleware
                 result = JsonSerializer.Serialize(new { message = unauthorizedException.Message });
                 break;
             default:
+                code = HttpStatusCode.InternalServerError;
                 result = JsonSerializer.Serialize(new { message = exception.Message });
                 break;
         }
