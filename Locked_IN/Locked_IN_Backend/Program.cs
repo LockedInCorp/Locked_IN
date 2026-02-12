@@ -21,6 +21,8 @@ using Microsoft.Data.SqlClient;
 using Minio;
 using Locked_IN_Backend.DTOs.GameProfile;
 using CommunicationService = Locked_IN_Backend.Services.CommunicationService;
+using Minio;
+using Minio.DataModel.Args;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -113,11 +115,17 @@ builder.Services.AddCors(options =>
 
 RegisterServices();
 
-builder.Services.AddMinio(configureSource => configureSource
-    .WithEndpoint(builder.Configuration["Minio:Endpoint"])
-    .WithCredentials(builder.Configuration["Minio:AccessKey"], builder.Configuration["Minio:SecretKey"])
-    .WithSSL(bool.Parse(builder.Configuration["Minio:Secure"] ?? "false"))
-    .Build());
+builder.Services.AddSingleton<IMinioClient>(sp =>
+{
+    var config = builder.Configuration;
+    return new MinioClient()
+        .WithEndpoint(config["Minio:Endpoint"])
+        .WithCredentials(config["Minio:AccessKey"], config["Minio:SecretKey"])
+        .WithSSL(config.GetValue<bool>("Minio:Secure"))
+        .Build();
+});
+
+builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
 
 builder.Services.AddScoped<SqlConnection>(sp =>
 {
@@ -159,12 +167,72 @@ if (!app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
 
 
 app.MapHub<ChatHub>("/chathub");
 app.MapHub<TeamJoinHub>("/teamjoinhub");
 app.MapHub<TeamRequestHub>("/teamrequesthub");
+
+app.MapFallbackToFile("index.html");
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+        logger.LogInformation("--> Database migrations applied.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "--> Database migration failed.");
+    }
+
+    try
+    {
+        var minioClient = services.GetRequiredService<IMinioClient>();
+        
+        var publicBuckets = new[] { "useravatars", "teamicons" };
+
+        foreach (var bucketName in publicBuckets)
+        {
+            var bucketExistsArgs = new BucketExistsArgs().WithBucket(bucketName);
+            bool found = await minioClient.BucketExistsAsync(bucketExistsArgs);
+
+            if (!found)
+            {
+                await minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
+                logger.LogInformation($"--> Created bucket: {bucketName}");
+            }
+
+            string policy = $@"{{
+              ""Version"": ""2012-10-17"",
+              ""Statement"": [
+                {{
+                  ""Effect"": ""Allow"",
+                  ""Principal"": {{""AWS"": [""*""]}},
+                  ""Action"": [""s3:GetObject""],
+                  ""Resource"": [""arn:aws:s3:::{bucketName}/*""]
+                }}
+              ]
+            }}";
+
+            await minioClient.SetPolicyAsync(new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy));
+            logger.LogInformation($"--> Public policy set for: {bucketName}");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "--> MinIO initialization error.");
+    }
+}
 
 app.Run();
 

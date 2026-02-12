@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
 import { Button } from "@/lib/components/ui/button"
 import { Input } from "@/lib/components/ui/input"
 import { Label } from "@/lib/components/ui/label"
+import { getImageUrl } from "@/utils/imageUtils"
 
 type RegisterPart1Props = {
     email: string
@@ -153,7 +154,7 @@ export default function RegisterPart1({
                 <Label className="text-sm text-muted-foreground">Insert your profile picture</Label>
                 <div className="flex items-center gap-4">
                     <Avatar className="h-20 w-20">
-                        <AvatarImage src={avatarPreview || avatarUrl || "/assets/diverse-user-avatars.png"} />
+                        <AvatarImage src={avatarPreview || getImageUrl(avatarUrl) || "/assets/diverse-user-avatars.png"} />
                         <AvatarFallback>{avatarFallback}</AvatarFallback>
                     </Avatar>
                     <div>
