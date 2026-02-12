@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Locked_IN_Backend.DTOs.Team;
 using Locked_IN_Backend.Data.Entities;
 using Locked_IN_Backend.Misc.Enum;
+using Locked_IN_Backend.Exceptions;
 
 namespace Locked_IN_Backend.Services;
 
@@ -130,5 +131,60 @@ public class TeamService : ITeamService
             // await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task<GetTeamDto> UpdateTeamAsync(int teamId, UpdateTeamDto dto, int userId)
+    {
+        var team = await _teamRepository.GetTeamWithDetailsByIdAsync(teamId);
+        if (team == null)
+        {
+            throw new NotFoundException($"Team with ID {teamId} not found");
+        }
+
+        var isLeader = team.TeamMembers.Any(tm => tm.UserId == userId && tm.Isleader);
+        if (!isLeader)
+        {
+            throw new ForbiddenException("Only the team leader can update team details");
+        }
+
+        _mapper.Map(dto, team);
+
+        if (dto.PreviewImage != null)
+        {
+            team.IconUrl = await _fileUploadService.UploadTeamIconAsync(dto.PreviewImage);
+        }
+
+        if (dto.Tags != null)
+        {
+            team.TeamPreferencetagRelations.Clear();
+            foreach (var tagId in dto.Tags)
+            {
+                team.TeamPreferencetagRelations.Add(new TeamPreferencetagRelation
+                {
+                    PreferenceTagId = tagId
+                });
+            }
+        }
+
+        if (dto.CommunicationService.HasValue)
+        {
+            if (team.TeamCommunicationService == null)
+            {
+                team.TeamCommunicationService = new TeamCommunicationService();
+            }
+
+            team.TeamCommunicationService.CommunicationServiceId = dto.CommunicationService.Value;
+            team.TeamCommunicationService.Link = dto.CommunicationServiceLink ?? string.Empty;
+        }
+        else
+        {
+            team.TeamCommunicationService = null;
+        }
+
+        await _teamRepository.UpdateTeam(team);
+        await _teamRepository.SaveChangesAsync();
+
+        var updatedTeam = await _teamRepository.GetTeamWithDetailsByIdAsync(teamId);
+        return _mapper.Map<GetTeamDto>(updatedTeam);
     }
 }

@@ -179,6 +179,7 @@ void RegisterValidationServices()
     builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateAvailabilityDto>, UpdateAvailabilityDtoValidator>();
     builder.Services.AddScoped<IValidator<CreateTeamDto>, CreateTeamDtoValidator>();
+    builder.Services.AddScoped<IValidator<UpdateTeamDto>, UpdateTeamDtoValidator>();
     builder.Services.AddScoped<IValidator<CreateGameProfileDto>, CreateGameProfileDtoValidator>();
     builder.Services.AddScoped<IValidator<UpdateGameProfileDto>, UpdateGameProfileDtoValidator>();
 }
@@ -207,4 +208,5 @@ void RegisterServices()
     builder.Services.AddScoped<IFileUploadService, MinioFileUploadService>();
     builder.Services.AddScoped<IJwtService, JwtService>();
     builder.Services.AddScoped<IInviteTokenService, InviteTokenService>();
+    RegisterValidationServices();
 }

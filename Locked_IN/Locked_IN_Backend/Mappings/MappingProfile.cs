@@ -41,6 +41,23 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.TeamPreferencetagRelations, opt => opt.Ignore())
             .ForMember(dest => dest.TeamCommunicationService, opt => opt.Ignore());
 
+        CreateMap<UpdateTeamDto, Team>()
+            .ForMember(dest => dest.MaxPlayerCount, opt => opt.MapFrom(src => src.MaxMembers))
+            .ForMember(dest => dest.ExperienceTagId, opt => opt.MapFrom(src => src.Experience))
+            .ForMember(dest => dest.IsAutoaccept, opt => opt.MapFrom(src => src.AutoAccept))
+            .ForMember(dest => dest.MinCompScore, opt => opt.MapFrom(src => src.MinCompetitiveScore))
+            .ForMember(dest => dest.Isprivate, opt => opt.MapFrom(src => src.IsPrivate))
+            .ForMember(dest => dest.IconUrl, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.CreationTimestamp, opt => opt.Ignore())
+            .ForMember(dest => dest.GameId, opt => opt.Ignore())
+            .ForMember(dest => dest.Chats, opt => opt.Ignore())
+            .ForMember(dest => dest.ExperienceTag, opt => opt.Ignore())
+            .ForMember(dest => dest.Game, opt => opt.Ignore())
+            .ForMember(dest => dest.TeamMembers, opt => opt.Ignore())
+            .ForMember(dest => dest.TeamPreferencetagRelations, opt => opt.Ignore())
+            .ForMember(dest => dest.TeamCommunicationService, opt => opt.Ignore());
+
         CreateMap<RegisterDto, User>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
