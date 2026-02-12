@@ -3,6 +3,7 @@ import { logoutUser } from '@/api/api';
 import { useAuthStore } from '@/stores/authStore';
 import { useNavigate } from 'react-router-dom';
 import { persist } from '@/utils/auth/persistance';
+import { clearProfileStores } from '@/utils/clearProfileStores';
 
 export function useLogout() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export function useLogout() {
     mutationFn: () => logoutUser(),
     onSuccess: () => {
       persist.clearUserData();
+      clearProfileStores();
       logout();
       navigate('/');
     },
@@ -19,6 +21,7 @@ export function useLogout() {
       console.error('Logout error:', error);
 
       persist.clearUserData();
+      clearProfileStores();
       logout();
       navigate('/');
     },

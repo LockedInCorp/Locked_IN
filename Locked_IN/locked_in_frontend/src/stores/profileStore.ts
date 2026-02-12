@@ -33,6 +33,7 @@ interface ProfileState {
     
     startEditing: () => void
     cancelEditing: () => void
+    resetProfile: () => void
 }
 
 const initialProfileData: ProfileData = {
@@ -91,6 +92,17 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
             avatarPreview: null,
             avatarFile: null
         })
-    }
+    },
+
+    resetProfile: () => set({
+        isEditing: false,
+        profileData: initialProfileData,
+        avatarPreview: null,
+        avatarFile: null,
+        profileDataBeforeEdit: initialProfileData,
+        expandedGames: new Set(),
+        selectedGame: "",
+        customGame: ""
+    })
 }))
 

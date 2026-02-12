@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { persist } from '@/utils/auth/persistance';
+import { clearProfileStores } from '@/utils/clearProfileStores';
 
 export const API_BASE_URL = 'http://localhost:5122/api';
 export const API_BASE_URL_HTTPS = 'https://localhost:7252/api';
@@ -29,7 +30,8 @@ const setupResponseInterceptor = (client: typeof apiClient) => {
     (error: AxiosError) => {
       if (error.response?.status === 401) {
         persist.clearUserData();
-        
+        clearProfileStores();
+
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login';
         }

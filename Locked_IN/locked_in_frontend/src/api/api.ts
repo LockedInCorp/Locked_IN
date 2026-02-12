@@ -119,7 +119,7 @@ export const addGameProfile = async (userId: number, gameId: number): Promise<Ty
 
 export const getUserGameProfiles = async (userId: number): Promise<Types.GameProfileResponse> => {
     try {
-        const response = await apiClient.get<Types.GameProfileResponse>(`/game-profile/favorites/${userId}`)
+        const response = await apiClient.get<Types.GameProfileResponse>(`/game-profile/user/${userId}`)
         return response.data
     } catch (error: any) {
         const errorData = error.response?.data || { 

@@ -5,6 +5,7 @@ import { validateEmailFormat, validateNicknameFormat, validatePasswordFormat, pa
 import { registerUser, loginUser } from "@/api/api"
 import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
 import { persist } from "@/utils/auth/persistance"
+import { clearProfileStores } from "@/utils/clearProfileStores"
 
 export function useRegister() {
     const navigate = useNavigate()
@@ -168,6 +169,7 @@ export function useRegister() {
                             avatarUrl: avatarUrl,
                         }
                         
+                        clearProfileStores()
                         persist.setUserData(userData)
                         setUser(userData)
                         resetRegisterForm()
