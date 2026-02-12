@@ -1,9 +1,9 @@
-﻿services:
+services:
   app:
     build: .                 
     container_name: locked_in_app
     ports:
-      - "5000:8080"         
+      - "5100:8080"         
     depends_on:
       - db
       - minio

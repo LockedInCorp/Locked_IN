@@ -199,7 +199,7 @@ using (var scope = app.Services.CreateScope())
     {
         var minioClient = services.GetRequiredService<IMinioClient>();
         
-        var publicBuckets = new[] { "useravatars", "teamicons" };
+        var publicBuckets = new[] { "useravatars", "teamicons", "attachments" };
 
         foreach (var bucketName in publicBuckets)
         {
