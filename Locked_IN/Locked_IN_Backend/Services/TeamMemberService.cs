@@ -245,22 +245,49 @@ public class TeamMemberService : ITeamMemberService
             }
         }
 
+        await RemoveMemberFromChatsAsync(member);
+
+        await _teamMemberRepository.DeleteTeamMemberAsync(member);
+        await _teamMemberRepository.SaveChangesAsync();
+    }
+
+    public async Task KickMemberAsync(int leaderId, int teamId, int userIdToKick)
+    {
+        if (leaderId == userIdToKick)
+        {
+            throw new BadRequestException("You cannot kick yourself. Use leave instead.");
+        }
+
+        await EnsureUserIsLeaderAsync(teamId, leaderId);
+
+        var member = await _teamMemberRepository.GetTeamMemberWithTeamByIdAsync(teamId, userIdToKick);
+
+        if (member == null || (member.MemberStatusId != (int)TeamMemberStatus.STATUS_MEMBER && member.MemberStatusId != (int)TeamMemberStatus.STATUS_LEADER))
+        {
+            throw new NotFoundException("User is not a member of this team.");
+        }
+
+        await RemoveMemberFromChatsAsync(member);
+
+        await _teamMemberRepository.DeleteTeamMemberAsync(member);
+        await _teamMemberRepository.SaveChangesAsync();
+    }
+
+    private async Task RemoveMemberFromChatsAsync(TeamMember member)
+    {
         if (member.Team.Chats != null && member.Team.Chats.Any())
         {
             foreach (var chat in member.Team.Chats)
             {
                 try
                 {
-                    await _chatService.LeaveChatGroupAsync(userId, chat.Id);
+                    await _chatService.LeaveChatGroupAsync(member.UserId, chat.Id);
                 }
                 catch (ForbiddenException)
                 {
                 }
             }
         }
-
-        await _teamMemberRepository.DeleteTeamMemberAsync(member);
-        await _teamMemberRepository.SaveChangesAsync();
     }
 
     public async Task<int> JoinTeamDirectlyAsync(int teamId, int userId)

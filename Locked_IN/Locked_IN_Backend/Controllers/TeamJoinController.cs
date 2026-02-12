@@ -133,6 +133,25 @@ public class TeamJoinController : ControllerBase
         return Ok(new { Message = "Successfully left the team and its associated chat." });
     }
 
+    /// <summary>
+    /// Kick a member from a team (Leader only).
+    /// </summary>
+    /// <param name="teamId">The ID of the team.</param>
+    /// <param name="userId">The ID of the user to kick.</param>
+    /// <returns>Confirmation message.</returns>
+    [Authorize]
+    [HttpDelete("teams/{teamId}/users/{userId}/kick")]
+    public async Task<IActionResult> KickMember(int teamId, int userId)
+    {
+        var leaderIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(leaderIdClaim)) return Unauthorized();
+        var leaderId = int.Parse(leaderIdClaim);
+
+        await _teamMemberService.KickMemberAsync(leaderId, teamId, userId);
+
+        return Ok(new { Message = "User successfully kicked from the team." });
+    }
+
     [HttpGet("teams/{teamId}/members")]
     public async Task<IActionResult> GetActiveTeamMembers(int teamId)
     {
