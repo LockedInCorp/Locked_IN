@@ -326,6 +326,11 @@ export interface SendMessageRequest {
     attachmentFile?: File | null;
 }
 
+export interface EditMessageRequest {
+    messageId: number;
+    content: string;
+}
+
 export interface GameOption {
     id: string
     label: string

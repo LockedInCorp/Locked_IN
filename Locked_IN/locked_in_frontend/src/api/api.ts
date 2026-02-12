@@ -197,6 +197,15 @@ export const getChatDetails = async (id: number): Promise<Types.GetChatDetails> 
     }
 }
 
+export const createDirectChat = async (targetUserId: number): Promise<Types.GetChatDetails> => {
+    try {
+        const response = await apiClient.post<Types.GetChatDetails>(`/Chat/direct/${targetUserId}`)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to create direct chat')
+    }
+}
+
 export const sendMessage = async (data: Types.SendMessageRequest): Promise<void> => {
     try {
         const formData = new FormData();
@@ -212,6 +221,22 @@ export const sendMessage = async (data: Types.SendMessageRequest): Promise<void>
         });
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to send message');
+    }
+}
+
+export const editMessage = async (data: Types.EditMessageRequest): Promise<void> => {
+    try {
+        await apiClient.put(`/Message`, data);
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to edit message');
+    }
+}
+
+export const deleteMessage = async (messageId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/Message/${messageId}`);
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to delete message');
     }
 }
 
@@ -403,5 +428,29 @@ export const deleteFriendship = async (friendId: number): Promise<void> => {
             message: 'Failed to delete friendship' 
         }
         throw new Error(errorData.message || 'Failed to delete friendship')
+    }
+}
+export const createGameProfile = async (data: Types.CreateGameProfileRequest): Promise<Types.GameProfileResponse> => {
+    try {
+        const response = await apiClient.post<Types.GameProfileResponse>('/game-profile', data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data || 'Failed to create game profile');
+    }
+}
+
+export const updateGameProfile = async (profileId: number, data: Types.UpdateGameProfileRequest): Promise<Types.GameProfileResponse> => {
+    try {
+        const response = await apiClient.put<Types.GameProfileResponse>(`/game-profile/${profileId}`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data || 'Failed to update game profile');
+    }
+}
+export const deleteGameProfile = async (profileId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/game-profile/${profileId}`);
+    } catch (error: any) {
+        throw new Error(error.response?.data || 'Failed to delete game profile');
     }
 }

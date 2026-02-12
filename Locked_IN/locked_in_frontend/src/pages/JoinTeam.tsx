@@ -5,7 +5,7 @@ import { useSearchParams, useNavigate } from "react-router-dom"
 import { joinWithToken } from "@/api/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/lib/components/ui/button"
 
 export default function JoinTeam() {
     const [searchParams] = useSearchParams()

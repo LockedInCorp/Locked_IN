@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import { ChevronDown, ChevronUp,MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
+import {Link, useNavigate, useParams} from "react-router-dom"
+import {ChevronDown, ChevronUp, Users, UserMinus, Check, X, Copy} from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
 import { Button } from "@/lib/components/ui/button"
 import { ChatType } from "@/api/types"
@@ -217,7 +217,7 @@ export function ChatInfo() {
             {isLeader && inviteToken && (
                 <div className="px-6 py-4 border-b border-border">
                     <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-foreground">
-                        <Link className="h-4 w-4" />
+                        <Link className="h-4 w-4" to={""} />
                         <span>Private join link</span>
                     </div>
                     <div className="flex gap-2">

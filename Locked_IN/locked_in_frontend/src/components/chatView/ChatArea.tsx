@@ -113,7 +113,10 @@ export function ChatArea() {
         if (editingMessageId) {
             if (!messageText.trim()) return
             try {
-                await editMessage(editingMessageId, messageText.trim())
+                await editMessage({
+                    messageId: editingMessageId,
+                    content: messageText.trim()
+                })
                 setMessageText("")
                 setEditingMessageId(null)
             } catch (e) {

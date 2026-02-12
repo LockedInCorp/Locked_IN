@@ -13,7 +13,6 @@ import GameProfilesEditingPage from "@/pages/GameProfilesEditing"
 import { Header } from "@/components/header/Header"
 import { useAuthInit } from "@/hooks/auth/useAuthInit"
 import ProtectedRoute from "@/lib/components/ProtectedRoute"
-import ProtectedRoute from "@/components/ProtectedRoute"
 import JoinTeam from "@/pages/JoinTeam"
 
 function App() {
@@ -38,6 +37,7 @@ function App() {
                     <Route path="/profile/game-profiles" element={<ProtectedRoute><GameProfilesEditingPage /></ProtectedRoute>} />
                     <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
                     <Route path="/friend/:id" element={<ProtectedRoute><FriendProfile /></ProtectedRoute>} />
+                    <Route path="/join" element={<ProtectedRoute><JoinTeam /></ProtectedRoute>} />
                 </Routes>
             </main>
         </div>

@@ -124,7 +124,7 @@ export default function GameProfilesEditingPage() {
                 const expTagObj = expTags.find(t => t.name === profile.experience)
                 const experienceId = expTagObj ? expTagObj.id : (expTags[0]?.id || 1)
 
-                let preferenceTagIds: number[] = [];
+                const preferenceTagIds: number[] = [];
 
                 if (profile.preferences && profile.preferences.length > 0) {
                     profile.preferences.forEach(pref => {

@@ -59,7 +59,7 @@ public class ChatService : IChatService
         var existingChat = await _chatRepository.GetDirectChatAsync(participantIds);
         if (existingChat != null)
         {
-            throw new ConflictException($"Direct chat already exists. Existing chat id: {existingChat.Id}");
+            return await GetChatByIdAsync(creatorId, existingChat.Id);
         }
         var participants = new List<User>();
         foreach (var id in participantIds)
