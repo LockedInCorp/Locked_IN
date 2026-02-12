@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.Interfaces;
@@ -156,6 +156,8 @@ public class TeamService : ITeamService
 
         if (dto.Tags != null)
         {
+            var relationsToRemove = team.TeamPreferencetagRelations.ToList();
+            await _teamRepository.RemoveTeamPreferencetagRelations(relationsToRemove);
             team.TeamPreferencetagRelations.Clear();
             foreach (var tagId in dto.Tags)
             {
@@ -170,15 +172,24 @@ public class TeamService : ITeamService
         {
             if (team.TeamCommunicationService == null)
             {
-                team.TeamCommunicationService = new TeamCommunicationService();
+                team.TeamCommunicationService = new TeamCommunicationService
+                {
+                    TeamId = team.Id,
+                    CommunicationServiceId = dto.CommunicationService.Value,
+                    Link = dto.CommunicationServiceLink ?? string.Empty
+                };
             }
-
-            team.TeamCommunicationService.CommunicationServiceId = dto.CommunicationService.Value;
-            team.TeamCommunicationService.Link = dto.CommunicationServiceLink ?? string.Empty;
+            else
+            {
+                team.TeamCommunicationService.CommunicationServiceId = dto.CommunicationService.Value;
+                team.TeamCommunicationService.Link = dto.CommunicationServiceLink ?? string.Empty;
+            }
         }
-        else
+        else if (team.TeamCommunicationService != null)
         {
+            var tcs = team.TeamCommunicationService;
             team.TeamCommunicationService = null;
+            await _teamRepository.RemoveTeamCommunicationService(tcs);
         }
 
         await _teamRepository.UpdateTeam(team);

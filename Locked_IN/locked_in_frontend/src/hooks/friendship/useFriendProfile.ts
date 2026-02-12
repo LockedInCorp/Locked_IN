@@ -49,7 +49,13 @@ export function useFriendProfile(friendId: number) {
             let avatarUrl = getImageUrl(extractAvatarPath(profile as any))
             if (!avatarUrl) avatarUrl = profile.avatarURL || "/assets/diverse-user-avatars.png"
 
-            const rawProfiles = Array.isArray(gameProfilesData) ? gameProfilesData : (gameProfilesData?.data ?? [])
+            const rawProfiles: any[] = Array.isArray(gameProfilesData)
+                ? gameProfilesData
+                : Array.isArray((gameProfilesData as any)?.data)
+                    ? (gameProfilesData as any).data
+                    : (gameProfilesData as any)?.data != null
+                        ? [(gameProfilesData as any).data]
+                        : []
             const gameProfiles: GameProfile[] = rawProfiles.map((gp: any) => ({
                 id: gp.id,
                 gameId: gp.gameId,

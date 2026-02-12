@@ -187,7 +187,7 @@ export interface GroupDetailsDto {
     game: GameDto;
     members: GroupMemberDto[];
     leader: GroupMemberDto;
-
+    chatId?: number;
 }
 
 export interface GroupMemberDto {
@@ -225,6 +225,21 @@ export interface CreateGroupRequest {
     communicationService?: number;
     communicationServiceLink?: string;
     description?: string;
+}
+
+export interface UpdateGroupRequest {
+    name: string;
+    gameId: number;
+    maxMembers: number;
+    isPrivate: boolean;
+    previewImage?: File | null;
+    tags: number[];
+    experience: number;
+    minCompetitiveScore?: number;
+    communicationService?: number;
+    communicationServiceLink?: string;
+    description?: string;
+    autoAccept: boolean;
 }
 
 export interface CommunicationService {

@@ -93,10 +93,11 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Leader,
                 opt => opt.MapFrom(src => src.TeamMembers.FirstOrDefault(tm => tm.Isleader).User))
             .ForMember(dest => dest.CommunicationService,
-                opt => opt.MapFrom(src => src.TeamCommunicationService.CommunicationService))
+                opt => opt.MapFrom(src => src.TeamCommunicationService != null ? src.TeamCommunicationService.CommunicationService : null))
             .ForMember(dest => dest.CommunicationServiceLink,
-                opt => opt.MapFrom(src => src.TeamCommunicationService.Link))
-            .ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.IconUrl));
+                opt => opt.MapFrom(src => src.TeamCommunicationService != null ? src.TeamCommunicationService.Link : null))
+            .ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.IconUrl))
+            .ForMember(dest => dest.ChatId, opt => opt.MapFrom(src => src.Chats != null && src.Chats.Any() ? src.Chats.First().Id : 0));
 
         CreateMap<TeamMember, GetTeamMemberDto>()
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))

@@ -81,17 +81,22 @@ export const useGroupEditStore = create<GroupEditState>((set, get) => ({
     // Actions - Team management
     setTeamId: (id) => set({ teamId: id }),
     loadTeamData: (teamData) => {
+        const prefTags = teamData.preferenceTags || []
+        const tagIds = prefTags.map((p: { id: number }) => p.id)
+        const expId = teamData.experienceLevel?.id ?? teamData.experienceTagId ?? 0
+        const commServiceId = teamData.communicationService?.id
+
         set({
             groupName: teamData.name || "",
-            gameId: teamData.gameId || null,
-            gameName: teamData.gameName || "",
-            groupSize: teamData.maxPlayerCount?.toString() || "",
-            isPrivate: teamData.isPrivate || false,
-            autoAccept: false,
-            selectedTags: teamData.preferenceTags || [],
-            experience: teamData.experienceLevel || 0,
+            gameId: teamData.game?.id ?? teamData.gameId ?? null,
+            gameName: teamData.game?.name ?? teamData.gameName ?? "",
+            groupSize: teamData.maxPlayerCount?.toString() ?? "",
+            isPrivate: teamData.isPrivate ?? false,
+            autoAccept: teamData.autoAccept ?? false,
+            selectedTags: tagIds,
+            experience: expId,
             competitiveScore: teamData.minCompScore?.toString() || "0",
-            communicationService: teamData.communicationServiceId,
+            communicationService: commServiceId,
             communicationLink: teamData.communicationServiceLink || "",
             description: teamData.description || "",
             teamId: teamData.id || null

@@ -385,6 +385,48 @@ const createTeam = async (data: Types.CreateGroupRequest): Promise<void> => {
 }
 export default createTeam
 
+export const updateTeam = async (teamId: number, data: Types.UpdateGroupRequest): Promise<Types.GroupDetailsDto> => {
+    try {
+        const formData = new FormData()
+        formData.append('Name', data.name)
+        formData.append('MaxMembers', data.maxMembers.toString())
+        formData.append('IsPrivate', data.isPrivate.toString())
+        formData.append('AutoAccept', data.autoAccept.toString())
+        formData.append('Experience', data.experience.toString())
+
+        if (data.minCompetitiveScore !== undefined) {
+            formData.append('MinCompetitiveScore', data.minCompetitiveScore.toString())
+        }
+        if (data.communicationService !== undefined) {
+            formData.append('CommunicationService', data.communicationService.toString())
+        }
+        if (data.communicationServiceLink) {
+            formData.append('CommunicationServiceLink', data.communicationServiceLink)
+        }
+        if (data.description) {
+            formData.append('Description', data.description)
+        }
+        if (data.previewImage) {
+            formData.append('PreviewImage', data.previewImage)
+        }
+
+        data.tags.forEach(tagId => {
+            formData.append('Tags', tagId.toString())
+        })
+
+        const requestConfig: { headers: Record<string, string | false> } = {
+            headers: { 'Content-Type': false },
+        }
+        const response = await apiClient.put<Types.GroupDetailsDto>(`/Team/${teamId}`, formData, requestConfig)
+        return response.data
+    } catch (error: any) {
+        const errData = error.response?.data
+        const message = typeof errData === 'string' ? errData : errData?.message ?? errData?.title
+        throw new Error(message || 'Failed to update team')
+    }
+}
+
+
 // Friendship
 export const getFriendshipStatus = async (targetUserId: number): Promise<string> => {
     try {

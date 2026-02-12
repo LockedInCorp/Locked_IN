@@ -1,4 +1,4 @@
-﻿using Locked_IN_Backend.DTOs;
+using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.ExperienceTag;
 
 namespace Locked_IN_Backend.DTO;
@@ -34,8 +34,8 @@ public class GetTeamDto
     
     public DateTime CreationTimestamp { get; set; }
     public string? IconUrl { get; set; }
-    public CommunicationServiceDto CommunicationService { get; set; }
-    public string CommunicationServiceLink { get; set; }
+    public CommunicationServiceDto? CommunicationService { get; set; }
+    public string? CommunicationServiceLink { get; set; }
     public float? SearchRank { get; set; }
     public int ChatId { get; set; }
 }

@@ -55,12 +55,24 @@ public class TeamRepository : ITeamRepository
     {
         return await _context.Database.BeginTransactionAsync();
     }
-    
+
+    public async Task RemoveTeamCommunicationService(TeamCommunicationService tcs)
+    {
+        _context.TeamCommunicationServices.Remove(tcs);
+        await Task.CompletedTask;
+    }
+
+    public async Task RemoveTeamPreferencetagRelations(IEnumerable<TeamPreferencetagRelation> relations)
+    {
+        _context.TeamPreferencetagRelations.RemoveRange(relations);
+        await Task.CompletedTask;
+    }
 
     public async Task<Team?> GetTeamWithDetailsByIdAsync(int teamId)
     {
         return await _context.Teams
             .Include(t => t.Game)
+            .Include(t => t.Chats)
             .Include(t => t.TeamCommunicationService)
             .ThenInclude(tcs => tcs!.CommunicationService)
             .Include(t => t.ExperienceTag)

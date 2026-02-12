@@ -158,6 +158,7 @@ export default function GeneralSection({
                         placeholder="Lock IN! group"
                         value={groupName}
                         onChange={(e) => setGroupName?.(e.target.value)}
+                        maxLength={20}
                         className="border-border bg-card text-foreground placeholder:text-muted-foreground"
                     />
                 </div>

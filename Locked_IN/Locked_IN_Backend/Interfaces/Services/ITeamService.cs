@@ -1,4 +1,4 @@
-﻿using Locked_IN_Backend.DTO;
+using Locked_IN_Backend.DTO;
 using Locked_IN_Backend.DTOs;
 using Locked_IN_Backend.DTOs.Team;
 

@@ -1,16 +1,16 @@
 "use client"
 
-import { useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/lib/components/ui/button"
 import GeneralSection from "@/components/groupCreation/GeneralSection"
 import FinderSettingsSection from "@/components/groupCreation/FinderSettingsSection"
 import { useGroupEditStore } from "@/stores/groupEditStore"
+import { useGroupEdit } from "@/hooks/group/useGroupEdit"
+import { useParams } from "react-router-dom"
 
 export default function GroupEdit() {
     const { id } = useParams<{ id: string }>()
-    const navigate = useNavigate()
-    
+    const { isLoading, isSaving, error, handleSave } = useGroupEdit(id)
+
     const {
         groupName,
         gameId,
@@ -35,48 +35,24 @@ export default function GroupEdit() {
         setCompetitiveScore,
         setCommunicationService,
         setCommunicationLink,
-        setDescription,
-        loadTeamData,
-        resetForm
+        setDescription
     } = useGroupEditStore()
-
-    useEffect(() => {
-        if (id) {
-            // TODO: Fetch team data from API
-        }
-
-        return () => {
-            resetForm()
-        }
-    }, [id, loadTeamData, resetForm])
-
-    const handleSave = async () => {
-        // TODO: Implement API call to update team
-        
-        console.log("Saving team:", {
-            groupName,
-            gameId,
-            gameName,
-            groupSize,
-            isPrivate,
-            autoAccept,
-            selectedTags,
-            experience,
-            competitiveScore,
-            communicationService,
-            description
-        })
-        
-        navigate("/my-groups")
-    }
 
     return (
         <main className="flex flex-col h-full w-full overflow-hidden">
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto min-h-0">
                 <div className="px-6 pt-12 pb-12">
                     <h2 className="mb-8 text-center text-3xl font-bold text-foreground">Group Edit</h2>
 
+                    {error && (
+                        <div className="mb-6 p-4 rounded-md bg-destructive/10 text-destructive text-sm">
+                            {error}
+                        </div>
+                    )}
+
+                    {isLoading ? (
+                        <div className="flex justify-center py-12">Loading...</div>
+                    ) : (
                     <div className="flex flex-col items-center">
                         <div className="grid gap-6 lg:grid-cols-2 max-w-5xl">
                             <GeneralSection
@@ -115,12 +91,14 @@ export default function GroupEdit() {
                             <Button 
                                 size="lg" 
                                 onClick={handleSave}
+                                disabled={isSaving}
                                 className="bg-primary px-12 text-base font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
                             >
-                                Save
+                                {isSaving ? "Saving..." : "Save"}
                             </Button>
                         </div>
                     </div>
+                    )}
                 </div>
             </div>
         </main>
