@@ -89,7 +89,6 @@ export default function Profile() {
                                 nickname={profileData.nickname}
                                 gameProfiles={profileData.gameProfiles}
                                 onNicknameChange={(value) => updateProfileData({ nickname: value })}
-                                onGameProfilesChange={(profiles) => updateProfileData({ gameProfiles: profiles })}
                             />
                         ) : (
                             <ProfileFields
@@ -100,16 +99,17 @@ export default function Profile() {
 
                         {/* Action Buttons */}
                         <div className="mt-8 flex justify-between items-center">
-                            <Button 
-                                variant="outline"
-                                onClick={handleLogout}
-                                disabled={logoutMutation.isPending}
-                                className="px-6 py-2 text-base font-semibold border-destructive text-destructive hover:bg-destructive/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {logoutMutation.isPending ? "Logging out..." : "Logout"}
-                            </Button>
-                            
-                            <div className="flex gap-3">
+                            {!isEditing && (
+                                <Button 
+                                    variant="outline"
+                                    onClick={handleLogout}
+                                    disabled={logoutMutation.isPending}
+                                    className="px-6 py-2 text-base font-semibold border-destructive text-destructive hover:bg-destructive/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                                </Button>
+                            )}
+                            <div className={`flex gap-3 ${isEditing ? "ml-auto" : ""}`}>
                                 {isEditing ? (
                                     <>
                                         <Button 

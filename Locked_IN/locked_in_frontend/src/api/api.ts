@@ -104,29 +104,39 @@ export const searchGamesByName = async (searchTerm: string): Promise<Types.GameD
     }
 }
 
-export const addGameProfile = async (userId: number, gameId: number): Promise<Types.GameProfileResponse> => {
+export const createGameProfile = async (data: Types.CreateGameProfileRequest): Promise<Types.GameProfileResponse> => {
     try {
-        const response = await apiClient.post<Types.GameProfileResponse>(`/game-profile/unfavorite/${userId}/${gameId}`)
-        return response.data
+        const response = await apiClient.post<Types.GameProfileResponse>('/game-profile', data);
+        return response.data;
     } catch (error: any) {
-        const errorData = error.response?.data || { 
-            success: false,
-            message: 'Failed to add game profile' 
-        }
-        throw new Error(errorData.message || 'Failed to add game profile')
+        throw new Error(error.response?.data || 'Failed to create game profile');
     }
 }
 
-export const getUserGameProfiles = async (userId: number): Promise<Types.GameProfileResponse> => {
+export const updateGameProfile = async (profileId: number, data: Types.UpdateGameProfileRequest): Promise<Types.GameProfileResponse> => {
     try {
-        const response = await apiClient.get<Types.GameProfileResponse>(`/game-profile/favorites/${userId}`)
+        const response = await apiClient.put<Types.GameProfileResponse>(`/game-profile/${profileId}`, data);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data || 'Failed to update game profile');
+    }
+}
+
+export const deleteGameProfile = async (profileId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/game-profile/${profileId}`);
+    } catch (error: any) {
+        throw new Error(error.response?.data || 'Failed to delete game profile');
+    }
+}
+
+export const getUserGameProfiles = async (userId: number): Promise<Types.GameProfile[]> => {
+    try {
+        const response = await apiClient.get<Types.GameProfile[]>(`/game-profile/user/${userId}`)
         return response.data
     } catch (error: any) {
-        const errorData = error.response?.data || { 
-            success: false, 
-            message: 'Failed to fetch game profiles' 
-        }
-        throw new Error(errorData.message || 'Failed to fetch game profiles')
+        console.error("Failed to fetch game profiles", error);
+        return [];
     }
 }
 

@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { GameProfile } from "./authStore"
+import type { GameProfile } from "@/api/types"
 
 interface ProfileData {
     nickname: string
@@ -36,19 +36,10 @@ interface ProfileState {
 }
 
 const initialProfileData: ProfileData = {
-    nickname: "Jan Kowalski",
-    gameProfiles: [
-        {
-            gameId: 1,
-            preferences: [1, 2],
-            experience: 2,
-            inGameNickname: "JanKowalski123",
-            ranking: "4500",
-            role: "Support"
-        }
-    ],
+    nickname: "",
+    gameProfiles: [],
     avatarUrl: "/assets/diverse-user-avatars.png",
-    avatarFallback: "JK"
+    avatarFallback: ""
 }
 
 export const useProfileStore = create<ProfileState>((set, get) => ({

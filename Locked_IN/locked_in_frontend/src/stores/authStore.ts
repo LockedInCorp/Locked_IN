@@ -1,14 +1,6 @@
 import { create } from "zustand"
 import { loginUser } from "@/api/api"
-
-export type GameProfile = {
-    gameId: number
-    preferences: number[]
-    experience: number
-    inGameNickname: string
-    ranking?: string
-    role?: string
-}
+import type { GameProfile } from "@/api/types"
 
 interface AuthState {
     loginEmail: string

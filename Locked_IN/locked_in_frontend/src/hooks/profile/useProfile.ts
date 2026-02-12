@@ -1,30 +1,31 @@
 import { useState, useEffect, useCallback } from "react"
 import { useAuthStore } from "@/stores/authStore"
 import { useProfileStore } from "@/stores/profileStore"
-import { 
-    getUserProfile, 
+import {
+    getUserProfile,
     updateUserProfile,
-    getUserGameProfiles
+    getUserGameProfiles,
+    getPreferenceTags
 } from "@/api/api"
 import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
 import { persist } from "@/utils/auth/persistance"
-import type { GameProfile } from "@/stores/authStore"
+import type { GameProfile } from "@/api/types"
 
 export function useProfile() {
     const { user, setUser } = useAuthStore()
-    const { 
-        profileData, 
+    const {
+        profileData,
         setProfileData,
         setIsEditing,
         setAvatarPreview,
         avatarFile,
         setAvatarFile
     } = useProfileStore()
-    
+
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [availableGames] = useState<string[]>([])
+
 
     const loadProfile = useCallback(async () => {
         if (!user?.id) {
@@ -38,34 +39,43 @@ export function useProfile() {
 
         try {
             const userId = parseInt(user.id)
-            
-            const [profile, gameProfilesResponse] = await Promise.all([
+
+            const [profile, gameProfilesData, prefTags] = await Promise.all([
                 getUserProfile(userId),
-                getUserGameProfiles(userId).catch(() => ({ success: false, message: '', data: [] })),
+                getUserGameProfiles(userId),
+                getPreferenceTags()
             ])
 
             if (!profile) {
                 throw new Error('Failed to load profile')
             }
-            
+
             let avatarUrl = getImageUrl(extractAvatarPath(profile as any))
-            
             if (!avatarUrl) {
                 avatarUrl = user?.avatarUrl
             }
-            
-            const rawData = gameProfilesResponse.data
-            const profilesArray = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : [])
-            
-            const gameProfiles: GameProfile[] = profilesArray.map(gp => ({
-                gameName: gp.gameName,
-                preferences: [],
-                experience: "",
-                inGameNickname: "",
-                ranking: gp.rank || "",
-                role: ""
-            }))
 
+            const nameToId = (prefTags || []).reduce((acc: Record<string, number>, p) => {
+                acc[p.name] = p.id
+                return acc
+            }, {})
+
+            const gameProfiles: GameProfile[] = Array.isArray(gameProfilesData) ? gameProfilesData.map((gp: any) => {
+                const prefNames = gp.preferences ?? []
+                const prefIds = prefNames
+                    .map((name: string) => nameToId[name])
+                    .filter((id: number) => id != null)
+                return {
+                    id: gp.id,
+                    gameId: gp.gameId,
+                    gameName: gp.gameName || gp.name || "Unknown Game",
+                    preferences: prefIds.length > 0 ? prefIds : [],
+                    experience: gp.experienceTagId || "",
+                    inGameNickname: gp.inGameNickname || "",
+                    role: gp.role || "",
+                    rank: gp.rank || ""
+                }
+            }) : [];
 
             const profileDataToSet = {
                 nickname: profile.username,
@@ -75,28 +85,22 @@ export function useProfile() {
             }
 
             setProfileData(profileDataToSet)
-            
             if (avatarUrl && user) {
-                const updatedUser = {
-                    ...user,
-                    avatarUrl: avatarUrl
-                };
+                const updatedUser = { ...user, avatarUrl: avatarUrl };
                 setUser(updatedUser);
-                    persist.setUserData(updatedUser);
+                persist.setUserData(updatedUser);
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load profile'
             setError(errorMessage)
+            console.error(err)
         } finally {
             setIsLoading(false)
         }
     }, [user?.id, setProfileData, setUser])
 
     const saveProfile = useCallback(async () => {
-        if (!user?.id) {
-            setError("User not logged in")
-            return
-        }
+        if (!user?.id) return
 
         setIsSaving(true)
         setError(null)
@@ -111,13 +115,8 @@ export function useProfile() {
             if (updatedProfile) {
                 const updatedAvatarUrl = getImageUrl(extractAvatarPath(updatedProfile as any))
                 const finalAvatarUrl = updatedAvatarUrl || profileData.avatarUrl
-                
-                setProfileData({
-                    ...profileData,
-                    nickname: updatedProfile.username,
-                    avatarUrl: finalAvatarUrl,
-                    avatarFallback: updatedProfile.username.charAt(0).toUpperCase() || "U"
-                })
+
+                await loadProfile();
 
                 if (user && finalAvatarUrl) {
                     const updatedUser = {
@@ -128,37 +127,35 @@ export function useProfile() {
                     setUser(updatedUser)
                     persist.setUserData(updatedUser)
                 }
-            } else {
-                setProfileData({
-                    ...profileData,
-                    avatarUrl: profileData.avatarUrl
-                })
             }
 
             setAvatarPreview(null)
             setAvatarFile(null)
             setIsEditing(false)
-        } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Failed to save profile'
+        } catch (err: any) {
+            console.error('Failed to save profile full error:', err);
+
+            let errorMessage = 'Failed to save profile';
+            if (err.response && err.response.data) {
+                errorMessage = typeof err.response.data === 'string'
+                    ? err.response.data
+                    : JSON.stringify(err.response.data);
+            } else if (err instanceof Error) {
+                errorMessage = err.message;
+            }
+
             setError(errorMessage)
-            throw err
         } finally {
             setIsSaving(false)
         }
-    }, [user?.id, user?.email, profileData, avatarFile, setProfileData, setAvatarPreview, setAvatarFile, setIsEditing])
+    }, [
+        user?.id, user?.email, profileData, avatarFile,
+        setProfileData, setAvatarPreview, setAvatarFile, setIsEditing, loadProfile
+    ])
 
     useEffect(() => {
-        if (user?.id) {
-            loadProfile()
-        }
+        if (user?.id) loadProfile()
     }, [user?.id, loadProfile])
 
-    return {
-        isLoading,
-        isSaving,
-        error,
-        availableGames,
-        loadProfile,
-        saveProfile
-    }
+    return { isLoading, isSaving, error, availableGames: [], loadProfile, saveProfile }
 }

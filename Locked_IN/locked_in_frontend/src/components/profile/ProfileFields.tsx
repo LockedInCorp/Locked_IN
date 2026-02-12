@@ -6,15 +6,7 @@ import { Check } from "lucide-react"
 import { useProfileStore } from "@/stores/profileStore"
 import { useEffect, useState } from "react"
 import { getExperienceTags, getPreferenceTags } from "@/api/api"
-
-export type GameProfile = {
-    gameId: number
-    preferences: number[]
-    experience: number
-    inGameNickname: string
-    ranking?: string
-    role?: string
-}
+import type { GameProfile } from "@/api/types"
 
 type ProfileFieldsProps = {
     nickname: string
@@ -22,11 +14,10 @@ type ProfileFieldsProps = {
 }
 
 export default function ProfileFields({
-    nickname,
-    gameProfiles
-}: ProfileFieldsProps) {
+                                          nickname,
+                                          gameProfiles
+                                      }: ProfileFieldsProps) {
     const { expandedGames, toggleExpandedGame } = useProfileStore()
-    const [gamesDict, setGamesDict] = useState<Record<number, string>>({})
     const [prefsDict, setPrefsDict] = useState<Record<number, string>>({})
     const [expDict, setExpDict] = useState<Record<number, string>>({})
 
@@ -37,27 +28,18 @@ export default function ProfileFields({
                     getPreferenceTags(),
                     getExperienceTags()
                 ])
-                
+
                 const prefsObj = prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {})
                 const expsObj = exps.reduce((acc, e) => ({ ...acc, [e.id]: e.name }), {})
-                
+
                 setPrefsDict(prefsObj)
                 setExpDict(expsObj)
-
-                // Fetch game names for the profiles we have
-                const uniqueGameIds = Array.from(new Set(gameProfiles.map(p => p.gameId)))
-                // Note: The API doesn't seem to have a getGameById, only search. 
-                // We might need to handle this differently if we don't have game names initially.
-                // For now, let's assume we can at least show the IDs if names aren't loaded, 
-                // or try to find them if they were cached.
-                // If the game profiles already came with names from the backend (Dota 2 example), 
-                // we might want to include gameName in GameProfile type too for convenience.
             } catch (error) {
                 console.error("Failed to fetch tags", error)
             }
         }
         fetchData()
-    }, [gameProfiles])
+    }, [])
 
     return (
         <div className="space-y-6">
@@ -75,16 +57,20 @@ export default function ProfileFields({
                         <p className="text-sm text-muted-foreground">No games added yet</p>
                     ) : (
                         gameProfiles.map((profile) => {
-                            const isExpanded = expandedGames.has(profile.gameId)
-                            const gameName = gamesDict[profile.gameId] || `Game #${profile.gameId}`
+                            const uniqueKey = profile.id || profile.gameId || Math.random();
+                            const toggleKey = profile.gameId || 0;
+                            const isExpanded = expandedGames.has(toggleKey)
+
+                            const gameName = profile.gameName || `Game #${profile.gameId}`
+
                             return (
                                 <div
-                                    key={profile.gameId}
+                                    key={uniqueKey}
                                     className="rounded-lg border border-border bg-card overflow-hidden"
                                 >
                                     {/* Collapsed Header */}
                                     <button
-                                        onClick={() => toggleExpandedGame(profile.gameId)}
+                                        onClick={() => toggleExpandedGame(toggleKey)}
                                         className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                                     >
                                         <span className="text-sm font-semibold text-foreground">{gameName}</span>
@@ -101,17 +87,17 @@ export default function ProfileFields({
                                     {isExpanded && (
                                         <div className="px-4 py-4 space-y-4 bg-card">
                                             {/* Gameplay Preferences */}
-                                            {profile.preferences.length > 0 && (
+                                            {(profile.preferences?.length ?? 0) > 0 && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Gameplay Preferences</Label>
                                                     <div className="flex flex-wrap gap-2">
-                                                        {profile.preferences.map((prefId) => (
+                                                        {(profile.preferences ?? []).map((prefId) => (
                                                             <div
                                                                 key={prefId}
                                                                 className="flex items-center rounded-md px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground border-2 border-primary shadow-sm"
                                                             >
                                                                 <Check className="h-3 w-3 mr-1" />
-                                                                {prefsDict[prefId] || `Pref #${prefId}`}
+                                                                {typeof prefId === 'number' ? (prefsDict[prefId] || `Pref #${prefId}`) : prefId}
                                                             </div>
                                                         ))}
                                                     </div>
@@ -119,10 +105,14 @@ export default function ProfileFields({
                                             )}
 
                                             {/* Experience */}
-                                            {profile.experience && (
+                                            {(profile.experience ?? profile.experienceTagId) && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Experience</Label>
-                                                    <p className="text-sm font-medium text-foreground capitalize">{expDict[profile.experience] || `Level #${profile.experience}`}</p>
+                                                    <p className="text-sm font-medium text-foreground capitalize">
+                                                        {typeof profile.experience === 'number'
+                                                            ? (expDict[profile.experience] || `Level #${profile.experience}`)
+                                                            : (profile.experience ?? (profile.experienceTagId ? (expDict[profile.experienceTagId] || `Level #${profile.experienceTagId}`) : ""))}
+                                                    </p>
                                                 </div>
                                             )}
 
@@ -135,10 +125,10 @@ export default function ProfileFields({
                                             )}
 
                                             {/* Ranking */}
-                                            {profile.ranking && (
+                                            {profile.rank && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Ranking</Label>
-                                                    <p className="text-sm font-medium text-foreground">{profile.ranking}</p>
+                                                    <p className="text-sm font-medium text-foreground">{profile.rank}</p>
                                                 </div>
                                             )}
 
@@ -160,4 +150,3 @@ export default function ProfileFields({
         </div>
     )
 }
-

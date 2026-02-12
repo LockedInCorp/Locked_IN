@@ -7,7 +7,6 @@ interface GroupDiscoveryState {
     selectedFilters: Set<number>
     currentPage: number
     
-    // Actions
     setGroupSearch: (search: string) => void
     setShowPending: (show: boolean) => void
     setGameSearch: (search: string) => void
@@ -17,14 +16,12 @@ interface GroupDiscoveryState {
 }
 
 export const useGroupDiscoveryStore = create<GroupDiscoveryState>((set, get) => ({
-    // Initial state
     groupSearch: "",
     showPending: false,
     gameSearch: "",
     selectedFilters: new Set([0]),
     currentPage: 1,
     
-    // Actions
     setGroupSearch: (search) => set({ groupSearch: search }),
     setShowPending: (show) => set({ showPending: show }),
     setGameSearch: (search) => set({ gameSearch: search }),
