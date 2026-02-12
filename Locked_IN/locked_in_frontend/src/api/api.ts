@@ -132,7 +132,7 @@ export const deleteGameProfile = async (profileId: number): Promise<void> => {
 
 export const getUserGameProfiles = async (userId: number): Promise<Types.GameProfile[]> => {
     try {
-        const response = await apiClient.get<Types.GameProfile[]>(`/game-profile/favorites/${userId}`)
+        const response = await apiClient.get<Types.GameProfile[]>(`/game-profile/user/${userId}`)
         return response.data
     } catch (error: any) {
         console.error("Failed to fetch game profiles", error);

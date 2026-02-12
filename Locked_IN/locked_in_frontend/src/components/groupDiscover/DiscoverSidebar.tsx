@@ -6,7 +6,7 @@ import { Input } from "@/lib/components/ui/input"
 import { Checkbox } from "@/lib/components/ui/checkbox"
 import { getPreferenceTags, searchGamesByName } from "@/api/api"
 import type {GameSuggestion} from "@/api/types"
-import type { DiscoverSidebarProps } from "./types"
+import type { DiscoverSidebarProps } from "@/api/types"
 
 interface Tag {
     id: string

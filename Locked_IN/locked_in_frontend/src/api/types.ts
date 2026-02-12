@@ -39,12 +39,39 @@ export interface UpdateAvailabilityRequest {
 }
 
 export interface GameProfile {
-    id: number
-    userId: number
-    gameId: number
+    id?: number
+    userId?: number
+    gameId?: number
     gameName: string
-    isFavorite: boolean
+    isFavorite?: boolean
     rank?: string
+    role?: string
+    inGameNickname?: string
+    experienceTagId?: number
+    gameExpId?: number
+    experience?: number | string
+    preferences?: (number | string)[]
+}
+
+export interface CreateGameProfileRequest {
+    gameId: number
+    experienceTagId: number
+    gameExpId: number
+    preferenceTagIds?: number[]
+    rank?: number | null
+    role?: string | null
+    inGameNickname?: string | null
+    isFavorite?: boolean
+}
+
+export interface UpdateGameProfileRequest {
+    experienceTagId: number
+    gameExpId: number
+    preferenceTagIds?: number[]
+    rank?: number | null
+    role?: string | null
+    inGameNickname?: string | null
+    isFavorite?: boolean
 }
 
 export interface GameProfileResponse {
@@ -63,7 +90,27 @@ export interface GameSuggestion {
     label: string
 }
 
+export interface DiscoverFiltersProps {
+    groupSearch: string
+    onGroupSearchChange: (value: string) => void
+    showPending: boolean
+    onShowPendingChange: (value: boolean) => void
+    pageSize: number
+    onPageSizeChange: (value: number) => void
+    sortBy: string
+    onSortByChange: (value: string) => void
+}
 
+export interface DiscoverSidebarProps {
+    gameSearch: string
+    onGameSearchChange: (value: string) => void
+    visibleGames: GameOption[]
+    selectedGames: Set<string>
+    onToggleGameFilter: (gameId: string) => void
+    onAddGameFilter: (game: GameSuggestion) => void
+    selectedTagIds: Set<string>
+    onToggleTagFilter: (tagId: string) => void
+}
 
 export interface ExperienceTag {
     id: number

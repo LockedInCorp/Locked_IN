@@ -10,7 +10,7 @@ import {
 } from "@/api/api"
 import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
 import { getFriendsList, getPendingRequests } from "@/utils/friendship_and_availability/friendshipApi"
-import type { GameProfile } from "@/stores/authStore"
+import type { GameProfile } from "@/api/types"
 
 export type FriendshipStatus = "None" | "Pending" | "Accepted" | "Blocked"
 
@@ -55,7 +55,7 @@ export function useFriendProfile(friendId: number) {
                 preferences: [],
                 experience: gp.rank || "",
                 inGameNickname: gp.gameName,
-                ranking: gp.rank || "",
+                rank: gp.rank || "",
                 role: ""
             })) : [];
 

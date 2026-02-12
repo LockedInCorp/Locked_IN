@@ -1,21 +1,25 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ChevronDown, ChevronUp, Trash2, Check } from "lucide-react"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import type { GameProfile } from "./ProfileFields"
+import { ChevronDown, ChevronUp, Trash2, Check, ArrowLeft } from "lucide-react"
+import { Label } from "@/lib/components/ui/label"
+import { Input } from "@/lib/components/ui/input"
+import { Button } from "@/lib/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/lib/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/lib/components/ui/radio-group"
+import type { GameProfile } from "@/api/types"
 import { useGameProfilesStore } from "@/stores/gameProfilesStore"
-import { searchGamesByName, getPreferenceTags, getExperienceTags } from "@/api/api"
 
 type GameProfilesEditingProps = {
     gameProfiles: GameProfile[]
     onGameProfilesChange: (profiles: GameProfile[]) => void
     onSave: () => void
+    onBack?: () => void
     isLoading?: boolean
+    availableGames?: string[]
+    gamePreferences?: string[]
+    experienceLevels?: string[]
+    tagsLoading?: boolean
+    tagsError?: string | null
     errors?: {
         [gameName: string]: {
             inGameNickname?: string
@@ -24,11 +28,17 @@ type GameProfilesEditingProps = {
     }
 }
 
-export default function GameProfilesEditing({
+export default function GameProfilesEditPanel({
                                                 gameProfiles,
                                                 onGameProfilesChange,
                                                 onSave,
+                                                onBack,
                                                 isLoading = false,
+                                                availableGames = [],
+                                                gamePreferences = [],
+                                                experienceLevels = [],
+                                                tagsLoading = false,
+                                                tagsError = null,
                                                 errors = {}
                                             }: GameProfilesEditingProps) {
     const {
@@ -40,46 +50,6 @@ export default function GameProfilesEditing({
         setCustomGame
     } = useGameProfilesStore()
 
-    const [availableGames, setAvailableGames] = useState<string[]>([])
-    const [gamePreferences, setGamePreferences] = useState<string[]>([])
-    const [experienceLevels, setExperienceLevels] = useState<string[]>([])
-    const [isLoadingData, setIsLoadingData] = useState(true)
-    const [dataError, setDataError] = useState<string | null>(null)
-
-    useEffect(() => {
-        const fetchGamesAndTags = async () => {
-            try {
-                setIsLoadingData(true)
-                setDataError(null)
-
-                const [games, preferences, experiences] = await Promise.all([
-                    searchGamesByName(""),
-                    getPreferenceTags(),
-                    getExperienceTags()
-                ])
-                if (games) {
-                    setAvailableGames(games.map(game => game.name))
-                }
-
-                if (preferences) {
-                    setGamePreferences(preferences.map(pref => pref.name))
-                }
-
-                if (experiences) {
-                    setExperienceLevels(experiences.map(exp => exp.name))
-                }
-
-            } catch (error) {
-                console.error(error);
-                setDataError(error instanceof Error ? error.message : "Failed to load games and tags")
-            } finally {
-                setIsLoadingData(false)
-            }
-        }
-
-        fetchGamesAndTags()
-    }, [])
-
     const handleAddGame = (game: string) => {
         const trimmedGame = game.trim()
         if (trimmedGame && !gameProfiles.some(p => p.gameName === trimmedGame)) {
@@ -88,7 +58,7 @@ export default function GameProfilesEditing({
                 preferences: [],
                 experience: "",
                 inGameNickname: "",
-                ranking: "",
+                rank: "",
                 role: ""
             }
             onGameProfilesChange([...gameProfiles, newProfile])
@@ -118,7 +88,7 @@ export default function GameProfilesEditing({
         const profile = gameProfiles.find(p => p.gameName === gameName)
         if (!profile) return
 
-        const currentPrefs = profile.preferences.map(String);
+        const currentPrefs = (profile.preferences ?? []).map(String);
 
         let newPreferences: (string | number)[];
 
@@ -131,7 +101,7 @@ export default function GameProfilesEditing({
         handleUpdateGameProfile(gameName, { preferences: newPreferences })
     }
 
-    if (isLoadingData) {
+    if (tagsLoading) {
         return (
             <div className="space-y-6">
                 <p className="text-sm text-muted-foreground">Loading games and preferences...</p>
@@ -139,10 +109,10 @@ export default function GameProfilesEditing({
         )
     }
 
-    if (dataError) {
+    if (tagsError) {
         return (
             <div className="space-y-6">
-                <p className="text-sm text-destructive">Error: {dataError}</p>
+                <p className="text-sm text-destructive">Error: {tagsError}</p>
                 <Button
                     type="button"
                     onClick={() => window.location.reload()}
@@ -237,7 +207,7 @@ export default function GameProfilesEditing({
                                             <Label className="text-sm text-muted-foreground">Choose your gameplay preferences</Label>
                                             <div className="flex flex-wrap gap-2">
                                                 {gamePreferences.map((pref) => {
-                                                    const isSelected = profile.preferences.some(p => String(p) === pref)
+                                                    const isSelected = (profile.preferences ?? []).some(p => String(p) === pref)
                                                     return (
                                                         <button
                                                             key={pref}
@@ -261,7 +231,7 @@ export default function GameProfilesEditing({
                                         <div className="space-y-3">
                                             <Label className="text-sm text-muted-foreground">Choose your game experience</Label>
                                             <RadioGroup
-                                                value={profile.experience ? String(profile.experience) : ""}
+                                                value={profile.experience != null ? String(profile.experience) : ""}
                                                 onValueChange={(value) => handleUpdateGameProfile(profile.gameName, { experience: value })}
                                             >
                                                 {experienceLevels.map((level) => (
@@ -284,7 +254,7 @@ export default function GameProfilesEditing({
                                             <Input
                                                 id={`${profile.gameName}-nickname`}
                                                 type="text"
-                                                value={profile.inGameNickname}
+                                                value={profile.inGameNickname ?? ""}
                                                 onChange={(e) => handleUpdateGameProfile(profile.gameName, { inGameNickname: e.target.value })}
                                                 placeholder="Enter your in-game nickname"
                                                 className={`border-border bg-card text-foreground placeholder:text-muted-foreground ${errors[profile.gameName]?.inGameNickname ? 'border-destructive' : ''}`}
@@ -304,12 +274,12 @@ export default function GameProfilesEditing({
                                                 type="text"
                                                 inputMode="numeric"
                                                 maxLength={9}
-                                                value={profile.ranking || ""}
+                                                value={profile.rank ?? ""}
                                                 onChange={(e) => {
                                                     const val = e.target.value;
 
                                                     if (val === "") {
-                                                        handleUpdateGameProfile(profile.gameName, { ranking: "" });
+                                                        handleUpdateGameProfile(profile.gameName, { rank: "" });
                                                         return;
                                                     }
 
@@ -317,7 +287,7 @@ export default function GameProfilesEditing({
                                                         return;
                                                     }
 
-                                                    handleUpdateGameProfile(profile.gameName, { ranking: val })
+                                                    handleUpdateGameProfile(profile.gameName, { rank: val })
                                                 }}
                                                 placeholder="0"
                                                 className="border-border bg-card text-foreground placeholder:text-muted-foreground"
@@ -330,7 +300,7 @@ export default function GameProfilesEditing({
                                             <Input
                                                 id={`${profile.gameName}-role`}
                                                 type="text"
-                                                value={profile.role || ""}
+                                                value={profile.role ?? ""}
                                                 onChange={(e) => handleUpdateGameProfile(profile.gameName, { role: e.target.value })}
                                                 placeholder="e.g. Tank, Damager"
                                                 className="border-border bg-card text-foreground placeholder:text-muted-foreground"
@@ -344,8 +314,20 @@ export default function GameProfilesEditing({
                 </div>
             )}
 
-            {/* Save Button */}
-            <div className="flex justify-end pt-4">
+            <div className="mt-8 flex justify-between items-center">
+                {onBack ? (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onBack}
+                        className="px-6 py-2 text-base font-semibold border-border hover:bg-muted cursor-pointer"
+                    >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back
+                    </Button>
+                ) : (
+                    <div />
+                )}
                 <Button
                     type="button"
                     onClick={onSave}

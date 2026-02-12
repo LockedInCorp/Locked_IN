@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { useProfileStore } from "@/stores/profileStore"
-import GameProfilesEditing from "@/custom_components/profile/GameProfilesEditing"
+import GameProfilesEditPanel from "@/components/profile/GameProfilesEditPanel"
 import {
     searchGamesByName,
     createGameProfile,
@@ -14,7 +14,7 @@ import {
     getPreferenceTags,
     getUserGameProfiles
 } from "@/api/api"
-import type { GameProfile } from "@/custom_components/profile/ProfileFields"
+import type { GameProfile } from "@/api/types"
 
 export default function GameProfilesEditingPage() {
     const navigate = useNavigate()
@@ -30,20 +30,28 @@ export default function GameProfilesEditingPage() {
     const [gamesList, setGamesList] = useState<{id: number, name: string}[]>([])
     const [expTags, setExpTags] = useState<{id: number, name: string}[]>([])
     const [prefTags, setPrefTags] = useState<{id: number, name: string}[]>([])
+    const [tagsLoading, setTagsLoading] = useState(true)
+    const [tagsError, setTagsError] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setTagsLoading(true)
+                setTagsError(null)
                 const [gamesData, expData, prefData] = await Promise.all([
                     searchGamesByName(""),
                     getExperienceTags(),
                     getPreferenceTags()
                 ])
-                setGamesList(gamesData || []);
-                setExpTags(expData || []);
-                setPrefTags(prefData || []);
+                setGamesList(gamesData || [])
+                setExpTags(expData || [])
+                setPrefTags(prefData || [])
             } catch (err) {
+                const msg = err instanceof Error ? err.message : "Failed to load metadata"
+                setTagsError(msg)
                 console.error("Failed to load metadata", err)
+            } finally {
+                setTagsLoading(false)
             }
         }
         fetchData()
@@ -55,20 +63,32 @@ export default function GameProfilesEditingPage() {
             return
         }
 
-        const mappedProfiles: GameProfile[] = profileData.gameProfiles.map(gp => ({
-            id: gp.id || (gp as any).gameProfileId,
-            gameId: gp.gameId,
-            gameName: gp.gameName || `Game`,
-            preferences: gp.preferences || [],
-            experience: gp.experience ? String(gp.experience) : "",
-            inGameNickname: gp.inGameNickname || "",
-            ranking: gp.ranking || "",
-            role: gp.role || ""
-        }))
+        const idToPrefName = Object.fromEntries(prefTags.map(p => [p.id, p.name]))
+        const idToExpName = Object.fromEntries(expTags.map(e => [e.id, e.name]))
+
+        const mappedProfiles: GameProfile[] = profileData.gameProfiles.map(gp => {
+            const prefIds = (gp.preferences ?? []).filter((p): p is number => typeof p === 'number')
+            const prefNames = prefIds
+                .map(id => idToPrefName[id])
+                .filter((n): n is string => n != null)
+            const expId = typeof gp.experience === 'number' ? gp.experience : (typeof gp.experience === 'string' && /^\d+$/.test(gp.experience) ? parseInt(gp.experience, 10) : gp.experienceTagId)
+            const expName = (expId != null && idToExpName[expId]) ? idToExpName[expId] : (typeof gp.experience === 'string' ? gp.experience : "")
+
+            return {
+                id: gp.id || (gp as any).gameProfileId,
+                gameId: gp.gameId,
+                gameName: gp.gameName || `Game`,
+                preferences: prefNames.length > 0 ? prefNames : (gp.preferences ?? []),
+                experience: expName || (gp.experience ? String(gp.experience) : ""),
+                inGameNickname: gp.inGameNickname || "",
+                rank: gp.rank ?? "",
+                role: gp.role || ""
+            }
+        })
 
         setGameProfiles(mappedProfiles)
         setOriginalProfiles(mappedProfiles)
-    }, [user, profileData, navigate])
+    }, [user, profileData, navigate, expTags, prefTags])
 
     const handleGameProfilesChange = (profiles: GameProfile[]) => {
         setGameProfiles(profiles)
@@ -119,7 +139,7 @@ export default function GameProfilesEditingPage() {
 
                 const mainGameExpId = preferenceTagIds.length > 0 ? preferenceTagIds[0] : (prefTags[0]?.id || 1);
 
-                const rankValue = profile.ranking ? parseInt(profile.ranking) : null;
+                const rankValue = profile.rank ? parseInt(profile.rank) : null;
                 const safeRank = (rankValue === null || isNaN(rankValue)) ? null : rankValue;
 
                 const payload = {
@@ -151,7 +171,7 @@ export default function GameProfilesEditingPage() {
                 gameId: gp.gameId,
                 gameName: gp.gameName || gp.game?.name || "Unknown",
                 isFavorite: gp.isFavorite,
-                ranking: gp.rank ? String(gp.rank) : "",
+                rank: gp.rank ? String(gp.rank) : "",
 
                 preferences: gp.preferences && gp.preferences.length > 0
                     ? gp.preferences
@@ -189,11 +209,17 @@ export default function GameProfilesEditingPage() {
                             </div>
                         )}
 
-                        <GameProfilesEditing
+                        <GameProfilesEditPanel
                             gameProfiles={gameProfiles}
                             onGameProfilesChange={handleGameProfilesChange}
                             onSave={handleSave}
+                            onBack={() => navigate(-1)}
                             isLoading={isSaving}
+                            availableGames={gamesList.map(g => g.name)}
+                            gamePreferences={prefTags.map(p => p.name)}
+                            experienceLevels={expTags.map(e => e.name)}
+                            tagsLoading={tagsLoading}
+                            tagsError={tagsError}
                         />
                     </div>
                 </div>

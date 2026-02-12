@@ -4,7 +4,7 @@ import { Button } from "@/lib/components/ui/button"
 import { Checkbox } from "@/lib/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/lib/components/ui/select"
 import { useNavigate } from "react-router-dom"
-import type { DiscoverFiltersProps } from "./types"
+import type { DiscoverFiltersProps } from "@/api/types"
 
 export function DiscoverFilters({
     groupSearch,

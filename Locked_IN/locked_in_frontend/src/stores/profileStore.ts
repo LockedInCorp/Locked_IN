@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { GameProfile } from "./authStore"
+import type { GameProfile } from "@/api/types"
 
 interface ProfileData {
     nickname: string

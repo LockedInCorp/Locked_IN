@@ -1,21 +1,12 @@
 "use client"
 
-import { ChevronDown, ChevronUp, Check } from "lucide-react"
-import { Label } from "@/components/ui/label"
+import { ChevronDown, ChevronUp } from "lucide-react"
+import { Label } from "@/lib/components/ui/label"
+import { Check } from "lucide-react"
 import { useProfileStore } from "@/stores/profileStore"
 import { useEffect, useState } from "react"
 import { getExperienceTags, getPreferenceTags } from "@/api/api"
-
-export type GameProfile = {
-    id?: number;
-    gameId?: number;
-    gameName: string;
-    preferences: (number | string)[];
-    experience: number | string;
-    inGameNickname: string;
-    ranking?: string;
-    role?: string;
-}
+import type { GameProfile } from "@/api/types"
 
 type ProfileFieldsProps = {
     nickname: string
@@ -96,11 +87,11 @@ export default function ProfileFields({
                                     {isExpanded && (
                                         <div className="px-4 py-4 space-y-4 bg-card">
                                             {/* Gameplay Preferences */}
-                                            {profile.preferences.length > 0 && (
+                                            {(profile.preferences?.length ?? 0) > 0 && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Gameplay Preferences</Label>
                                                     <div className="flex flex-wrap gap-2">
-                                                        {profile.preferences.map((prefId) => (
+                                                        {(profile.preferences ?? []).map((prefId) => (
                                                             <div
                                                                 key={prefId}
                                                                 className="flex items-center rounded-md px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground border-2 border-primary shadow-sm"
@@ -114,13 +105,13 @@ export default function ProfileFields({
                                             )}
 
                                             {/* Experience */}
-                                            {profile.experience && (
+                                            {(profile.experience ?? profile.experienceTagId) && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Experience</Label>
                                                     <p className="text-sm font-medium text-foreground capitalize">
                                                         {typeof profile.experience === 'number'
                                                             ? (expDict[profile.experience] || `Level #${profile.experience}`)
-                                                            : profile.experience}
+                                                            : (profile.experience ?? (profile.experienceTagId ? (expDict[profile.experienceTagId] || `Level #${profile.experienceTagId}`) : ""))}
                                                     </p>
                                                 </div>
                                             )}
@@ -134,10 +125,10 @@ export default function ProfileFields({
                                             )}
 
                                             {/* Ranking */}
-                                            {profile.ranking && (
+                                            {profile.rank && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Ranking</Label>
-                                                    <p className="text-sm font-medium text-foreground">{profile.ranking}</p>
+                                                    <p className="text-sm font-medium text-foreground">{profile.rank}</p>
                                                 </div>
                                             )}
 

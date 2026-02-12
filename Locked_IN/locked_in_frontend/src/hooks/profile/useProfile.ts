@@ -5,13 +5,11 @@ import {
     getUserProfile,
     updateUserProfile,
     getUserGameProfiles,
-    createGameProfile,
-    updateGameProfile,
-    deleteGameProfile
+    getPreferenceTags
 } from "@/api/api"
 import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
 import { persist } from "@/utils/auth/persistance"
-import type { GameProfile } from "@/stores/authStore"
+import type { GameProfile } from "@/api/types"
 
 export function useProfile() {
     const { user, setUser } = useAuthStore()
@@ -28,7 +26,6 @@ export function useProfile() {
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const [originalGameProfiles, setOriginalGameProfiles] = useState<GameProfile[]>([])
 
     const loadProfile = useCallback(async () => {
         if (!user?.id) {
@@ -43,9 +40,10 @@ export function useProfile() {
         try {
             const userId = parseInt(user.id)
 
-            const [profile, gameProfilesData] = await Promise.all([
+            const [profile, gameProfilesData, prefTags] = await Promise.all([
                 getUserProfile(userId),
-                getUserGameProfiles(userId)
+                getUserGameProfiles(userId),
+                getPreferenceTags()
             ])
 
             if (!profile) {
@@ -57,19 +55,27 @@ export function useProfile() {
                 avatarUrl = user?.avatarUrl
             }
 
-            const gameProfiles: GameProfile[] = Array.isArray(gameProfilesData) ? gameProfilesData.map((gp: any) => ({
-                id: gp.id,
-                gameId: gp.gameId,
-                gameName: gp.gameName || gp.name || "Unknown Game",
+            const nameToId = (prefTags || []).reduce((acc: Record<string, number>, p) => {
+                acc[p.name] = p.id
+                return acc
+            }, {})
 
-                preferences: gp.gameExpId ? [gp.gameExpId] : [],
-                experience: gp.experienceTagId || "",
-
-                inGameNickname: gp.inGameNickname || "",
-                role: gp.role || "",
-
-                ranking: gp.rank || ""
-            })) : [];
+            const gameProfiles: GameProfile[] = Array.isArray(gameProfilesData) ? gameProfilesData.map((gp: any) => {
+                const prefNames = gp.preferences ?? []
+                const prefIds = prefNames
+                    .map((name: string) => nameToId[name])
+                    .filter((id: number) => id != null)
+                return {
+                    id: gp.id,
+                    gameId: gp.gameId,
+                    gameName: gp.gameName || gp.name || "Unknown Game",
+                    preferences: prefIds.length > 0 ? prefIds : [],
+                    experience: gp.experienceTagId || "",
+                    inGameNickname: gp.inGameNickname || "",
+                    role: gp.role || "",
+                    rank: gp.rank || ""
+                }
+            }) : [];
 
             const profileDataToSet = {
                 nickname: profile.username,
@@ -79,7 +85,6 @@ export function useProfile() {
             }
 
             setProfileData(profileDataToSet)
-            setOriginalGameProfiles(gameProfiles)
             if (avatarUrl && user) {
                 const updatedUser = { ...user, avatarUrl: avatarUrl };
                 setUser(updatedUser);
@@ -106,60 +111,6 @@ export function useProfile() {
                 email: user.email || '',
                 avatar: avatarFile
             })
-
-            const currentGameProfiles = profileData.gameProfiles;
-
-            const profilesToDelete = originalGameProfiles.filter(orig =>
-                !currentGameProfiles.some(curr => curr.id === orig.id)
-            );
-
-            for (const p of profilesToDelete) {
-                if (p.id) {
-                    console.log(`Deleting profile ${p.id}`);
-                    await deleteGameProfile(p.id);
-                }
-            }
-
-            for (const profile of currentGameProfiles) {
-
-                let experienceId = 1;
-                if (profile.experience) {
-                    const parsed = Number(profile.experience);
-                    if (!isNaN(parsed) && parsed > 0) experienceId = parsed;
-                }
-
-                let gameExpId = 1;
-                if (profile.preferences && profile.preferences.length > 0) {
-                    const parsed = Number(profile.preferences[0]);
-                    if (!isNaN(parsed) && parsed > 0) gameExpId = parsed;
-                }
-
-                let safeRank: number | undefined = undefined;
-                if (profile.ranking) {
-                    const parsedRank = parseInt(profile.ranking);
-                    if (!isNaN(parsedRank)) safeRank = parsedRank;
-                }
-
-                const payload = {
-                    experienceTagId: experienceId,
-                    gameExpId: gameExpId,
-                    rank: safeRank,
-                    isFavorite: true,
-                    role: profile.role || null,
-                    inGameNickname: profile.inGameNickname || null
-                };
-
-                if (profile.id) {
-                    console.log(`Updating profile ${profile.id}`, payload);
-                    await updateGameProfile(profile.id, payload);
-                } else if (profile.gameId) {
-                    console.log(`Creating profile for game ${profile.gameId}`, payload);
-                    await createGameProfile({
-                        gameId: profile.gameId,
-                        ...payload
-                    });
-                }
-            }
 
             if (updatedProfile) {
                 const updatedAvatarUrl = getImageUrl(extractAvatarPath(updatedProfile as any))
@@ -198,7 +149,7 @@ export function useProfile() {
             setIsSaving(false)
         }
     }, [
-        user?.id, user?.email, profileData, avatarFile, originalGameProfiles,
+        user?.id, user?.email, profileData, avatarFile,
         setProfileData, setAvatarPreview, setAvatarFile, setIsEditing, loadProfile
     ])
 
