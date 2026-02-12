@@ -1,32 +1,29 @@
 "use client"
 
 import { ChevronDown, ChevronUp } from "lucide-react"
-import { Label } from "@/components/ui/label"
-import { Check } from "lucide-react"
+import { Label } from "@/lib/components/ui/label"
+import { Input } from "@/lib/components/ui/input"
+import { Button } from "@/lib/components/ui/button"
+import { useNavigate } from "react-router-dom"
+import type { GameProfile } from "@/api/types"
 import { useProfileStore } from "@/stores/profileStore"
 import { useEffect, useState } from "react"
 import { getExperienceTags, getPreferenceTags } from "@/api/api"
+import { Check } from "lucide-react"
 
-export type GameProfile = {
-    gameId: number
-    preferences: number[]
-    experience: number
-    inGameNickname: string
-    ranking?: string
-    role?: string
-}
-
-type ProfileFieldsProps = {
+type ProfileFieldsEditProps = {
     nickname: string
     gameProfiles: GameProfile[]
+    onNicknameChange: (value: string) => void
 }
 
-export default function ProfileFields({
-    nickname,
-    gameProfiles
-}: ProfileFieldsProps) {
+export default function ProfileFieldsEdit({
+                                              nickname,
+                                              gameProfiles,
+                                              onNicknameChange
+                                          }: ProfileFieldsEditProps) {
+    const navigate = useNavigate()
     const { expandedGames, toggleExpandedGame } = useProfileStore()
-    const [gamesDict, setGamesDict] = useState<Record<number, string>>({})
     const [prefsDict, setPrefsDict] = useState<Record<number, string>>({})
     const [expDict, setExpDict] = useState<Record<number, string>>({})
 
@@ -37,96 +34,100 @@ export default function ProfileFields({
                     getPreferenceTags(),
                     getExperienceTags()
                 ])
-                
-                const prefsObj = prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {})
-                const expsObj = exps.reduce((acc, e) => ({ ...acc, [e.id]: e.name }), {})
-                
-                setPrefsDict(prefsObj)
-                setExpDict(expsObj)
-
-                // Fetch game names for the profiles we have
-                const uniqueGameIds = Array.from(new Set(gameProfiles.map(p => p.gameId)))
-                // Note: The API doesn't seem to have a getGameById, only search. 
-                // We might need to handle this differently if we don't have game names initially.
-                // For now, let's assume we can at least show the IDs if names aren't loaded, 
-                // or try to find them if they were cached.
-                // If the game profiles already came with names from the backend (Dota 2 example), 
-                // we might want to include gameName in GameProfile type too for convenience.
+                setPrefsDict(prefs.reduce((acc, p) => ({ ...acc, [p.id]: p.name }), {}))
+                setExpDict(exps.reduce((acc, e) => ({ ...acc, [e.id]: e.name }), {}))
             } catch (error) {
                 console.error("Failed to fetch tags", error)
             }
         }
         fetchData()
-    }, [gameProfiles])
+    }, [])
 
     return (
         <div className="space-y-6">
             {/* Nickname */}
             <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">Nickname</Label>
-                <p className="text-base font-semibold text-foreground">{nickname}</p>
+                <Label htmlFor="nickname" className="text-sm text-muted-foreground">Nickname</Label>
+                <Input
+                    id="nickname"
+                    value={nickname}
+                    onChange={(e) => onNicknameChange(e.target.value)}
+                    className="border-border bg-card text-foreground placeholder:text-muted-foreground"
+                />
             </div>
 
-            {/* Game Profiles */}
+            {/* Game Profiles - static display */}
             <div className="space-y-3">
-                <Label className="text-sm text-muted-foreground">Game Profiles</Label>
-                <div className="space-y-2">
-                    {gameProfiles.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No games added yet</p>
-                    ) : (
-                        gameProfiles.map((profile) => {
-                            const isExpanded = expandedGames.has(profile.gameId)
-                            const gameName = gamesDict[profile.gameId] || `Game #${profile.gameId}`
+                <div className="flex items-center justify-between">
+                    <Label className="text-sm text-muted-foreground">Game Profiles</Label>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate("/profile/game-profiles")}
+                        className="border-border bg-card text-foreground hover:bg-muted cursor-pointer"
+                    >
+                        Change game profiles
+                    </Button>
+                </div>
+
+                {gameProfiles.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No games added yet</p>
+                ) : (
+                    <div className="space-y-2 mt-3">
+                        {gameProfiles.map((profile) => {
+                            const uniqueKey = profile.id || profile.gameId || Math.random()
+                            const toggleKey = profile.gameId ?? 0
+                            const isExpanded = expandedGames.has(toggleKey)
+                            const gameName = profile.gameName || `Game #${profile.gameId}`
+
                             return (
                                 <div
-                                    key={profile.gameId}
+                                    key={uniqueKey}
                                     className="rounded-lg border border-border bg-card overflow-hidden"
                                 >
-                                    {/* Collapsed Header */}
                                     <button
-                                        onClick={() => toggleExpandedGame(profile.gameId)}
+                                        type="button"
+                                        onClick={() => toggleExpandedGame(toggleKey)}
                                         className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                                     >
                                         <span className="text-sm font-semibold text-foreground">{gameName}</span>
-                                        <div className="flex items-center gap-2">
-                                            {isExpanded ? (
-                                                <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                                            ) : (
-                                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                                            )}
-                                        </div>
+                                        {isExpanded ? (
+                                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                                        ) : (
+                                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                        )}
                                     </button>
 
-                                    {/* Expanded Content */}
                                     {isExpanded && (
                                         <div className="px-4 py-4 space-y-4 bg-card">
-                                            {/* Gameplay Preferences */}
-                                            {profile.preferences.length > 0 && (
+                                            {(profile.preferences?.length ?? 0) > 0 && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Gameplay Preferences</Label>
                                                     <div className="flex flex-wrap gap-2">
-                                                        {profile.preferences.map((prefId) => (
+                                                        {(profile.preferences ?? []).map((prefId) => (
                                                             <div
                                                                 key={prefId}
                                                                 className="flex items-center rounded-md px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground border-2 border-primary shadow-sm"
                                                             >
                                                                 <Check className="h-3 w-3 mr-1" />
-                                                                {prefsDict[prefId] || `Pref #${prefId}`}
+                                                                {typeof prefId === 'number' ? (prefsDict[prefId] || `Pref #${prefId}`) : prefId}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
 
-                                            {/* Experience */}
-                                            {profile.experience && (
+                                            {(profile.experience ?? profile.experienceTagId) && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Experience</Label>
-                                                    <p className="text-sm font-medium text-foreground capitalize">{expDict[profile.experience] || `Level #${profile.experience}`}</p>
+                                                    <p className="text-sm font-medium text-foreground">
+                                                        {typeof profile.experience === 'number'
+                                                            ? (expDict[profile.experience] || `Level #${profile.experience}`)
+                                                            : (profile.experience ?? (profile.experienceTagId ? (expDict[profile.experienceTagId] || `Level #${profile.experienceTagId}`) : ""))}
+                                                    </p>
                                                 </div>
                                             )}
 
-                                            {/* In-game Nickname */}
                                             {profile.inGameNickname && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">In-game Nickname</Label>
@@ -134,15 +135,13 @@ export default function ProfileFields({
                                                 </div>
                                             )}
 
-                                            {/* Ranking */}
-                                            {profile.ranking && (
+                                            {profile.rank && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Ranking</Label>
-                                                    <p className="text-sm font-medium text-foreground">{profile.ranking}</p>
+                                                    <p className="text-sm font-medium text-foreground">{profile.rank}</p>
                                                 </div>
                                             )}
 
-                                            {/* Role */}
                                             {profile.role && (
                                                 <div className="space-y-2">
                                                     <Label className="text-sm text-muted-foreground">Role</Label>
@@ -153,11 +152,10 @@ export default function ProfileFields({
                                     )}
                                 </div>
                             )
-                        })
-                    )}
-                </div>
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     )
 }
-

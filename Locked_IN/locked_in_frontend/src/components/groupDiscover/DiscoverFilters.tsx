@@ -1,10 +1,10 @@
 import { Plus } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/lib/components/ui/input"
+import { Button } from "@/lib/components/ui/button"
+import { Checkbox } from "@/lib/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/lib/components/ui/select"
 import { useNavigate } from "react-router-dom"
-import type { DiscoverFiltersProps } from "./types"
+import type { DiscoverFiltersProps } from "@/api/types"
 
 export function DiscoverFilters({
     groupSearch,

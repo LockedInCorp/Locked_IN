@@ -12,5 +12,6 @@ namespace Locked_IN_Backend.DTOs.GameProfile
         public string? InGameNickname { get; set; }
         public int ExperienceTagId { get; set; }
         public int GameExpId { get; set; }
+        public List<string> Preferences { get; set; } = new List<string>();
     }
 }

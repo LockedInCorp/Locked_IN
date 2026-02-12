@@ -154,11 +154,15 @@ public class MessageService : IMessageService
             throw new ConflictException("Message is already deleted.");
         }
     
-        if (message.AttachmentUrl != null)
+        if (!string.IsNullOrEmpty(message.AttachmentUrl))
         {
-            var bucket = message.AttachmentUrl.Split("/")[0];
-            var fileName = message.AttachmentUrl.Split("/")[1];
-            await _fileUploadService.DeleteFileAsync(bucket, fileName);
+            var parts = message.AttachmentUrl.Split("/");
+            if (parts.Length >= 2)
+            {
+                var bucket = parts[0];
+                var fileName = parts[1];
+                await _fileUploadService.DeleteFileAsync(bucket, fileName);
+            }
         }
         message.IsDeleted = true;
         message.DeletedAt = DateTimeHelper.ToUnspecified(DateTime.UtcNow);

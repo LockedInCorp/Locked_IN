@@ -1,8 +1,8 @@
 "use client"
 import { useParams } from "react-router-dom"
-import { ChatsList } from "../custom_components/chatView/ChatsList.tsx"
-import { ChatArea } from "../custom_components/chatView/ChatArea.tsx"
-import { ChatInfo } from "../custom_components/chatView/ChatInfo.tsx"
+import { ChatsList } from "../components/chatView/ChatsList.tsx"
+import { ChatArea } from "../components/chatView/ChatArea.tsx"
+import { ChatInfo } from "../components/chatView/ChatInfo.tsx"
 
 export function ChatView() {
     const { chatId } = useParams<{ chatId: string }>()

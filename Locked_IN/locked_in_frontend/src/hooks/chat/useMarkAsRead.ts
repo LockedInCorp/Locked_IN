@@ -8,13 +8,10 @@ export function useMarkAsRead() {
     return useMutation({
         mutationFn: (chatId: number) => markChatAsRead(chatId),
         onMutate: async (chatId) => {
-            // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
             await queryClient.cancelQueries({ queryKey: ["userChats"] })
 
-            // Snapshot the previous value
             const previousChats = queryClient.getQueryData<UserChatDto[]>(["userChats"])
 
-            // Optimistically update to the new value
             queryClient.setQueriesData<UserChatDto[]>({ queryKey: ["userChats"] }, (old) => {
                 if (!old) return old
                 return old.map((chat) => 
@@ -32,7 +29,6 @@ export function useMarkAsRead() {
             }
         },
         onSettled: () => {
-            // Always refetch after error or success to ensure we are in sync with server
             queryClient.invalidateQueries({ queryKey: ["userChats"] })
         },
     })

@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import GeneralSection from "@/custom_components/groupCreation/GeneralSection"
-import FinderSettingsSection from "@/custom_components/groupCreation/FinderSettingsSection"
+import { Button } from "@/lib/components/ui/button"
+import GeneralSection from "@/components/groupCreation/GeneralSection"
+import FinderSettingsSection from "@/components/groupCreation/FinderSettingsSection"
 import { useGroupCreationStore } from "@/stores/groupCreationStore"
 import createTeam from "@/api/api"
 import { useState } from "react"

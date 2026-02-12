@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ChevronDown, ChevronUp, MoreHorizontal, UserPlus, Users, UserMinus, Check, X, Link, Copy } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { ChevronDown, ChevronUp,MoreHorizontal, UserPlus, Users, UserMinus, Check, X } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
+import { Button } from "@/lib/components/ui/button"
 import { ChatType } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
 import { useGroupDetails } from "@/hooks/chat/useGroupDetails"
 import { useJoinRequests } from "@/hooks/chat/useJoinRequests"
-import { acceptJoinRequest, declineJoinRequest, leaveTeam, getInviteToken } from "@/api/api"
+import { acceptJoinRequest, declineJoinRequest, leaveTeam, getInviteToken, removeTeamMember } from "@/api/api"
 import { useAuthStore } from "@/stores/authStore"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -23,6 +23,8 @@ export function ChatInfo() {
     
     const [membersExpanded, setMembersExpanded] = useState(true)
     const [requestsExpanded, setRequestsExpanded] = useState(true)
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+    const [memberToRemove, setMemberToRemove] = useState<{ id: number; username: string } | null>(null)
     const [inviteToken, setInviteToken] = useState<string | null>(null)
     const [copied, setCopied] = useState(false)
 
@@ -93,6 +95,23 @@ export function ChatInfo() {
             } catch (error) {
                 console.error("Failed to leave team:", error)
             }
+        }
+    }
+
+    const handleRemoveMemberClick = (member: { id: number; username: string }) => {
+        setMemberToRemove(member)
+        setDeleteConfirmOpen(true)
+    }
+
+    const handleConfirmRemoveMember = async () => {
+        if (!teamId || !memberToRemove) return
+        try {
+            await removeTeamMember(teamId, memberToRemove.id)
+            refetchGroup()
+        } catch (error) {
+            console.error("Failed to remove member:", error)
+        } finally {
+            setMemberToRemove(null)
         }
     }
 
@@ -235,26 +254,34 @@ export function ChatInfo() {
                         {group.members.map((member) => (
                             <div key={member.id} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={getImageUrl(member.avatarUrl)} />
-                                        <AvatarFallback>F</AvatarFallback>
-                                    </Avatar>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full p-0"
+                                        onClick={() => navigate(member.id.toString() === user?.id ? "/profile" : `/friend/${member.id}`)}
+                                    >
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={getImageUrl(member.avatarUrl)} />
+                                            <AvatarFallback>{member.username?.charAt(0).toUpperCase() || "F"}</AvatarFallback>
+                                        </Avatar>
+                                    </Button>
                                     <span className="text-sm text-foreground">{member.username}</span>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-foreground">
-                                        <UserPlus className="h-3 w-3" />
-                                    </Button>
-                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-foreground">
-                                        <Users className="h-3 w-3" />
-                                    </Button>
-                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-foreground">
-                                        <UserMinus className="h-3 w-3" />
-                                    </Button>
-                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-foreground">
-                                        <MoreHorizontal className="h-3 w-3" />
-                                    </Button>
-                                </div>
+                                {isLeader && member.id.toString() !== user?.id && (
+                                    <div className="flex items-center gap-1">
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleRemoveMemberClick({ id: member.id, username: member.username })
+                                            }}
+                                        >
+                                            <UserMinus className="h-3 w-3" />
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -280,10 +307,17 @@ export function ChatInfo() {
                             {requests.map((request) => (
                                 <div key={request.userId} className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={getImageUrl(request.avatarUrl) || "/placeholder.svg"} />
-                                            <AvatarFallback>{request.username.charAt(0)}</AvatarFallback>
-                                        </Avatar>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full p-0"
+                                            onClick={() => navigate(`/friend/${request.userId}`)}
+                                        >
+                                            <Avatar className="h-8 w-8">
+                                                <AvatarImage src={getImageUrl(request.avatarUrl) || "/placeholder.svg"} />
+                                                <AvatarFallback>{request.username.charAt(0).toUpperCase()}</AvatarFallback>
+                                            </Avatar>
+                                        </Button>
                                         <span className="text-sm text-foreground">{request.username}</span>
                                     </div>
                                     <div className="flex items-center gap-1">

@@ -11,7 +11,6 @@ export function useJoinRequests(teamId: number | null | undefined, enabled: bool
     const handleNewJoinRequest = useCallback((data: TeamJoinResponceDto) => {
         if (data.teamId === teamId) {
             setRequests(prev => {
-                // Check if already in list to avoid duplicates
                 if (prev.some(r => r.userId === data.userId)) return prev;
                 
                 const newRequest: JoinRequestDto = {

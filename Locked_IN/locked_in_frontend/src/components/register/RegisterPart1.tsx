@@ -3,10 +3,10 @@
 import { useRef, useState } from "react"
 import { Upload } from "lucide-react"
 import { Link } from "react-router-dom"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
+import { Button } from "@/lib/components/ui/button"
+import { Input } from "@/lib/components/ui/input"
+import { Label } from "@/lib/components/ui/label"
 
 type RegisterPart1Props = {
     email: string

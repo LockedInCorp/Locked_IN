@@ -32,6 +32,8 @@ public class GameProfileService : IGameProfileService
     {
         var profiles = await _context.GameProfiles
             .Include(gp => gp.Game)
+            .Include(gp => gp.GameprofilePreferencetagRelations)
+            .ThenInclude(rel => rel.PreferenceTag)
             .Where(gp => gp.UserId == userId)
             .ToListAsync();
 
@@ -119,7 +121,22 @@ public class GameProfileService : IGameProfileService
         await _context.GameProfiles.AddAsync(profile);
         await _context.SaveChangesAsync();
 
+        if (dto.PreferenceTagIds != null && dto.PreferenceTagIds.Any())
+        {
+            foreach (var tagId in dto.PreferenceTagIds)
+            {
+                var relation = new GameprofilePreferencetagRelation
+                {
+                    GameProfileId = profile.Id,
+                    PreferenceTagId = tagId
+                };
+                await _context.GameprofilePreferencetagRelations.AddAsync(relation);
+            }
+            await _context.SaveChangesAsync();
+        }
+
         await _context.Entry(profile).Reference(p => p.Game).LoadAsync();
+        await _context.Entry(profile).Collection(p => p.GameprofilePreferencetagRelations).Query().Include(r => r.PreferenceTag).LoadAsync();
 
         return _mapper.Map<GameProfileDto>(profile);
     }
@@ -128,6 +145,7 @@ public class GameProfileService : IGameProfileService
     {
         var profile = await _context.GameProfiles
             .Include(gp => gp.Game)
+            .Include(gp => gp.GameprofilePreferencetagRelations)
             .FirstOrDefaultAsync(gp => gp.Id == profileId && gp.UserId == userId);
 
         if (profile == null)
@@ -141,8 +159,29 @@ public class GameProfileService : IGameProfileService
         profile.GameExpId = dto.GameExpId;
         profile.Role = dto.Role;
         profile.InGameNickname = dto.InGameNickname;
+
+        if (profile.GameprofilePreferencetagRelations.Any())
+        {
+            _context.GameprofilePreferencetagRelations.RemoveRange(profile.GameprofilePreferencetagRelations);
+        }
+        
+        if (dto.PreferenceTagIds != null && dto.PreferenceTagIds.Any())
+        {
+            foreach (var tagId in dto.PreferenceTagIds)
+            {
+                var relation = new GameprofilePreferencetagRelation
+                {
+                    GameProfileId = profile.Id,
+                    PreferenceTagId = tagId
+                };
+                await _context.GameprofilePreferencetagRelations.AddAsync(relation);
+            }
+        }
+
         _context.GameProfiles.Update(profile);
         await _context.SaveChangesAsync();
+        
+        await _context.Entry(profile).Collection(p => p.GameprofilePreferencetagRelations).Query().Include(r => r.PreferenceTag).LoadAsync();
 
         return _mapper.Map<GameProfileDto>(profile);
     }

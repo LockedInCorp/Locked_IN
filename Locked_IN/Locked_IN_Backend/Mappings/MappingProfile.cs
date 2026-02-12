@@ -129,6 +129,7 @@ public class MappingProfile : Profile
         CreateMap<Team, GetTeamsCardDto>()
             .ForMember(dest => dest.Game, opt => opt.MapFrom(src => src.Game))
             .ForMember(dest => dest.IsPrivate, opt => opt.MapFrom(src => src.Isprivate))
+            .ForMember(dest => dest.AutoAccept, opt => opt.MapFrom(src => src.IsAutoaccept))
             .ForMember(dest => dest.ExperienceLevel, opt => opt.MapFrom(src => src.ExperienceTag))
             .ForMember(dest => dest.CurrentMemberCount, opt => opt.MapFrom(src => src.TeamMembers != null ? src.TeamMembers.Count : 0))
             .ForMember(dest => dest.PreferenceTags, opt => opt.MapFrom(src => 
@@ -142,7 +143,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.IsFavorite, opt => opt.MapFrom(src => src.Isfavorite))
             .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank != null ? src.Rank.ToString() : null))
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
-            .ForMember(dest => dest.InGameNickname, opt => opt.MapFrom(src => src.InGameNickname));
+            .ForMember(dest => dest.InGameNickname, opt => opt.MapFrom(src => src.InGameNickname))
+            .ForMember(dest => dest.Preferences, opt => opt.MapFrom(src => 
+                src.GameprofilePreferencetagRelations.Select(x => x.PreferenceTag.Name).ToList()));
 
         CreateMap<CreateGameProfileDto, GameProfile>()
             .ForMember(dest => dest.Isfavorite, opt => opt.MapFrom(src => src.IsFavorite))
