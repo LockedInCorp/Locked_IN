@@ -189,6 +189,7 @@ public class GameProfileService : IGameProfileService
     public async Task DeleteGameProfileAsync(int userId, int profileId)
     {
         var profile = await _context.GameProfiles
+            .Include(gp => gp.GameprofilePreferencetagRelations)
             .FirstOrDefaultAsync(gp => gp.Id == profileId && gp.UserId == userId);
 
         if (profile == null)
@@ -196,6 +197,10 @@ public class GameProfileService : IGameProfileService
             throw new NotFoundException("Game profile not found.");
         }
 
+        if (profile.GameprofilePreferencetagRelations != null && profile.GameprofilePreferencetagRelations.Any())
+        {
+            _context.GameprofilePreferencetagRelations.RemoveRange(profile.GameprofilePreferencetagRelations);
+        }
         _context.GameProfiles.Remove(profile);
         await _context.SaveChangesAsync();
     }
