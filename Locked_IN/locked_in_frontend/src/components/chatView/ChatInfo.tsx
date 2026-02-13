@@ -5,6 +5,7 @@ import {Link, useNavigate, useParams} from "react-router-dom"
 import {ChevronDown, ChevronUp, Users, UserMinus, Check, X, Copy} from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar"
 import { Button } from "@/lib/components/ui/button"
+import { ConfirmDialog } from "@/lib/components/ui/confirm-dialog"
 import { ChatType } from "@/api/types"
 import { getImageUrl } from "@/utils/imageUtils"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
@@ -25,6 +26,9 @@ export function ChatInfo() {
     const [requestsExpanded, setRequestsExpanded] = useState(true)
     const [inviteToken, setInviteToken] = useState<string | null>(null)
     const [copied, setCopied] = useState(false)
+    const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
+    const [kickConfirmOpen, setKickConfirmOpen] = useState(false)
+    const [memberToKick, setMemberToKick] = useState<number | null>(null)
 
     const toggleMembersExpanded = () => setMembersExpanded(!membersExpanded)
     const toggleRequestsExpanded = () => setRequestsExpanded(!requestsExpanded)
@@ -84,28 +88,36 @@ export function ChatInfo() {
         }
     }
 
-    const handleLeaveTeam = async () => {
+    const handleLeaveTeam = () => {
         if (!teamId) return
-        if (window.confirm("Are you sure you want to leave this team?")) {
-            try {
-                await leaveTeam(teamId)
-                queryClient.invalidateQueries({ queryKey: ["userChats"] })
-                navigate("/my-groups")
-            } catch (error) {
-                console.error("Failed to leave team:", error)
-            }
+        setLeaveConfirmOpen(true)
+    }
+
+    const handleConfirmLeave = async () => {
+        if (!teamId) return
+        try {
+            await leaveTeam(teamId)
+            queryClient.invalidateQueries({ queryKey: ["userChats"] })
+            navigate("/my-groups")
+        } catch (error) {
+            console.error("Failed to leave team:", error)
         }
     }
 
-    const handleKickMember = async ({ id }: { id: number }) => {
+    const handleKickMember = ({ id }: { id: number }) => {
         if (!teamId) return
-        if (window.confirm("Are you sure you want to kick this member?")) {
-            try {
-                await kickMember(teamId, id)
-                refetchGroup()
-            } catch (error) {
-                console.error("Failed to kick member:", error)
-            }
+        setMemberToKick(id)
+        setKickConfirmOpen(true)
+    }
+
+    const handleConfirmKick = async () => {
+        if (!teamId || memberToKick == null) return
+        try {
+            await kickMember(teamId, memberToKick)
+            setMemberToKick(null)
+            refetchGroup()
+        } catch (error) {
+            console.error("Failed to kick member:", error)
         }
     }
 
@@ -159,6 +171,29 @@ export function ChatInfo() {
 
     return (
         <div className="flex flex-col h-full bg-background overflow-y-auto">
+            <ConfirmDialog
+                open={leaveConfirmOpen}
+                onOpenChange={setLeaveConfirmOpen}
+                title="Leave team"
+                description="Are you sure you want to leave this team?"
+                onConfirm={handleConfirmLeave}
+                confirmLabel="Yes"
+                cancelLabel="No"
+                confirmVariant="destructive"
+            />
+            <ConfirmDialog
+                open={kickConfirmOpen}
+                onOpenChange={(open) => {
+                    setKickConfirmOpen(open)
+                    if (!open) setMemberToKick(null)
+                }}
+                title="Kick member"
+                description="Are you sure you want to kick this member?"
+                onConfirm={handleConfirmKick}
+                confirmLabel="Yes"
+                cancelLabel="No"
+                confirmVariant="destructive"
+            />
             {/* Group Header */}
             <div className="px-6 py-6 border-b border-border">
                 <div className="flex items-center gap-3 mb-4">
