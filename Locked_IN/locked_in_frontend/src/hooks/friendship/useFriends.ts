@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback } from "react"
 import { useAuthStore } from "@/stores/authStore"
-import { getFriendsList, getPendingRequests, acceptFriendRequest, declineFriendRequest } from "@/utils/friendship_and_availability/friendshipApi"
-import { getUserProfile } from "@/api/api"
-import type { FriendshipDto, PendingFriendshipRequestDto } from "@/utils/friendship_and_availability/friendshipApi"
+import {
+    getUserProfile,
+    getFriendsList,
+    getPendingRequests,
+    acceptFriendRequest,
+    declineFriendRequest
+} from "@/api/api"
+import type { FriendshipDto, PendingFriendshipRequestDto } from "@/api/types"
 
 export interface FriendWithAvailability extends FriendshipDto {
     availability?: Record<string, string[]>

@@ -84,7 +84,6 @@ export function useChatDetails(chatId: number | null) {
         try {
             const details = await getChatDetails(chatId)
             setChatDetails(details)
-            // When details are fetched, we also start with page 1 of messages
             await fetchMessages(1, true)
         } catch (err) {
             console.error(`Error loading chat details for chat ${chatId}:`, err)

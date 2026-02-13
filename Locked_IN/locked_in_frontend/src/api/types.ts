@@ -352,3 +352,30 @@ export interface GameOption {
     label: string
     isFavorite: boolean
 }
+
+export interface FriendshipDto {
+    friendshipId: number
+    friendId: number
+    friendUsername: string
+    status: string
+    since: string
+}
+
+export interface PendingFriendshipRequestDto {
+    friendshipId: number
+    requesterId: number
+    requesterUsername: string
+    requestTimestamp: string
+}
+
+export interface FriendshipResponse {
+    success: boolean
+    message: string
+    data?: FriendshipDto[]
+}
+
+export interface PendingRequestsResponse {
+    success: boolean
+    message: string
+    data?: PendingFriendshipRequestDto[]
+}

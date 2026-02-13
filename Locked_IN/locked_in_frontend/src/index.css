@@ -140,7 +140,6 @@
   }
 }
 
-/*Custom scrollbar settings WebKit (Chromium/Edge/Safari)*/
 @layer base {
   @supports selector(::-webkit-scrollbar) {
     *::-webkit-scrollbar {

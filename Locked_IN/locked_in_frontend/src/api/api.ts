@@ -472,6 +472,95 @@ export const deleteFriendship = async (friendId: number): Promise<void> => {
         throw new Error(errorData.message || 'Failed to delete friendship')
     }
 }
+
+export const getFriendsList = async (): Promise<Types.FriendshipResponse> => {
+    try {
+        const response = await apiClient.get<Types.FriendshipDto[]>(`/friendship/list`)
+        return {
+            success: true,
+            message: '',
+            data: response.data || []
+        }
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
+            success: false, 
+            message: 'Failed to fetch friends list' 
+        }
+        throw new Error(errorData.message || 'Failed to fetch friends list')
+    }
+}
+
+export const getPendingRequests = async (): Promise<Types.PendingRequestsResponse> => {
+    try {
+        const response = await apiClient.get<Types.PendingFriendshipRequestDto[]>(`/friendship/pending-requests`)
+        return {
+            success: true,
+            message: '',
+            data: response.data || []
+        }
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
+            success: false, 
+            message: 'Failed to fetch pending requests' 
+        }
+        throw new Error(errorData.message || 'Failed to fetch pending requests')
+    }
+}
+
+export const acceptFriendRequest = async (friendshipId: number): Promise<void> => {
+    try {
+        await apiClient.put(`/friendship/requests/${friendshipId}/accept`)
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
+            message: 'Failed to accept friend request' 
+        }
+        throw new Error(errorData.message || 'Failed to accept friend request')
+    }
+}
+
+export const declineFriendRequest = async (friendshipId: number): Promise<void> => {
+    try {
+        await apiClient.put(`/friendship/requests/${friendshipId}/decline`)
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
+            message: 'Failed to decline friend request' 
+        }
+        throw new Error(errorData.message || 'Failed to decline friend request')
+    }
+}
+
+export const getOutgoingPendingRequests = async (userId: number): Promise<Types.PendingRequestsResponse> => {
+    try {
+        const friendsResponse = await getFriendsList()
+        const pendingResponse = await getPendingRequests()
+        
+        const allFriendships = [
+            ...(friendsResponse.data || []),
+            ...(pendingResponse.data || [])
+        ]
+        
+        const outgoing: Types.PendingFriendshipRequestDto[] = []
+        
+        for (const friendship of allFriendships) {
+            if ('requesterId' in friendship && friendship.requesterId === userId) {
+                outgoing.push(friendship as Types.PendingFriendshipRequestDto)
+            }
+        }
+        
+        return {
+            success: true,
+            message: '',
+            data: outgoing
+        }
+    } catch (error: any) {
+        const errorData = error.response?.data || { 
+            success: false, 
+            message: 'Failed to fetch outgoing requests' 
+        }
+        throw new Error(errorData.message || 'Failed to fetch outgoing requests')
+    }
+}
+
 export const createGameProfile = async (data: Types.CreateGameProfileRequest): Promise<Types.GameProfileResponse> => {
     try {
         const response = await apiClient.post<Types.GameProfileResponse>('/game-profile', data);

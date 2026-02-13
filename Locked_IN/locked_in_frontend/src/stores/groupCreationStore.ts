@@ -43,7 +43,6 @@ export const useGroupCreationStore = create<GroupCreationState>((set, get) => ({
     communicationService: undefined,
     communicationLink: "",
     
-    // Actions
     setSelectedTags: (tags) => set({ selectedTags: tags }),
     toggleTag: (tagId) => {
         const currentTags = get().selectedTags

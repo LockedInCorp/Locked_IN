@@ -7,7 +7,6 @@ const BASE_URL = API_BASE_URL.replace('/api', '');
 
 type JoinRequestStatusHandler = (data: TeamJoinStatusDto) => void;
 
-//TODO: Add a way to "prettify" this code
 export function useTeamJoinHub(onJoinRequestStatus?: JoinRequestStatusHandler) {
     const connectionRef = useRef<signalR.HubConnection | null>(null);
     const handlerRef = useRef(onJoinRequestStatus);

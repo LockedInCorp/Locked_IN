@@ -11,7 +11,6 @@ import type { GameOption } from "@/api/types"
 import type { TeamSearchResult, TeamJoinStatusDto } from "@/api/types"
 import { TeamMemberStatus as TeamMemberStatusValues } from "@/api/types"
 
-//#TODO when current page=maxpage and changeView to lower value displays empty page
 export default function DiscoverPage() {
     const { 
         groupSearch, 

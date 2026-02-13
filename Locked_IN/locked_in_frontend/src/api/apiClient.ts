@@ -37,25 +37,5 @@ const setupResponseInterceptor = (client: typeof apiClient) => {
   );
 };
 
-
-// const setupResponseInterceptor = (client: typeof apiClient) => {
-//   client.interceptors.response.use(
-//     (response) => {
-//       return response;
-//     },
-//     (error: AxiosError) => {
-//       if (error.response?.status === 401) {
-//         persist.clearUserData();
-//         clearProfileStores();
-//
-//         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-//           window.location.href = '/login';
-//         }
-//       }
-//       return Promise.reject(error);
-//     }
-//   );
-// };
-
 setupResponseInterceptor(apiClient);
 setupResponseInterceptor(apiClientHttps);

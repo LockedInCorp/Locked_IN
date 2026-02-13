@@ -55,7 +55,6 @@ export const useGroupEditStore = create<GroupEditState>((set, get) => ({
     description: "",
     teamId: null,
 
-    // Actions - General
     setGroupName: (name) => set({ groupName: name }),
     setGame: (id, name) => set({ gameId: id, gameName: name }),
     setGroupSize: (size) => set({ groupSize: size }),
@@ -63,7 +62,6 @@ export const useGroupEditStore = create<GroupEditState>((set, get) => ({
     setAutoAccept: (autoAccept) => set({ autoAccept }),
     setPreviewImage: (file) => set({ previewImage: file }),
     
-    // Actions - Finder Settings
     setSelectedTags: (tags) => set({ selectedTags: tags }),
     toggleTag: (tagId) => {
         const currentTags = get().selectedTags
@@ -78,7 +76,6 @@ export const useGroupEditStore = create<GroupEditState>((set, get) => ({
     setCommunicationLink: (link) => set({ communicationLink: link }),
     setDescription: (description) => set({ description }),
     
-    // Actions - Team management
     setTeamId: (id) => set({ teamId: id }),
     loadTeamData: (teamData) => {
         const prefTags = teamData.preferenceTags || []

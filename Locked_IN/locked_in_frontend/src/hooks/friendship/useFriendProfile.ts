@@ -6,10 +6,11 @@ import {
     getFriendshipStatus,
     sendFriendRequest,
     cancelFriendRequest,
-    deleteFriendship
+    deleteFriendship,
+    getFriendsList,
+    getPendingRequests
 } from "@/api/api"
 import { extractAvatarPath, getImageUrl } from "@/utils/imageUtils"
-import { getFriendsList, getPendingRequests } from "@/utils/friendship_and_availability/friendshipApi"
 import type { GameProfile } from "@/api/types"
 
 export type FriendshipStatus = "None" | "Pending" | "Accepted" | "Blocked"
