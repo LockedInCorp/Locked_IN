@@ -12,7 +12,7 @@ import Friends from "@/pages/Friends"
 import GameProfilesEditingPage from "@/pages/GameProfilesEditing"
 import { Header } from "@/components/header/Header"
 import { useAuthInit } from "@/hooks/auth/useAuthInit"
-import ProtectedRoute from "@/lib/components/ProtectedRoute"
+import ProtectedRoute from "@/components/ProtectedRoute"
 import JoinTeam from "@/pages/JoinTeam"
 
 function App() {

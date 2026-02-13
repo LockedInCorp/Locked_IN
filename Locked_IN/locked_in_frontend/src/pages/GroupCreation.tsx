@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/lib/components/ui/button"
+import { SuccessToast } from "@/components/SuccessToast"
 import GeneralSection from "@/components/groupCreation/GeneralSection"
 import FinderSettingsSection from "@/components/groupCreation/FinderSettingsSection"
 import { useGroupCreationStore } from "@/stores/groupCreationStore"
@@ -12,6 +13,7 @@ export default function GroupCreation() {
     const navigate = useNavigate()
     const [previewImage, setPreviewImage] = useState<File | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [successToastOpen, setSuccessToastOpen] = useState(false)
 
     const {
         selectedTags,
@@ -62,10 +64,10 @@ export default function GroupCreation() {
                 description: description,
                 previewImage: previewImage
             })
-            alert("Team created successfully!")
             resetForm()
             setPreviewImage(null)
-            navigate('/groups')
+            setSuccessToastOpen(true)
+            setTimeout(() => navigate('/groups'), 1500)
         } catch (error: any) {
             alert(error.message || "Failed to create team")
         } finally {
@@ -75,6 +77,11 @@ export default function GroupCreation() {
 
     return (
         <main className="flex flex-col h-full w-full overflow-hidden">
+            <SuccessToast
+                open={successToastOpen}
+                message="Team created successfully!"
+                onClose={() => setSuccessToastOpen(false)}
+            />
             <div className="flex-1 overflow-y-auto min-h-0">
                 <div className="px-6 pt-12 pb-12">
                     <h2 className="mb-8 text-center text-3xl font-bold text-foreground">Group Creation</h2>
