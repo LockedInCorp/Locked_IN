@@ -230,3 +230,5 @@ Locked_IN/Locked_IN_Backend/Migrations/AppDbContextModelSnapshot.cs
 Locked_IN/Locked_IN_Backend/appsettings.json
 Locked_IN/Locked_IN_Backend/appsettings.json
 /Locked_IN/Locked_IN_Backend/Migrations
+
+deploy/

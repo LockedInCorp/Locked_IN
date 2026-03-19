@@ -208,7 +208,7 @@ export function ChatArea() {
                         className={`flex ${g.isCurrentUser ? "justify-end" : "justify-start"}`}
                     >
                         {!g.isCurrentUser && (
-                            <Avatar className="h-10 w-10 mr-3 mt-[2px] shrink-0">
+                            <Avatar className="h-10 w-10 mr-3 mt-0.5 shrink-0">
                                 <AvatarImage src={getImageUrl(g.senderAvatarUrl)} />
                                 <AvatarFallback className="bg-muted text-foreground">
                                     {(g.sender || '?')[0]}
