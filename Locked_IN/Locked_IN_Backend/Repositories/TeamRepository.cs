@@ -46,6 +46,39 @@ public class TeamRepository : ITeamRepository
         _context.Teams.Remove(team);
         await Task.CompletedTask;
     }
+
+    public async Task PurgeTeamWithDependentsAsync(int teamId)
+    {
+        var team = await _context.Teams
+            .Include(t => t.Chats).ThenInclude(c => c.Chatparticipants).ThenInclude(cp => cp.Messages)
+            .Include(t => t.TeamMembers)
+            .Include(t => t.TeamPreferencetagRelations)
+            .Include(t => t.TeamCommunicationService)
+            .FirstOrDefaultAsync(t => t.Id == teamId);
+
+        if (team == null) return;
+
+        foreach (var chat in team.Chats)
+        {
+            foreach (var cp in chat.Chatparticipants)
+            {
+                _context.Messages.RemoveRange(cp.Messages);
+            }
+            _context.Chatparticipants.RemoveRange(chat.Chatparticipants);
+        }
+        _context.Chats.RemoveRange(team.Chats);
+
+        _context.TeamPreferencetagRelations.RemoveRange(team.TeamPreferencetagRelations);
+
+        if (team.TeamCommunicationService != null)
+        {
+            _context.TeamCommunicationServices.Remove(team.TeamCommunicationService);
+        }
+
+        _context.TeamMembers.RemoveRange(team.TeamMembers);
+        _context.Teams.Remove(team);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

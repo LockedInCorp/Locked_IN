@@ -142,4 +142,16 @@ public class TeamController : ControllerBase
         var team = await _teamService.UpdateTeamAsync(id, updateTeamDto, userId);
         return Ok(team);
     }
+
+    [Authorize]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTeam(int id)
+    {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        await _teamService.DeleteTeamAsync(id, userId);
+        return NoContent();
+    }
 }

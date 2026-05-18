@@ -11,7 +11,7 @@ import { getImageUrl } from "@/utils/imageUtils"
 import { useChatDetails } from "@/hooks/chat/useChatDetails"
 import { useGroupDetails } from "@/hooks/chat/useGroupDetails"
 import { useJoinRequests } from "@/hooks/chat/useJoinRequests"
-import { acceptJoinRequest, declineJoinRequest, leaveTeam, getInviteToken, kickMember } from "@/api/api"
+import { acceptJoinRequest, declineJoinRequest, leaveTeam, getInviteToken, kickMember, deleteTeam } from "@/api/api"
 import { useAuthStore } from "@/stores/authStore"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -28,6 +28,7 @@ export function ChatInfo() {
     const [copied, setCopied] = useState(false)
     const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
     const [kickConfirmOpen, setKickConfirmOpen] = useState(false)
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
     const [memberToKick, setMemberToKick] = useState<number | null>(null)
 
     const toggleMembersExpanded = () => setMembersExpanded(!membersExpanded)
@@ -121,6 +122,22 @@ export function ChatInfo() {
         }
     }
 
+    const handleDeleteTeam = () => {
+        if (!teamId) return
+        setDeleteConfirmOpen(true)
+    }
+
+    const handleConfirmDelete = async () => {
+        if (!teamId) return
+        try {
+            await deleteTeam(teamId)
+            queryClient.invalidateQueries({ queryKey: ["userChats"] })
+            navigate("/my-groups")
+        } catch (error) {
+            console.error("Failed to delete team:", error)
+        }
+    }
+
     const handleCopyLink = () => {
         if (!inviteToken) return
         const joinLink = `${window.location.origin}/join?token=${inviteToken}`
@@ -192,6 +209,16 @@ export function ChatInfo() {
                 onConfirm={handleConfirmKick}
                 confirmLabel="Yes"
                 cancelLabel="No"
+                confirmVariant="destructive"
+            />
+            <ConfirmDialog
+                open={deleteConfirmOpen}
+                onOpenChange={setDeleteConfirmOpen}
+                title="Delete group"
+                description="This will permanently delete the group, all its members, and the entire chat history. This cannot be undone."
+                onConfirm={handleConfirmDelete}
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
                 confirmVariant="destructive"
             />
             {/* Group Header */}
@@ -375,20 +402,31 @@ export function ChatInfo() {
             )}
 
             {/* Action Buttons */}
-            <div className="px-6 py-4 border-t border-border flex gap-3">
-                <Button
-                    variant="outline"
-                    className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
-                    onClick={handleLeaveTeam}
-                >
-                    Leave
-                </Button>
-                {isLeader && (
-                    <Button 
-                        onClick={handleEdit}
-                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+            <div className="px-6 py-4 border-t border-border flex flex-col gap-3">
+                <div className="flex gap-3">
+                    <Button
+                        variant="outline"
+                        className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
+                        onClick={handleLeaveTeam}
                     >
-                        Edit
+                        Leave
+                    </Button>
+                    {isLeader && (
+                        <Button
+                            onClick={handleEdit}
+                            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            Edit
+                        </Button>
+                    )}
+                </div>
+                {isLeader && (
+                    <Button
+                        variant="destructive"
+                        onClick={handleDeleteTeam}
+                        className="w-full"
+                    >
+                        Delete group
                     </Button>
                 )}
             </div>

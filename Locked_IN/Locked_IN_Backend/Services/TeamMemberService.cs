@@ -19,19 +19,21 @@ public class TeamMemberService : ITeamMemberService
     private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IUserRepository _userRepository;
     private readonly IChatService _chatService;
+    private readonly ITeamService _teamService;
     private readonly IHubContext<TeamJoinHub, ITeamMemberHub> _hubContext;
     private readonly IHubContext<TeamRequestHub, IJoinRequestHub> _requestHubContext;
     private readonly IMapper _mapper;
-    
+
     public TeamMemberService(
-        ITeamRepository teamRepository, 
-        ITeamMemberRepository teamMemberRepository, 
-        IUserRepository userRepository, 
-        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext, 
+        ITeamRepository teamRepository,
+        ITeamMemberRepository teamMemberRepository,
+        IUserRepository userRepository,
+        IHubContext<TeamJoinHub, ITeamMemberHub> hubContext,
         IHubContext<TeamRequestHub, IJoinRequestHub> requestHubContext,
-        IMapper mapper, 
-        IChatRepository chatRepository, 
-        IChatService chatService)
+        IMapper mapper,
+        IChatRepository chatRepository,
+        IChatService chatService,
+        ITeamService teamService)
     {
         _teamRepository = teamRepository;
         _teamMemberRepository = teamMemberRepository;
@@ -40,6 +42,7 @@ public class TeamMemberService : ITeamMemberService
         _requestHubContext = requestHubContext;
         _mapper = mapper;
         _chatService = chatService;
+        _teamService = teamService;
     }
 
     public async Task RequestToJoinTeamAsync(int teamId, int userId)
@@ -247,8 +250,16 @@ public class TeamMemberService : ITeamMemberService
 
         await RemoveMemberFromChatsAsync(member);
 
+        var iconUrl = member.Team?.IconUrl;
+
         await _teamMemberRepository.DeleteTeamMemberAsync(member);
         await _teamMemberRepository.SaveChangesAsync();
+
+        var remainingActive = await _teamMemberRepository.GetActiveTeamMembersAsync(teamId);
+        if (remainingActive.Count == 0)
+        {
+            await _teamService.DeleteTeamInternalAsync(teamId, iconUrl);
+        }
     }
 
     public async Task KickMemberAsync(int leaderId, int teamId, int userIdToKick)

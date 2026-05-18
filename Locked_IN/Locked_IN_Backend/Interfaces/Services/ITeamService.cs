@@ -12,4 +12,6 @@ public interface ITeamService
     Task<PagedResult<GetTeamsCardDto>> SearchTeamsAdvancedAsync(List<int> gameIds, List<int> preferenceTagIds, string searchTerm, int page, int pageSize, string sortBy, int userId, bool OnlyShowPending);
     Task<GetTeamDto> CreateTeamAsync(CreateTeamDto dto, int creatorId);
     Task<GetTeamDto> UpdateTeamAsync(int teamId, UpdateTeamDto dto, int userId);
+    Task DeleteTeamAsync(int teamId, int userId);
+    Task DeleteTeamInternalAsync(int teamId, string? iconUrl);
 }

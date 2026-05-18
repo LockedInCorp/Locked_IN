@@ -14,6 +14,7 @@ public interface ITeamRepository
     Task AddTeam(Team team);
     Task UpdateTeam(Team team);
     Task DeleteTeam(Team team);
+    Task PurgeTeamWithDependentsAsync(int teamId);
     Task SaveChangesAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
     Task RemoveTeamCommunicationService(TeamCommunicationService tcs);

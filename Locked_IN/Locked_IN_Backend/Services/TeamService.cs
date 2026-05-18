@@ -198,4 +198,43 @@ public class TeamService : ITeamService
         var updatedTeam = await _teamRepository.GetTeamWithDetailsByIdAsync(teamId);
         return _mapper.Map<GetTeamDto>(updatedTeam);
     }
+
+    public async Task DeleteTeamAsync(int teamId, int userId)
+    {
+        var team = await _teamRepository.GetTeamWithDetailsByIdAsync(teamId);
+        if (team == null)
+        {
+            throw new NotFoundException($"Team with ID {teamId} not found");
+        }
+
+        var isLeader = team.TeamMembers.Any(tm => tm.UserId == userId && tm.Isleader);
+        if (!isLeader)
+        {
+            throw new ForbiddenException("Only the team leader can delete the team");
+        }
+
+        await DeleteTeamInternalAsync(teamId, team.IconUrl);
+    }
+
+    public async Task DeleteTeamInternalAsync(int teamId, string? iconUrl)
+    {
+        await _teamRepository.PurgeTeamWithDependentsAsync(teamId);
+        await _teamRepository.SaveChangesAsync();
+
+        if (!string.IsNullOrEmpty(iconUrl))
+        {
+            try
+            {
+                var parts = iconUrl.Split('/', 2);
+                if (parts.Length == 2)
+                {
+                    await _fileUploadService.DeleteFileAsync(parts[0], parts[1]);
+                }
+            }
+            catch
+            {
+                // best effort — orphaned icon in storage is acceptable
+            }
+        }
+    }
 }

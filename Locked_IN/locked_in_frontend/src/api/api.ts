@@ -315,6 +315,14 @@ export const leaveTeam = async (teamId: number): Promise<void> => {
     }
 }
 
+export const deleteTeam = async (teamId: number): Promise<void> => {
+    try {
+        await apiClient.delete(`/team/${teamId}`)
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to delete team')
+    }
+}
+
 // Kick a member from a team
 export const kickMember = async (teamId: number, userId: number): Promise<void> => {
     try {
