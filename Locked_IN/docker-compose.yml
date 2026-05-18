@@ -1,9 +1,9 @@
 services:
   app:
-    build: .                 
+    build: .
     container_name: locked_in_app
     ports:
-      - "5100:8080"         
+      - "5100:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -12,29 +12,29 @@ services:
     restart: on-failure
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__Default=Host=db;Port=5432;Database=locked_in;Username=postgres;Password=postgres;TrustServerCertificate=true;
+      - ConnectionStrings__Default=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};TrustServerCertificate=true;
       - Minio__Endpoint=minio:9000
-      - Minio__AccessKey=minioadmin
-      - Minio__SecretKey=minioadmin
+      - Minio__AccessKey=${MINIO_ROOT_USER}
+      - Minio__SecretKey=${MINIO_ROOT_PASSWORD}
       - Minio__Secure=false
       - Minio__PublicUrl=http://localhost:9000
-      - Jwt__Secret=ubZrFRmCUbCSvuRqpDCwJQRJO0BhA2WddzMhzKr8eW1
-      - Jwt__Issuer=Locked_IN_Backend
-      - Jwt__Audience=Locked_IN_Frontend
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
 
   db:
     image: postgres:15
     container_name: locked_in_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: locked_in
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5435:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 2s
       timeout: 5s
       retries: 5
@@ -44,13 +44,13 @@ services:
     container_name: locked_in_minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
-      - minio_data:/data 
+      - minio_data:/data
     ports:
-      - "9000:9000" 
-      - "9001:9001" 
+      - "9000:9000"
+      - "9001:9001"
 
 volumes:
   postgres_data:
