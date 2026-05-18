@@ -1,0 +1,131 @@
+# flyctl launch added from .gitignore
+# Secrets — never commit these
+**/.env
+**/.env.*
+!**/.env.example
+**/**/secret.json
+**/**/appsettings.Production.json
+**/**/appsettings.Local.json
+
+# .NET build output
+**/bin
+**/obj
+**/publish
+**/*.user
+**/*.suo
+
+# OS / IDE
+**/.DS_Store
+**/.vscode
+**/.idea
+
+# flyctl launch added from locked_in_frontend/.gitignore
+# =========================
+# Node / Frontend Essentials
+# =========================
+
+# Dependency directories
+locked_in_frontend/**/node_modules
+locked_in_frontend/**/jspm_packages
+
+# Build output
+locked_in_frontend/**/dist
+locked_in_frontend/**/build
+locked_in_frontend/**/out
+locked_in_frontend/**/tmp
+locked_in_frontend/**/temp
+locked_in_frontend/**/.cache
+locked_in_frontend/**/coverage
+locked_in_frontend/**/*.log
+
+# Compiled source
+locked_in_frontend/**/*.tsbuildinfo
+locked_in_frontend/**/*.map
+
+# =========================
+# Environment & Local Config
+# =========================
+locked_in_frontend/**/.env
+locked_in_frontend/**/.env.local
+locked_in_frontend/**/.env.development.local
+locked_in_frontend/**/.env.test.local
+locked_in_frontend/**/.env.production.local
+
+# =========================
+# Webpack / Vite / Parcel
+# =========================
+locked_in_frontend/**/.vite
+locked_in_frontend/**/parcel-cache
+locked_in_frontend/**/.next
+locked_in_frontend/**/.nuxt
+locked_in_frontend/**/.svelte-kit
+locked_in_frontend/**/storybook-static
+locked_in_frontend/**/*.cache-loader
+
+# =========================
+# Testing
+# =========================
+locked_in_frontend/coverage
+locked_in_frontend/**/.nyc_output
+locked_in_frontend/**/jest-html-reporters-*.html
+
+# =========================
+# OS / Editor Files
+# =========================
+
+# macOS
+locked_in_frontend/**/.DS_Store
+locked_in_frontend/**/.AppleDouble
+locked_in_frontend/**/.LSOverride
+
+# Windows
+locked_in_frontend/**/Thumbs.db
+locked_in_frontend/**/ehthumbs.db
+locked_in_frontend/**/Desktop.ini
+
+# Linux
+locked_in_frontend/**/*~
+
+# =========================
+# JetBrains IDE (WebStorm)
+# =========================
+locked_in_frontend/**/.idea
+# Uncomment if you prefer to keep project-specific settings:
+# !.idea/codeStyles/
+# !.idea/runConfigurations/
+
+# =========================
+# Optional (depending on tools)
+# =========================
+
+# Yarn / npm / pnpm logs
+locked_in_frontend/**/yarn-debug.log*
+locked_in_frontend/**/yarn-error.log*
+locked_in_frontend/**/npm-debug.log*
+locked_in_frontend/**/pnpm-debug.log*
+
+# Lock files (optional — only if your team uses one package manager)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# TypeScript
+
+# ESLint / Prettier cache
+locked_in_frontend/**/.eslintcache
+locked_in_frontend/**/.prettier-cache
+
+# VSCode (if teammates use it)
+locked_in_frontend/**/.vscode
+
+# =========================
+# End of file
+# =========================
+
+# Playwright
+locked_in_frontend/test-results
+locked_in_frontend/playwright-report
+locked_in_frontend/blob-report
+locked_in_frontend/playwright/.cache
+locked_in_frontend/playwright/.auth
+fly.toml

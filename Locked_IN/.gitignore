@@ -17,3 +17,8 @@ publish/
 .DS_Store
 .vscode/
 .idea/
+
+# Claude Code
+.agents/
+.claude/
+skills-lock.json
