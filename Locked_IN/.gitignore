@@ -1,0 +1,19 @@
+# Secrets — never commit these
+.env
+.env.*
+!.env.example
+**/secret.json
+**/appsettings.Production.json
+**/appsettings.Local.json
+
+# .NET build output
+bin/
+obj/
+publish/
+*.user
+*.suo
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
