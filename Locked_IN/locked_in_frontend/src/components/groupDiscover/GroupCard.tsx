@@ -83,7 +83,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
                 size="sm"
                 onClick={handleJoinClick}
                 disabled={joinMutation.isPending}
-                className="bg-orange-600 hover:bg-orange-700 text-white h-9 px-6"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-6"
             >
                 {joinMutation.isPending ? 'Joining...' : 'Join'}
             </Button>
@@ -118,7 +118,7 @@ export function GroupCard({ group, onUpdate }: GroupCardProps) {
                     <span className={`px-2 py-1 text-xs font-medium rounded ${
                         group.autoAccept 
                             ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
-                            : 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                            : 'bg-primary/10 text-primary'
                     }`}>
                         {group.autoAccept ? 'Auto-Accept' : 'Manual Approval'}
                     </span>
