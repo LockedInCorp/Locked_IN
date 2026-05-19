@@ -51,70 +51,71 @@ export default function Home() {
 
                 {/* Main content */}
                 <div className="relative z-10 min-h-full flex items-center justify-between px-12 py-16">
-                {/* Left content box */}
-                <div className="max-w-2xl space-y-8 w-full">
-                    <div className="bg-card rounded-2xl p-10 border border-border shadow-lg">
-                        <h1 className="text-6xl font-bold mb-6 leading-tight">
-                            <span className="text-foreground">Find </span>
-                            <span className="text-primary">friends</span>
-                            <br />
-                            <span className="text-foreground">and more!</span>
-                        </h1>
-                        
-                        <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                            Connect with gamers who share your passion. Discover groups, join communities, 
-                            and find your perfect gaming squad. Whether you're looking for competitive teammates 
-                            or casual players, "Locked IN!" helps you find the right people for every game.
-                        </p>
+                    {/* Left content box */}
+                    <div className="max-w-2xl space-y-8 w-full">
+                        <div className="bg-card rounded-2xl p-10 border border-border shadow-lg">
+                            <h1 className="text-6xl font-bold mb-6 leading-tight">
+                                <span className="text-foreground">Find </span>
+                                <span className="text-primary">friends</span>
+                                <br />
+                                <span className="text-foreground">and more!</span>
+                            </h1>
+                            
+                            <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+                                Connect with gamers who share your passion. Discover groups, join communities, 
+                                and find your perfect gaming squad. Whether you're looking for competitive teammates 
+                                or casual players, "Locked IN!" helps you find the right people for every game.
+                            </p>
 
-                        <div className="flex gap-4">
-                            <Button 
-                                size="lg"
-                                onClick={() => navigate("/groups")}
-                                className="px-8 py-6 text-lg"
-                            >
-                                Discover Groups
-                            </Button>
-                            <Button 
-                                size="lg"
-                                variant="outline"
-                                onClick={() => navigate("/groups/new")}
-                                className="px-8 py-6 text-lg"
-                            >
-                                Create Group
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Features grid */}
-                    <div className="grid grid-cols-2 gap-4 mt-8">
-                        {features.map((feature, index) => (
-                            <div 
-                                key={index}
-                                className="bg-card rounded-xl p-5 border border-border hover:border-primary/50 transition-colors"
-                            >
-                                <div className="text-primary mb-3">
-                                    {feature.icon}
-                                </div>
-                                <h3 className="text-foreground font-semibold mb-2 text-base">
-                                    {feature.title}
-                                </h3>
-                                <p className="text-muted-foreground text-sm leading-relaxed">
-                                    {feature.description}
-                                </p>
+                            <div className="flex gap-4">
+                                <Button 
+                                    size="lg"
+                                    onClick={() => navigate("/groups")}
+                                    className="px-8 py-6 text-lg"
+                                >
+                                    Discover Groups
+                                </Button>
+                                <Button 
+                                    size="lg"
+                                    variant="outline"
+                                    onClick={() => navigate("/groups/new")}
+                                    className="px-8 py-6 text-lg"
+                                >
+                                    Create Group
+                                </Button>
                             </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex-1 flex items-center justify-center max-w-2xl">
-                    <div className="relative">
-                        <div className="w-96 h-96 rounded-full bg-muted border-4 border-border flex items-center justify-center">
-                            <Gamepad2 className="size-48 text-muted-foreground opacity-20" />
                         </div>
-                        <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 bg-foreground/5 blur-3xl rounded-full" />
+
+                        {/* Features grid */}
+                        <div className="grid grid-cols-2 gap-4 mt-8">
+                            {features.map((feature, index) => (
+                                <div 
+                                    key={index}
+                                    className="bg-card rounded-xl p-5 border border-border hover:border-primary/50 transition-colors"
+                                >
+                                    <div className="text-primary mb-3">
+                                        {feature.icon}
+                                    </div>
+                                    <h3 className="text-foreground font-semibold mb-2 text-base">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-muted-foreground text-sm leading-relaxed">
+                                        {feature.description}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
+
+                    <div className="flex-1 flex items-center justify-center max-w-2xl">
+                        <div className="relative">
+                            <div className="absolute inset-0 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
+
+                            <div className="relative w-96 h-96 rounded-full bg-linear-to-br from-primary/15 to-primary/5 border-4 border-primary/30 flex items-center justify-center">
+                                <Gamepad2 className="size-48 text-primary opacity-70 drop-shadow-[0_0_40px_var(--primary)]" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
