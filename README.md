@@ -1,5 +1,10 @@
 ## Locked_IN
 
+[![Live Demo](https://img.shields.io/badge/live-demo-22c55e?style=for-the-badge&logo=fly.io&logoColor=white)](https://locked-in.fly.dev/)
+[![Stack](https://img.shields.io/badge/stack-.NET%209%20%E2%80%A2%20React%20%E2%80%A2%20PostgreSQL-7c3aed?style=for-the-badge)](#)
+
+🌐 **Live demo:** [locked-in.fly.dev](https://locked-in.fly.dev/)
+
 Locked_IN is a full‑stack web application that helps gamers discover teammates, manage game profiles, create and join groups, and communicate in real time.  
 It consists of:
 - **Backend**: ASP.NET Core 9 Web API with SignalR, PostgreSQL, MinIO object storage and JWT authentication.
@@ -260,16 +265,48 @@ dotnet test
 
 ## Deployment
 
-The `deploy/` directory contains ready‑to‑serve frontend assets and a published backend:
+The live instance at [locked-in.fly.dev](https://locked-in.fly.dev/) is hosted on a free-tier stack:
 
-- `deploy/frontend/` – static files built with Vite.
-- `deploy/backend/` – published ASP.NET Core app with `web.config` and runtime files.
+| Component | Service | Notes |
+|---|---|---|
+| Backend + bundled frontend | **[Fly.io](https://fly.io)** | Single Docker image (multi-stage build in `Dockerfile`). Frontend is built with Vite and copied into the backend's `wwwroot`, served by ASP.NET Core. |
+| PostgreSQL | **[Neon](https://neon.tech)** | Serverless Postgres (EU region). Connection string injected via Fly secret `ConnectionStrings__Default`. |
+| Object storage | **[Cloudflare R2](https://developers.cloudflare.com/r2/)** | S3-compatible storage, replaces MinIO in production. Three public buckets: `useravatars`, `teamicons`, `attachments`. The MinIO .NET SDK works against R2 unchanged — only endpoint and credentials differ. |
 
-Typical deployment options:
-- Host the backend in IIS, Kestrel behind a reverse proxy, or in containers.
-- Serve the `deploy/frontend` assets from the backend itself (via `UseStaticFiles` and `MapFallbackToFile("index.html")`) or from a static file host / CDN.
+### Configuration via Fly secrets
 
-Make sure to:
-- Configure environment variables for connection strings, JWT and MinIO.
-- Point the frontend environment (Vite env vars) at the correct backend base URL.
+The deployed app reads all sensitive config from Fly secrets (set with `fly secrets set KEY=value`):
+
+```
+ConnectionStrings__Default    # Neon Postgres (keyword format, not URI)
+Minio__Endpoint               # <account-id>.r2.cloudflarestorage.com (no protocol)
+Minio__AccessKey              # R2 access key ID
+Minio__SecretKey              # R2 secret access key
+Minio__Secure                 # true
+Minio__PublicUrl              # (used as base for bucket-relative paths in dev only)
+Jwt__Secret                   # generated with: openssl rand -hex 32
+Jwt__Issuer                   # Locked_IN_Backend
+Jwt__Audience                 # Locked_IN_Frontend
+```
+
+Local `.env` (used by `docker compose`) is git-ignored — see `.env.example` for the same keys with blank values.
+
+### Frontend → R2 routing
+
+Because R2 gives each bucket its own `pub-XXXXX.r2.dev` subdomain, the frontend helper [`src/utils/imageUtils.ts`](Locked_IN/locked_in_frontend/src/utils/imageUtils.ts) maps stored paths (e.g. `useravatars/abc.jpg`) to the right bucket subdomain in production, falling back to `http://localhost:9000` (MinIO) in dev.
+
+### Deploying changes
+
+```bash
+cd Locked_IN              # repo root (where fly.toml lives)
+fly deploy                # builds image, pushes, restarts machine
+fly logs                  # follow runtime logs
+fly secrets list          # list configured secrets
+```
+
+The image is built remotely by Fly's builder using the existing `Dockerfile`; no local build needed.
+
+### Legacy `deploy/` directory
+
+The `deploy/` directory in the repo holds an older publish-output snapshot intended for IIS / Kestrel hosting. It is not used by the Fly.io deployment and is kept only for reference.
 
